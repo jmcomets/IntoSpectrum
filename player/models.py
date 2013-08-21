@@ -3,7 +3,8 @@ import json
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from player import core
+
+from player.metadata import get_song_metadata
 
 class SongManager(models.Manager):
     """
@@ -14,7 +15,7 @@ class SongManager(models.Manager):
         Create a Song, guessing its metadata based on the path given.
         Raises an IOError if the audio file couldn't be read.
         """
-        metadata = core.get_song_metadata(path)
+        metadata = get_song_metadata(path)
         for key, value in metadata.iteritems():
             kwargs.setdefault(key, value)
         kwargs['path'] = path

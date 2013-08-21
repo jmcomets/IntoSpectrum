@@ -2,9 +2,9 @@ from django.conf.urls import patterns, include, url
 from helpers.urls import required, view_is_ajax
 from player import views
 
-urlpatterns = patterns('',
-        url(r'^$', views.IndexView.as_view()),
-        url(r'^index$', views.IndexView.as_view(), name='index'),
+urlpatterns = patterns('player.views',
+        url(r'^(?P<page>\d+)?$', 'index', name='index'),
+        url(r'^search$', 'search', name='search'),
         )
 urlpatterns += required(patterns('',
     url('^ajax/', include('player.ajax.urls', 'ajax')),
