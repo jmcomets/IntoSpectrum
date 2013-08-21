@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            {% block title %}
+            {% endblock %}
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        {# Static files #}
+        {% load static %}
+
+        {# JQuery #}
+        {% block jquery %}
+        <script type="text/javascript" src="{% static "js/jquery.min.1.7.1.js" %}"></script>
+        {% endblock %}
+
+        {# Bootstrap #}
+        {% block bootstrap %}
+        <link type="text/css" rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}" media="screen">
+        <script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+        {% endblock %}
+
+        {# CSS #}
+        {% block css %}
+        <link type="text/css" rel="stylesheet" href="{% static "css/base.css" %}" media="screen">
+        {% endblock %}
+
+        {# JavaScript #}
+        {% block js %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+        <div class="wrap">
+            {# Toolbar #}
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <ul class="nav" role="navigation">
+                            <li>
+                                <a class="brand" href="{% url "player:index" %}">
+                                    IntoSpectrum
+                                </a>
+                            </li>
+                            {% if user.is_staff %}
+                            <li><a href="{% url "admin:index" %}">Administration</a></li>
+                            {% endif %}
+                        </ul>
+
+                        {# Search widget, linked to toolbar #}
+                        <form class="navbar-form form-search pull-right" method="post" action="{% url "player:search" %}">
+                            {% csrf_token %}
+                            <div class="input-append">
+                                <input class="search-query" type="text" placeholder="Search songs"
+                                    autocomplete="off" data-items="6">
+                                <button class="btn" type="submit" data-toggle="tooltip" data-placement="bottom" title="Search">
+                                    <i class="icon-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {# Content #}
+            <div class="container">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+
+        {# Footer #}
+        <div class="push"></div>
+        <div class="footer">
+            <div class="container">
+                <p class="copyright">
+                    Copyright &copy; 2013 Jean-Marie Comets. All Rights Reserved.
+                </p>
+            </div>
+        </div>
+        {% endblock %}
+    </body>
+</html>

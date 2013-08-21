@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from django.views.generic import TemplateView, ListView, DetailView
+from player.models import Song
 
-# Create your views here.
+class IndexView(ListView):
+    model = Song
+    template_name = 'index.html'
+
+class SearchView(ListView):
+    model = Song

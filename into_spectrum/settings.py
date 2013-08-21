@@ -1,5 +1,12 @@
-# Django settings for IntoSpectrum project.
+"""
+Django settings for IntoSpectrum project.
+"""
+import os
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+# Debug mode
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -95,6 +102,11 @@ ROOT_URLCONF = 'into_spectrum.urls'
 WSGI_APPLICATION = 'into_spectrum.wsgi.application'
 
 TEMPLATE_DIRS = (
+        os.path.join(BASE_DIR, 'templates'),
+        )
+
+STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, 'static'),
         )
 
 INSTALLED_APPS = (
@@ -105,6 +117,7 @@ INSTALLED_APPS = (
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.admin',
+        'player',
         )
 
 # A sample logging configuration. The only tangible logging
