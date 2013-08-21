@@ -1,3 +1,7 @@
+import functools
+from django.conf import settings
+from django.http import Http404
+
 def required(patterns, *wrappers):
     """
     Used to require 1..n decorators in any view returned by a url tree
@@ -37,3 +41,11 @@ def _wrap_instance_resolve(wrappers, instance):
     setattr(instance, 'resolve', _wrap_func_in_returned_resolver_match)
     return instance
 
+def view_is_ajax(view):
+    @functools.wraps(view)
+    def closure(request, *args, **kwargs):
+        if request.is_ajax() or settings.DEBUG:
+            return view(request, *args, **kwargs)
+        else:
+            raise Http404
+    return closure

@@ -1,4 +1,5 @@
 import os
+import json
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +9,7 @@ class SongManager(models.Manager):
     """
     Manager for the Song model, adding some basic factory methods.
     """
-    def create_song(path, *args, **kwargs):
+    def create_song(self, path, save=False, *args, **kwargs):
         """
         Create a Song, guessing its metadata based on the path given.
         Raises an IOError if the audio file couldn't be read.
@@ -17,7 +18,10 @@ class SongManager(models.Manager):
         for key, value in metadata.iteritems():
             kwargs.setdefault(key, value)
         kwargs['path'] = path
-        return Song(*args, **kwargs)
+        song = Song(*args, **kwargs)
+        if save:
+            song.save()
+        return song
 
 class Song(models.Model):
     """
@@ -49,6 +53,12 @@ class Song(models.Model):
         Return if the file at the models "path" exists.
         """
         return os.path.exists(self.path)
+
+    def json(self):
+        """
+        Encode the Song object as a JSON string.
+        """
+        return json.dumps(self.__dict__)
 
     def __unicode__(self):
         return "%s" % (self.title or self.path)

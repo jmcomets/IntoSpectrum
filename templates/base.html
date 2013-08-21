@@ -50,7 +50,7 @@
                         </ul>
 
                         {# Search widget, linked to toolbar #}
-                        <form class="navbar-form form-search pull-right" method="post" action="{% url "player:search" %}">
+                        <form class="navbar-form form-search pull-right" method="post">
                             {% csrf_token %}
                             <div class="input-append">
                                 <input class="search-query" type="text" placeholder="Search songs"

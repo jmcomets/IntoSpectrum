@@ -4,6 +4,3 @@ from player.models import Song
 class IndexView(ListView):
     model = Song
     template_name = 'index.html'
-
-class SearchView(ListView):
-    model = Song
