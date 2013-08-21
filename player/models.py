@@ -10,7 +10,7 @@ class SongManager(models.Manager):
     """
     Manager for the Song model, adding some basic factory methods.
     """
-    def create_song(self, path, save=False, *args, **kwargs):
+    def create(self, path, save=False, *args, **kwargs):
         """
         Create a Song, guessing its metadata based on the path given.
         Raises an IOError if the audio file couldn't be read.
@@ -23,6 +23,17 @@ class SongManager(models.Manager):
         if save:
             song.save()
         return song
+
+    def broken(self):
+        """
+        Return a queryset for the songs whose "path" is invalid.
+        """
+        songs = self.all()
+        excluded_ids = []
+        for song in songs:
+            if not song.file_exists():
+                excluded_ids.append(song.id)
+        return songs.filter(id__in=excluded_ids)
 
 class Song(models.Model):
     """
@@ -63,5 +74,8 @@ class Song(models.Model):
 
     def __unicode__(self):
         return "%s" % (self.title or self.path)
+
+    def update_from_file(self):
+        pass
 
     objects = SongManager()

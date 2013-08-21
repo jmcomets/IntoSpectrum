@@ -88,11 +88,11 @@ TEMPLATE_LOADERS = (
         )
 
 MIDDLEWARE_CLASSES = (
+        'django.middleware.cache.UpdateCacheMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.cache.FetchFromCacheMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         )
 
@@ -148,3 +148,15 @@ LOGGING = {
                 },
             }
         }
+
+# Settings for player app
+SONG_DIRS = (
+        MEDIA_ROOT
+        )
+
+SONG_FORMATS = (
+    'flac',
+    'mp3',
+    'ogg',
+    'wav',
+    )

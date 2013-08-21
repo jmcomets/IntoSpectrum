@@ -2,19 +2,26 @@ import os
 import re
 import time
 import datetime
+import functools
 import threading
 from django.conf import settings
+from django.db import transaction
 
-# Default settings
-settings.SONG_DIRS = (
-        settings.MEDIA_ROOT,
-        )
-settings.SONG_FORMATS = (
-        'mp3',
-        'flac',
-        'ogg',
-        'wav'
-        )
+from player.models import Song
+
+_library_lock = threading.Lock()
+def locks_library(f):
+    """
+    Decorator locking the library (puts the app
+    in maintenance mode).
+    """
+    @functools.wraps(f)
+    def closure(*args, **kwargs):
+        global _library_lock
+        _library_lock.lock()
+        f(*args, **kwargs)
+        _library_lock.unlock()
+    return f
 
 class SongFinder(object):
     """
@@ -99,6 +106,7 @@ class SongFinder(object):
         """
         self._stopped.set()
         if wait:
+            print 'Waiting'
             self._worker.join()
 
     @property
@@ -108,6 +116,8 @@ class SongFinder(object):
         """
         return not self._stopped.is_set()
 
+    @locks_library
+    @transaction.commit_manually
     def run_finder(self):
         """
         Actually run the finder (block the current thread), descending
@@ -115,16 +125,36 @@ class SongFinder(object):
         (in order), and update (or insert) the Song model with the
         corresponding path.
         """
-        def found_audio_files():
-            """
-            Generator expression for looping over all audio files (in order
-            of priority), matched by their extension.
-            """
+        try:
+            print 'Deleting broken songs'
+            # delete all broken songs
+            Song.objects.broken().delete()
+            # find all audio files in settings.SONG_DIRS
+            found_audio_files = []
+            print 'Walking dirs %s' % settings.SONG_DIRS
             for song_dir in settings.SONG_DIRS:
                 for root, _, filenames in os.walk(song_dir):
                     for fname in filenames:
                         if re.match(self._audio_file_re, fname):
                             full_fname = os.path.join(root, fname)
-                            yield full_fname
-        for audio_file in found_audio_files():
-            pass # TODO
+                            found_audio_files.append(full_fname)
+            print 'Found audio files %s' % found_audio_files
+            # update all songs information
+            songs = Song.objects.filter(path__in=found_audio_files)
+            updated_songs = []
+            for song in songs:
+                song.update_from_file()
+                updated_songs.append(song.path)
+            print 'Updated existing songs %s' % updated_songs
+            # insert new songs
+            new_songs = [set(found_audio_files) - set(updated_songs)]
+            print 'Inserting new songs %s' % new_songs
+            for s in new_songs:
+                song = Song.objects.create(s, save=True)
+                print 'Saving new song %s' % song
+        except Exception as e:
+            print 'Rollback because of %s' % e.strerror()
+            transaction.rollback()
+        else:
+            print 'Commit'
+            transaction.commit()
