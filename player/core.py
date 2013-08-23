@@ -100,7 +100,7 @@ class SongFinder(object):
     def _run(self):
         # wait initial time
         if getattr(self, '_wait', 0):
-            logging.info('Waiting %s seconds until first run')
+            logger.info('Waiting %s seconds until first run' % self._wait)
             time.sleep(self._wait)
         # do cycles (run finder)
         def finder_cycles():
@@ -177,7 +177,7 @@ class SongFinder(object):
                     song = Song.objects.create(s, save=True)
                 except ValueError:
                     msg = 'Song insertion failed for "%s"' % s
-                    #logger.warning(msg)
+                    logger.warning(msg)
         except:
             logger.exception('Rollback')
             transaction.rollback()

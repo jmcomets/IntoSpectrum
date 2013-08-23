@@ -151,3 +151,14 @@ LOGGING = {
 
 # Settings for logging
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+
+# Settings for SongFinder
+import datetime
+tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
+SONGFINDER_SCHEDULING = (
+        # repeat every 24 hours
+        86400,
+
+        # start at 5 AM tomorrow
+        tomorrow.replace(hour=5, minute=0, second=0)
+        )
