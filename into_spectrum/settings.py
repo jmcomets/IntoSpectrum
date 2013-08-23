@@ -160,3 +160,6 @@ SONG_FORMATS = (
     'ogg',
     'wav',
     )
+
+# Settings for logging
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')

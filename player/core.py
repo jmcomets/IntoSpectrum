@@ -8,6 +8,9 @@ from django.conf import settings
 from django.db import transaction
 
 from player.models import Song
+from helpers import logging
+
+logger = logging.getLogger(__name__)
 
 _library_lock = threading.Lock()
 def locks_library(f):
@@ -106,7 +109,6 @@ class SongFinder(object):
         """
         self._stopped.set()
         if wait:
-            print 'Waiting'
             self._worker.join()
 
     @property
@@ -126,35 +128,35 @@ class SongFinder(object):
         corresponding path.
         """
         try:
-            print 'Deleting broken songs'
+            logger.info('Deleting broken songs')
             # delete all broken songs
             Song.objects.broken().delete()
             # find all audio files in settings.SONG_DIRS
             found_audio_files = []
-            print 'Walking dirs %s' % settings.SONG_DIRS
             for song_dir in settings.SONG_DIRS:
+                logger.info('Walking directory "%s"' % song_dir)
                 for root, _, filenames in os.walk(song_dir):
                     for fname in filenames:
                         if re.match(self._audio_file_re, fname):
                             full_fname = os.path.join(root, fname)
                             found_audio_files.append(full_fname)
-            print 'Found audio files %s' % found_audio_files
+            logger.info('Found %s audio files' % len(found_audio_files))
             # update all songs information
             songs = Song.objects.filter(path__in=found_audio_files)
             updated_songs = []
             for song in songs:
                 song.update_from_file()
                 updated_songs.append(song.path)
-            print 'Updated existing songs %s' % updated_songs
+            logger.info('Updated %s existing songs' % len(updated_songs))
             # insert new songs
             new_songs = [set(found_audio_files) - set(updated_songs)]
-            print 'Inserting new songs %s' % new_songs
+            logger.info('Inserting %s new songs' % len(new_songs))
             for s in new_songs:
                 song = Song.objects.create(s, save=True)
-                print 'Saving new song %s' % song
+                logger.info('Saving new song %s' % song)
         except Exception as e:
-            print 'Rollback because of %s' % e.strerror()
+            logger.error('Rollback because of %s' % e.strerror())
             transaction.rollback()
         else:
-            print 'Commit'
+            logger.info('Commit')
             transaction.commit()
