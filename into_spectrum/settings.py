@@ -149,17 +149,5 @@ LOGGING = {
             }
         }
 
-# Settings for player app
-SONG_DIRS = (
-        MEDIA_ROOT,
-        )
-
-SONG_FORMATS = (
-    'flac',
-    'mp3',
-    'ogg',
-    'wav',
-    )
-
 # Settings for logging
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')

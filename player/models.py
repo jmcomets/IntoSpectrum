@@ -2,6 +2,7 @@ import os
 import re
 import json
 from django.db import models
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,15 +17,25 @@ class SongManager(models.Manager):
         Create a Song, guessing its metadata based on the path given.
         Raises an IOError if the audio file couldn't be read.
         """
-        metadata = get_song_metadata(path)
+        metadata = get_song_metadata(os.path.join(settings.MEDIA_ROOT, path))
         for key, value in metadata.iteritems():
             kwargs.setdefault(key, value)
         kwargs['path'] = path
         song = Song(*args, **kwargs)
         if save:
             try:
-                song.clean()
-                #song.full_clean()
+                def reformat_to_int(field, default=None):
+                    """
+                    Refactoring of the cleaning method applied to
+                    both "duration" and "track_number".
+                    """
+                    if field is not None:
+                        field = re.sub(r'[^\d]', '', field)
+                    if not field or field < 0:
+                        field = default
+                    return field
+                song.track_number = reformat_to_int(song.track_number)
+                song.duration = reformat_to_int(song.duration)
                 song.save()
             except ValidationError:
                 msg = 'Song model cannot be saved: validation failed'
@@ -59,25 +70,13 @@ class Song(models.Model):
         # path to file must exist
         if not self.file_exists():
             raise ValidationError('File "%s" does not exist' % self.path)
-        def reformat_to_int(field, default=None):
-            """
-            Refactoring of the save cleaning method applied to
-            both "duration" and "track_number".
-            """
-            if field is not None:
-                field = re.sub(r'[^\d]', '', field)
-            if not field or field < 0:
-                field = default
-            return field
-        self.track_number = reformat_to_int(self.track_number)
-        self.duration = reformat_to_int(self.duration)
         return super(Song, self).clean()
 
     def file_exists(self):
         """
         Return if the file at the models "path" exists.
         """
-        return os.path.exists(self.path)
+        return os.path.exists(os.path.join(settings.MEDIA_ROOT, self.path))
 
     def json(self):
         """

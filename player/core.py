@@ -28,8 +28,8 @@ def locks_library(f):
 
 class SongFinder(object):
     """
-    Finder looking recursively under every directory in settings.SONG_DIRS
-    for supported audio files (extensions listed in settings.SONG_FORMATS),
+    Finder looking recursively under every directory in settings.MEDIA_ROOT
+    for supported audio files (extensions listed in SongFinder.SUPPORTED_FORMATS),
     searching for matches in Song models, and updating the database with
     the modifications.
 
@@ -41,6 +41,7 @@ class SongFinder(object):
       >>> time.sleep(2)
       >>> sf.stop(True)
     """
+    SUPPORTED_FORMATS = ('flac', 'mp3', 'ogg', 'wav',)
     def __init__(self, timeout=None, date=None):
         """
         Setup a song finder for threadingG
@@ -62,7 +63,7 @@ class SongFinder(object):
         audio_file_re = r''.join([
                 r'(?i)',
                 r'^.*\.',
-                r'(', r'|'.join(settings.SONG_FORMATS), r')',
+                r'(', r'|'.join(self.SUPPORTED_FORMATS), r')',
                 r'$',
                 ])
         self._audio_file_re = re.compile(audio_file_re)
@@ -140,7 +141,7 @@ class SongFinder(object):
     def run_finder(self):
         """
         Actually run the finder (block the current thread), descending
-        recursively into every directory listed in settings.SONG_DIRS
+        recursively into every directory listed in settings.MEDIA_ROOT
         (in order), and update (or insert) the Song model with the
         corresponding path.
         """
@@ -148,20 +149,21 @@ class SongFinder(object):
             logger.info('Deleting broken songs')
             # delete all broken songs
             Song.objects.broken().delete()
-            # find all audio files in settings.SONG_DIRS
+            # find all audio files in settings.MEDIA_ROOT
             found_songs = []
-            for song_dir in settings.SONG_DIRS:
-                logger.info('Walking directory "%s"' % song_dir)
-                for root, _, filenames in os.walk(song_dir):
-                    for fname in filenames:
-                        if re.match(self._audio_file_re, fname):
-                            full_fname = os.path.join(root, fname)
-                            found_songs.append(full_fname)
+            logger.info('Walking directory "%s"' % settings.MEDIA_ROOT)
+            for root, _, filenames in os.walk(settings.MEDIA_ROOT):
+                for fname in filenames:
+                    if re.match(self._audio_file_re, fname):
+                        rel_root = root[len(settings.MEDIA_ROOT)+1:]
+                        full_fname = os.path.join(rel_root, fname)
+                        found_songs.append(full_fname)
             logger.info('Found %s audio files' % len(found_songs))
             found_songs_set = set(found_songs)
             # update all songs information
             all_songs = Song.objects.all()
-            songs_to_update = set(all_songs).intersection(found_songs_set)
+            song_is_found = lambda s: s.path in found_songs_set
+            songs_to_update = filter(song_is_found, all_songs)
             updated_songs = []
             for song in songs_to_update:
                 song.update_from_file()
@@ -171,7 +173,11 @@ class SongFinder(object):
             new_songs = list(found_songs_set - set(updated_songs))
             logger.info('Inserting %s new songs' % len(new_songs))
             for s in new_songs:
-                song = Song.objects.create(s, save=True)
+                try:
+                    song = Song.objects.create(s, save=True)
+                except ValueError:
+                    msg = 'Song insertion failed for "%s"' % s
+                    #logger.warning(msg)
         except:
             logger.exception('Rollback')
             transaction.rollback()
