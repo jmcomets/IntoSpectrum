@@ -151,7 +151,7 @@ LOGGING = {
 
 # Settings for player app
 SONG_DIRS = (
-        MEDIA_ROOT
+        MEDIA_ROOT,
         )
 
 SONG_FORMATS = (

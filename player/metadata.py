@@ -37,14 +37,11 @@ def get_song_metadata(path):
             return str(file_[id3_keys[key]])
         except KeyError:
             return default
-    metadata_items = (
-            'title',
-            'album',
-            'artist',
-            'duration',
-            'year',
-            'track_number',
-            #'genre',
-            # TODO
-            )
-    return { key : get_id3_tag(key) for key in metadata_items }
+    return {
+            'title': get_id3_tag('title', ''),
+            'album': get_id3_tag('album', ''),
+            'artist': get_id3_tag('artist', ''),
+            'duration': get_id3_tag('duration'),
+            'year': get_id3_tag('year', ''),
+            'track_number': get_id3_tag('track_number'),
+            }

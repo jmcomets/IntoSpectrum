@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -21,7 +22,13 @@ class SongManager(models.Manager):
         kwargs['path'] = path
         song = Song(*args, **kwargs)
         if save:
-            song.save()
+            try:
+                song.clean()
+                #song.full_clean()
+                song.save()
+            except ValidationError:
+                msg = 'Song model cannot be saved: validation failed'
+                raise ValueError(msg)
         return song
 
     def broken(self):
@@ -40,7 +47,7 @@ class Song(models.Model):
     Song model, main purpose.
     """
     path = models.CharField(_('Path to file'), max_length=255, editable=False)
-    duration = models.IntegerField(_('Duration in seconds'), blank=True)
+    duration = models.IntegerField(_('Duration in seconds'), blank=True, null=True)
     title = models.CharField(_('Title'), max_length=100, blank=True)
     artist = models.CharField(_('Artist'), max_length=100, blank=True)
     album = models.CharField(_('Album name'), max_length=100, blank=True)
@@ -52,12 +59,18 @@ class Song(models.Model):
         # path to file must exist
         if not self.file_exists():
             raise ValidationError('File "%s" does not exist' % self.path)
-        # if track_number is invalid, set to none
-        if self.track_number is not None and self.track_number < 0:
-            self.track_number = None
-        # if duration is invalid, set to none
-        if self.duration is not None and self.duration < 0:
-            self.duration = None
+        def reformat_to_int(field, default=None):
+            """
+            Refactoring of the save cleaning method applied to
+            both "duration" and "track_number".
+            """
+            if field is not None:
+                field = re.sub(r'[^\d]', '', field)
+            if not field or field < 0:
+                field = default
+            return field
+        self.track_number = reformat_to_int(self.track_number)
+        self.duration = reformat_to_int(self.duration)
         return super(Song, self).clean()
 
     def file_exists(self):
@@ -73,7 +86,7 @@ class Song(models.Model):
         return json.dumps(self.__dict__)
 
     def __unicode__(self):
-        return "%s" % (self.title or self.path)
+        return self.title or self.path
 
     def update_from_file(self):
         pass

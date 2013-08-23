@@ -62,8 +62,8 @@ class SongFinder(object):
         audio_file_re = r''.join([
                 r'(?i)',
                 r'^.*\.',
-                r'|'.join(settings.SONG_FORMATS),
-                r'$'
+                r'(', r'|'.join(settings.SONG_FORMATS), r')',
+                r'$',
                 ])
         self._audio_file_re = re.compile(audio_file_re)
 
@@ -97,18 +97,35 @@ class SongFinder(object):
         self._worker.start()
 
     def _run(self):
+        # wait initial time
         if getattr(self, '_wait', 0):
+            logging.info('Waiting %s seconds until first run')
             time.sleep(self._wait)
-        while not self._stopped.wait(self._interval):
+        # do cycles (run finder)
+        def finder_cycles():
+            """
+            Generator for looping until the finder is stopped,
+            handing out the index of the current cycle.
+            """
+            i = 0
+            yield i
+            while not self._stopped.wait(self._interval):
+                i += 1
+                yield i
+        for _ in finder_cycles():
+            logger.info('Waking up')
             self.run_finder()
+            logger.info('Going to sleep')
 
     def stop(self, wait=False):
         """
         Request stop the finder (applied at the end of the current update).
         If wait is True, block until the end of the current update.
         """
+        logger.info('Stop requested')
         self._stopped.set()
         if wait:
+            logger.info('Waiting for current run to finish')
             self._worker.join()
 
     @property
@@ -132,30 +149,31 @@ class SongFinder(object):
             # delete all broken songs
             Song.objects.broken().delete()
             # find all audio files in settings.SONG_DIRS
-            found_audio_files = []
+            found_songs = []
             for song_dir in settings.SONG_DIRS:
                 logger.info('Walking directory "%s"' % song_dir)
                 for root, _, filenames in os.walk(song_dir):
                     for fname in filenames:
                         if re.match(self._audio_file_re, fname):
                             full_fname = os.path.join(root, fname)
-                            found_audio_files.append(full_fname)
-            logger.info('Found %s audio files' % len(found_audio_files))
+                            found_songs.append(full_fname)
+            logger.info('Found %s audio files' % len(found_songs))
+            found_songs_set = set(found_songs)
             # update all songs information
-            songs = Song.objects.filter(path__in=found_audio_files)
+            all_songs = Song.objects.all()
+            songs_to_update = set(all_songs).intersection(found_songs_set)
             updated_songs = []
-            for song in songs:
+            for song in songs_to_update:
                 song.update_from_file()
                 updated_songs.append(song.path)
             logger.info('Updated %s existing songs' % len(updated_songs))
             # insert new songs
-            new_songs = [set(found_audio_files) - set(updated_songs)]
+            new_songs = list(found_songs_set - set(updated_songs))
             logger.info('Inserting %s new songs' % len(new_songs))
             for s in new_songs:
                 song = Song.objects.create(s, save=True)
-                logger.info('Saving new song %s' % song)
-        except Exception as e:
-            logger.error('Rollback because of %s' % e.strerror())
+        except:
+            logger.exception('Rollback')
             transaction.rollback()
         else:
             logger.info('Commit')
