@@ -13,7 +13,7 @@ from helpers import logging
 logger = logging.getLogger(__name__)
 
 _library_lock = threading.Lock()
-def locks_library(f):
+def locks_library(f, blocking=True):
     """
     Decorator locking the library (puts the app
     in maintenance mode).
@@ -21,9 +21,9 @@ def locks_library(f):
     @functools.wraps(f)
     def closure(*args, **kwargs):
         global _library_lock
-        _library_lock.lock()
+        _library_lock.acquire(blocking)
         f(*args, **kwargs)
-        _library_lock.unlock()
+        _library_lock.release()
     return f
 
 class SongFinder(object):
