@@ -4,3 +4,6 @@
 # Database files
 *.sqlite3
 *.sql
+
+# Media folder
+media
