@@ -43,17 +43,18 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
 
-// Watchdog child process
-var watchdog = require('child_process').fork('watchdog.js');
-
 // Development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-// Base routes
+// Routes
 var routes = require('./routes');
 app.get('/', routes.index);
+app.get('/library', routes.library);
+
+// Watchdog
+var watchdog = require('./watchdog');
 
 // Start server
 var http = require('http');
@@ -61,7 +62,21 @@ var server = http.createServer(app);
 
 // Startup
 server.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port'));
+  console.log('Server listening on port ' + app.get('port') + '\n'
+    + 'Press Ctrl-C to stop');
+  watchdog.start({
+    'interval': {
+      'seconds': 1
+    }
+  });
+});
+
+// Shutdown
+process.on('SIGINT', function() {
+  console.log('Server shutting down');
+  watchdog.stop();
+  server.close();
+  process.exit();
 });
 
 // vim: ft=javascript et sw=2 sts=2
