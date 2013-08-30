@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "IntoSpectrum",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,6 +10,6 @@
     "id3": "*",
     "orm" : "*",
     "mysql": "*",
-    "jade": "*"
+    "swig": "*"
   }
 }

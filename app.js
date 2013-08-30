@@ -1,18 +1,25 @@
-// Module dependencies
+// Module base dependencies
 var express = require('express');
-var routes = require('./routes');
-var http = require('http');
 var path = require('path');
-var orm = require('orm');
 
 // Application instance
 var app = express();
 
 // All environments
 app.set('port', process.env.PORT || 3000);
+
+// Favicon
 app.use(express.favicon(path.join(__dirname, 'static/images/favicon.ico')));
+
+// Swig template engine
+var swig = require('swig');
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view cache', false);
+
+// TODO move this in a separate module
+var orm = require('orm');
 app.use(orm.express('mysql://root@localhost/into_spectrum', {
       define: function(db, models, next) {
         models.song = db.define('song', {
@@ -26,10 +33,14 @@ app.use(orm.express('mysql://root@localhost/into_spectrum', {
         });
       }
 }));
+
+// Static files
+app.use(express.static(path.join(__dirname, 'static')));
+
+// Other configuration options
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.static(path.join(__dirname, 'static')));
 app.use(app.router);
 
 // Watchdog child process
@@ -41,9 +52,11 @@ if ('development' == app.get('env')) {
 }
 
 // Base routes
+var routes = require('./routes');
 app.get('/', routes.index);
 
 // Start server
+var http = require('http');
 var server = http.createServer(app);
 
 // Startup
