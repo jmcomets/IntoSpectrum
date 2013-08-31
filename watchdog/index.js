@@ -9,9 +9,6 @@ var options = {
   }, delay: 0
 };
 
-// Worker setup
-var worker = require('child_process').fork(path.join(__dirname, 'worker.js'));
-
 // Configuration via options
 var configure = exports.configure = function(opts) {
   options.interval.seconds = opts.interval.seconds;
@@ -19,6 +16,16 @@ var configure = exports.configure = function(opts) {
   options.interval.hours = opts.interval.hours;
   options.delay = opts.delay || 0;
 }
+
+// Callbacks (exported via on)
+var callbacks = {
+  started: function() {},
+  finished: function() {}
+};
+// callbacks configuring
+exports.on = function(evt, fn) { callbacks.evt = fn; };
+
+var intervalId = 0;
 
 // Start watchdog, reapplying all options
 exports.start = function(opts) {
@@ -32,28 +39,15 @@ exports.start = function(opts) {
   // TODO implement initial wait
   console.log('Configuring with dummy startup delay (' + delay + ')');
 
-  // Now notify the worker process
+  // Now schedule the working process
   var total_seconds = seconds + 60*(minutes + 60*hours);
-  console.log('total_seconds = ' + total_seconds);
-  setTimeout(function() { worker.send('run'); }, total_seconds);
+  console.log('Configuring with repeat interval = ' + total_seconds + ' seconds');
+  intervalId = setInterval(function() {
+    console.log('Working'); // TODO
+  }, total_seconds*1000);
 }
 
-// Stop watchdog (brutally)
-exports.stop = function() { worker.kill(); }
-
-// Callbacks (exported via on)
-var callbacks = {
-  started: function() {},
-  finished: function() {}
-};
-// callbacks configuring
-exports.on = function(evt, fn) { callbacks.evt = fn; };
-
-// Communication with the worker
-process.on('message', function(msg) {
-  if (msg == 'finished') { callbacks.finished(); }
-  else if (msg == 'started') { callbacks.started(); }
-  else { throw new Error('watchdog: unknown message ' + msg); }
-});
+// Stop watchdog
+exports.stop = function() { clearInterval(intervalId); }
 
 // vim: ft=javascript et sw=2 sts=2
