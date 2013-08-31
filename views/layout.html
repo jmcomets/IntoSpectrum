@@ -10,6 +10,10 @@
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        {% block jquery %}
+        <script type="text/javascript" src="js/jquery.min.1.7.1.js"></script>
+        {% endblock %}
+
         {# Bootstrap #}
         {% block bootstrap %}
         <link type="text/css" rel="stylesheet" href="bootstrap/css/bootstrap.min.css" media="screen">
@@ -20,7 +24,15 @@
         {% block css %}
         {% endblock %}
 
+        {# Socket.IO #}
+        {% block socket.io %}
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        {% endblock %}
+
         {# JavaScript #}
+        <script type="text/javascript" src="/js/audio.js"></script>
+        <script type="text/javascript" src="/js/player.js"></script>
+        <script type="text/javascript" src="/js/base.js"></script>
         {% block js %}
         {% endblock %}
     </head>

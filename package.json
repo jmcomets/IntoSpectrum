@@ -6,7 +6,7 @@
     "start": "node app.js"
   }, "dependencies": {
     "express": "*",
-    "jquery": "*",
+    "socket.io": "*",
     "orm" : "*",
     "mysql": "*",
     "swig": "*"

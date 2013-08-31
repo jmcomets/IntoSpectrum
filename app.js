@@ -53,12 +53,21 @@ var routes = require('./routes');
 app.get('/', routes.index);
 app.get('/library', routes.library);
 
-// Watchdog
-var watchdog = require('./watchdog');
-
 // Start server
 var http = require('http');
 var server = http.createServer(app);
+
+// Player
+var player = require('socket.io').listen(server).of('/player')
+      .on('connection', function(socket) {
+        socket
+          .on('play', function(song_id) { player.emit('play', song_id); })
+          .on('pause', function() { player.emit('pause'); })
+          .on('stop', function() { player.emit('stop'); });
+      });
+
+// Watchdog
+var watchdog = require('./watchdog');
 
 // Startup
 server.listen(app.get('port'), function() {
