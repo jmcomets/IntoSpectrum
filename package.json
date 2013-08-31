@@ -7,7 +7,6 @@
   }, "dependencies": {
     "express": "*",
     "jquery": "*",
-    "id3": "*",
     "orm" : "*",
     "mysql": "*",
     "swig": "*"

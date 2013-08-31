@@ -32,13 +32,15 @@ var options = {
     'hours': 24,
     'minutes': 0,
     'seconds': 0
-  }, 'delay': 0
+  }, 'delay': 0,
+  'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
 };
 
 // Configuration via options
 var configure = exports.configure = function(opts) {
   if (opts.interval != undefined) { options.interval = opts.interval; }
   if (opts.delay != undefined) { options.delay = opts.delay; }
+  if (opts.extensions != undefined) { options.extensions = opts.extensions; }
 }
 
 // Callbacks (exported via on)
@@ -64,6 +66,7 @@ exports.start = function(opts) {
       minutes = options.interval.minutes || 0,
       hours = options.interval.hours || 0,
       delay = options.delay || 0,
+      extensions = options.extensions || [],
       total_seconds = seconds + 60*(minutes + 60*hours);
 
   // Log configuration
@@ -75,6 +78,18 @@ exports.start = function(opts) {
   setTimeout(function() {
     var worker = function() {
       console.log('Working'); // TODO
+      walk('media', function(error, files) {
+        // Handle errors
+        if (error) { throw error; };
+
+        // Get the songs to add to the library
+        var songs = [];
+        files.forEach(function(fname) {
+          if (extensions.indexOf(fname.split('.').pop()) != -1) {
+            // TODO
+          }
+        });
+      });
     };
     worker();
     intervalId = setInterval(worker, 1000*total_seconds);

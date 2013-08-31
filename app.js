@@ -62,13 +62,9 @@ var server = http.createServer(app);
 
 // Startup
 server.listen(app.get('port'), function() {
-  console.log('Server listening on port ' + app.get('port') + '\n'
-    + 'Press Ctrl-C to stop');
-  watchdog.start({
-    'interval': {
-      'seconds': 1
-    }
-  });
+  var address = server.address();
+  console.log('Server started at http://%s:%s\nPress Ctrl-C to stop', address.address, address.port);
+  watchdog.start();
 });
 
 // Shutdown
