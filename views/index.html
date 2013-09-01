@@ -25,10 +25,10 @@
         <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
         {% endblock %}
 
-        {# Bootstrap player #}
-        {% block bootstrap-player %}
-        <link type="text/css" rel="stylesheet" href="/bootstrap-player/css/bootstrap-player.css" media="screen">
-        <script type="text/javascript" src="/bootstrap-player/js/bootstrap-player.js"></script>
+        {# Playa #}
+        {% block playa %}
+        <link type="text/css" rel="stylesheet" href="/css/playa.css" media="screen">
+        <script type="text/javascript" src="/js/playa.js"></script>
         {% endblock %}
 
         {# CSS #}
@@ -61,8 +61,9 @@
         <div class="container">
             {% block content %}
             <h1>
-                This page is still under construction...
+                Library:
             </h1>
+            <div id="library"></div>
             {% endblock %}
         </div>
     </body>

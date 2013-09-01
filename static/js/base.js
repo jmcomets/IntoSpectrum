@@ -12,7 +12,24 @@ $(window).load(function() {
     };
     loadSongs();
   })(function(songs) {
-    console.log(songs); // TODO
+    // Song -> bootstrap-player
+    btPlayerMap = {
+      'album': 'data-info-album-title',
+      'artist': 'data-info-artist',
+      'title': 'data-info-title',
+      'year': 'data-info-year'
+    }
+
+    // Append songs to the #library
+    var library = $('#library');
+    $.each(songs, function(_, song) {
+      var audio = $('<audio controls=""></audio>');
+      $.each(btPlayerMap, function(key, value) {
+        if (song[key] != undefined) { audio.attr(value, song[key]); }
+      });
+      audio.playa();
+      library.append(audio);
+    });
   });
 
   // Main player instance
