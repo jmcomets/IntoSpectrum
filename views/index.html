@@ -1,7 +1,69 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            {% block title %}
+            {{ title }}
+            {% endblock %}
+            | IntoSpectrum
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block content %}
-<h1>
-    This page is still under construction...
-</h1>
-{% endblock %}
+        {% block jquery %}
+        <script type="text/javascript" src="/js/jquery.min.1.7.1.js"></script>
+        {% endblock %}
+
+        {# Bootstrap #}
+        {% block bootstrap %}
+        <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" media="screen">
+        <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+        {% endblock %}
+
+        {# Font Awesome #}
+        {% block font-awesome %}
+        <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+        {% endblock %}
+
+        {# Bootstrap player #}
+        {% block bootstrap-player %}
+        <link type="text/css" rel="stylesheet" href="/bootstrap-player/css/bootstrap-player.css" media="screen">
+        <script type="text/javascript" src="/bootstrap-player/js/bootstrap-player.js"></script>
+        {% endblock %}
+
+        {# CSS #}
+        {% block css %}
+        {% endblock %}
+
+        {# Socket.IO #}
+        {% block socket.io %}
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        {% endblock %}
+
+        {# JavaScript #}
+        <script type="text/javascript" src="/js/player.js"></script>
+        <script type="text/javascript" src="/js/base.js"></script>
+        {% block js %}
+        {% endblock %}
+    </head>
+    <body>
+        {# Toolbar #}
+        <div class="navbar">
+            <div class="navbar-inner">
+                <a class="brand" href="#">
+                    IntoSpectrum
+                </a>
+            </div>
+        </div>
+
+
+        {# Content #}
+        <div class="container">
+            {% block content %}
+            <h1>
+                This page is still under construction...
+            </h1>
+            {% endblock %}
+        </div>
+    </body>
+</html>
