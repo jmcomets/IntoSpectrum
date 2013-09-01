@@ -37,7 +37,8 @@ var Song = db.define('Song', {
     'autoIncrement': true
   },
   'path': {
-    'type': Sequelize.STRING
+    'type': Sequelize.STRING,
+    'unique': true
   },
   'title': {
     'type': Sequelize.STRING
@@ -52,8 +53,11 @@ var Song = db.define('Song', {
     'type': Sequelize.INTEGER
   },
   'play_count': {
-    'type': Sequelize.INTEGER
+    'type': Sequelize.INTEGER,
+    'defaultValue': 0
   }
+}, {
+  'tableName': 'songs'
 });
 
 // Synchronise models

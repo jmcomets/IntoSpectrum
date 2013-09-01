@@ -35,7 +35,8 @@ var options = {
     'minutes': 0,
     'seconds': 0
   }, 'delay': 0,
-  'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
+  'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma'],
+  'logging': true
 };
 
 // Configuration via options
@@ -45,10 +46,8 @@ var configure = exports.configure = function(opts) {
   if (opts.extensions != undefined) { options.extensions = opts.extensions; }
   if (opts.media_root != undefined) { options.media_root = opts.media_root; }
   if (opts.song_model != undefined) { options.song_model = opts.song_model; }
+  if (opts.logging != undefined) { options.logging = opts.logging; }
 }
-
-// Logging
-var log = exports.log = function(msg) { console.log('[Watchdog] ' + msg); }
 
 // Internal ID of the current started
 var intervalId = null,
@@ -68,66 +67,51 @@ exports.start = function(opts) {
       extensions = options.extensions || [],
       total_seconds = seconds + 60*(minutes + 60*hours),
       media_root = options.media_root || __dirname,
-      song_model = options.song_model || null;
+      song_model = options.song_model || null,
+      logging = options.logging || true;
 
   // Fail if badly configured
   if (!song_model) { throw new Error('Song model not defined'); }
 
-  // Log configuration
-  log('Starting watchdog: will run every ' + total_seconds
+  // Logging
+  var log = (logging)
+    ? function(msg) { console.log('[Watchdog] ' + msg) }
+    : function(msg) {}
+  ;
+
+  // Configuration
+  log('will run every ' + total_seconds
       + ' seconds, starting after ' + delay + ' seconds.');
 
   // Initial wait
   started = true;
   setTimeout(function() {
     var worker = function() {
-      log('Watchdog running');
+      log('running');
       walk(media_root, function(error, files) {
         // Handle errors
         if (error) { throw error; };
 
-        // Get the songs to add to the library
-        var songsFound = [];
+        // Add (or update) songs to the library
         files.forEach(function(fname) {
           if (extensions.indexOf(fname.split('.').pop()) != -1) {
-            var relFname = fname; // TODO format to relative path
-            songsFound.push({
-              'path': relFname // TODO parse id3 tags
-            });
+            song_model.findOrCreate({ 'path': fname })
+              .success(function(song, created) {
+                if (created) { log('creating song ' + song.path); }
+                // TODO update with parsed id3 tags
+              });
           }
         });
 
+        // Delete the broken songs
         song_model.findAll().success(function(songs) {
-          // Updating for songs which are already in the database,
-          // returning if the song should be destroyed
-          var update = function(indexInSongsFound, songInstance) {
-            songsFound.splice(indexInSongsFound, 1);
-            // TODO update id3 tags
-            return false;
-          }
-
-          // Clear the library's "bad" songs (eg: inexisting files)
           songs.forEach(function(song) {
-            var shouldDestroy = true;
-            for (var i = 0; i < songsFound.length; i++) {
-              var match_song = songsFound[i];
-              if (song.path == match_song.path) {
-                shouldDestroy = update(i, song);
-                break;
-              }
+            var fname = song.path;
+            if (fs.exists(song.path) == false) {
+              song.destroy().success(function() {
+                log('destroying bad song ' + fname);
+              });
             }
-
-            // Delete the "bad" song
-            if (shouldDestroy) {
-              log('destroying bad song ' + song.path);
-              song.destroy();
-            }
-          });
-
-          // Insert the new songs
-          songsFound.forEach(function(song) {
-            log('creating song ' + song.path);
-            song_model.create(song);
           });
         });
       });
