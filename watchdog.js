@@ -96,15 +96,15 @@ exports.start = function(opts) {
           }
         });
 
-        // Updating for songs which are already in the database,
-        // returning if the song should be destroyed
-        var update = function(indexInSongsFound, songInstance) {
-          songsFound.splice(indexInSongsFound, 1);
-          return false;
-        }
-
-        // Clear the library's "bad" songs (eg: inexisting files)
         song_model.findAll().success(function(songs) {
+          // Updating for songs which are already in the database,
+          // returning if the song should be destroyed
+          var update = function(indexInSongsFound, songInstance) {
+            songsFound.splice(indexInSongsFound, 1);
+            return false;
+          }
+
+          // Clear the library's "bad" songs (eg: inexisting files)
           songs.forEach(function(song) {
             var shouldDestroy = true;
             for (var i = 0; i < songsFound.length; i++) {
@@ -116,12 +116,18 @@ exports.start = function(opts) {
             }
 
             // Delete the "bad" song
-            if (shouldDestroy) { song.destroy(); }
+            if (shouldDestroy) {
+              log('destroying bad song ' + song.path);
+              song.destroy();
+            }
+          });
+
+          // Insert the new songs
+          songsFound.forEach(function(song) {
+            log('creating song ' + song.path);
+            song_model.create(song);
           });
         });
-
-        // Insert the new songs
-        //songsFound.forEach(function(song) { song_model.create(song); });
       });
     };
     worker();

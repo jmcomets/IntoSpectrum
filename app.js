@@ -21,7 +21,11 @@ app.set('view cache', false);
 // Sequelize
 var Sequelize = require('sequelize'),
     db = new Sequelize('into_spectrum', 'root', '', {
-      'dialect': 'mysql'
+      'dialect': 'mysql',
+      'logging': false,
+      'sync': {
+        'force': true
+      }
     });
 
 
