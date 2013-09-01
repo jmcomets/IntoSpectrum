@@ -90,8 +90,9 @@ exports.start = function(opts) {
         var songsFound = [];
         files.forEach(function(fname) {
           if (extensions.indexOf(fname.split('.').pop()) != -1) {
+            var relFname = fname; // TODO format to relative path
             songsFound.push({
-              'path': fname // TODO format to relative path
+              'path': relFname // TODO parse id3 tags
             });
           }
         });
@@ -101,6 +102,7 @@ exports.start = function(opts) {
           // returning if the song should be destroyed
           var update = function(indexInSongsFound, songInstance) {
             songsFound.splice(indexInSongsFound, 1);
+            // TODO update id3 tags
             return false;
           }
 
