@@ -47,13 +47,8 @@ var configure = exports.configure = function(opts) {
   if (opts.song_model != undefined) { options.song_model = opts.song_model; }
 }
 
-// Callbacks (exported via on)
-var callbacks = {
-  'started': function() {},
-  'finished': function() {}
-};
-// callbacks configuring
-exports.on = function(evt, fn) { callbacks.evt = fn; };
+// Logging
+var log = exports.log = function(msg) { console.log('[Watchdog] ' + msg); }
 
 // Internal ID of the current started
 var intervalId = null,
@@ -79,14 +74,14 @@ exports.start = function(opts) {
   if (!song_model) { throw new Error('Song model not defined'); }
 
   // Log configuration
-  console.log('Starting watchdog: will run every ' + total_seconds
+  log('Starting watchdog: will run every ' + total_seconds
       + ' seconds, starting after ' + delay + ' seconds.');
 
   // Initial wait
   started = true;
   setTimeout(function() {
     var worker = function() {
-      console.log('Working'); // TODO
+      log('Watchdog running');
       walk(media_root, function(error, files) {
         // Handle errors
         if (error) { throw error; };
