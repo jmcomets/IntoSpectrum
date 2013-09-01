@@ -1,5 +1,6 @@
 var path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    Song = require('./models').Song;
 
 // Walk through a directory (parallel loop), found on SO:
 //  >> http://stackoverflow.com/a/5827895/1441984
@@ -28,7 +29,6 @@ var walk = function(dir, done) {
 
 // Options for watchdog
 var options = {
-  'song_model': null,
   'media_root': __dirname,
   'interval': {
     'hours': 24,
@@ -45,7 +45,6 @@ var configure = exports.configure = function(opts) {
   if (opts.delay != undefined) { options.delay = opts.delay; }
   if (opts.extensions != undefined) { options.extensions = opts.extensions; }
   if (opts.media_root != undefined) { options.media_root = opts.media_root; }
-  if (opts.song_model != undefined) { options.song_model = opts.song_model; }
   if (opts.logging != undefined) { options.logging = opts.logging; }
 }
 
@@ -67,11 +66,7 @@ exports.start = function(opts) {
       extensions = options.extensions || [],
       total_seconds = seconds + 60*(minutes + 60*hours),
       media_root = options.media_root || __dirname,
-      song_model = options.song_model || null,
       logging = options.logging || true;
-
-  // Fail if badly configured
-  if (!song_model) { throw new Error('Song model not defined'); }
 
   // Logging
   var log = (logging)
@@ -95,7 +90,7 @@ exports.start = function(opts) {
         // Add (or update) songs to the library
         files.forEach(function(fname) {
           if (extensions.indexOf(fname.split('.').pop()) != -1) {
-            song_model.findOrCreate({ 'path': fname })
+            Song.findOrCreate({ 'path': fname })
               .success(function(song, created) {
                 if (created) { log('creating song ' + song.path); }
                 // TODO update with parsed id3 tags
@@ -104,7 +99,7 @@ exports.start = function(opts) {
         });
 
         // Delete the broken songs
-        song_model.findAll().success(function(songs) {
+        Song.findAll().success(function(songs) {
           songs.forEach(function(song) {
             var fname = song.path;
             if (fs.exists(song.path) == false) {

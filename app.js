@@ -18,51 +18,6 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view cache', false);
 
-// Sequelize
-var Sequelize = require('sequelize'),
-    db = new Sequelize('into_spectrum', 'root', '', {
-      'dialect': 'mysql',
-      'logging': false,
-      'sync': {
-        'force': true
-      }
-    });
-
-
-// Models
-var Song = db.define('Song', {
-  'id': {
-    'type': Sequelize.INTEGER,
-    'primaryKey': true,
-    'autoIncrement': true
-  },
-  'path': {
-    'type': Sequelize.STRING,
-    'unique': true
-  },
-  'title': {
-    'type': Sequelize.STRING
-  },
-  'artist': {
-    'type': Sequelize.STRING
-  },
-  'album': {
-    'type': Sequelize.STRING
-  },
-  'year': {
-    'type': Sequelize.INTEGER
-  },
-  'play_count': {
-    'type': Sequelize.INTEGER,
-    'defaultValue': 0
-  }
-}, {
-  'tableName': 'songs'
-});
-
-// Synchronise models
-Song.sync();
-
 // Static files
 app.use(express.static(path.join(__dirname, 'static')));
 
@@ -80,7 +35,7 @@ if ('development' == app.get('env')) {
 // Routes
 var routes = require('./routes');
 app.get('/', routes.index);
-app.get('/library', routes.library);
+app.get('/library/?(:cursor)?', routes.library);
 
 // Start server
 var http = require('http');
@@ -98,14 +53,14 @@ var player = require('socket.io').listen(server).of('/player')
 // Watchdog
 var watchdog = require('./watchdog');
 watchdog.configure({
-  'song_model': Song,
   'media_root': path.join(__dirname, 'media')
 });
 
 // Startup
 server.listen(app.get('port'), function() {
   var address = server.address();
-  console.log('Server started at http://%s:%s\nPress Ctrl-C to stop', address.address, address.port);
+  console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
+    address.address, address.port);
   watchdog.start();
 });
 
