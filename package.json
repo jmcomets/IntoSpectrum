@@ -7,7 +7,7 @@
   }, "dependencies": {
     "express": "*",
     "socket.io": "*",
-    "orm" : "*",
+    "sequelize" : "*",
     "mysql": "*",
     "swig": "*"
   }

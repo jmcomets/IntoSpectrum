@@ -18,21 +18,42 @@ app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view cache', false);
 
-// TODO move this in a separate module
-var orm = require('orm');
-app.use(orm.express('mysql://root@localhost/into_spectrum', {
-      define: function(db, models, next) {
-        models.song = db.define('song', {
-          path: { type: 'text' },
-          title: { type: 'text' },
-          artist: { type: 'text' },
-          album: { type: 'text' },
-          track_number: { type: 'number' },
-          year: { type: 'number' },
-          play_count: { type: 'number' }
-        });
-      }
-}));
+// Sequelize
+var Sequelize = require('sequelize'),
+    db = new Sequelize('into_spectrum', 'root', '', {
+      'dialect': 'mysql'
+    });
+
+
+// Models
+var Song = db.define('Song', {
+  'id': {
+    'type': Sequelize.INTEGER,
+    'primaryKey': true,
+    'autoIncrement': true
+  },
+  'path': {
+    'type': Sequelize.STRING
+  },
+  'title': {
+    'type': Sequelize.STRING
+  },
+  'artist': {
+    'type': Sequelize.STRING
+  },
+  'album': {
+    'type': Sequelize.STRING
+  },
+  'year': {
+    'type': Sequelize.INTEGER
+  },
+  'play_count': {
+    'type': Sequelize.INTEGER
+  }
+});
+
+// Synchronise models
+Song.sync();
 
 // Static files
 app.use(express.static(path.join(__dirname, 'static')));
@@ -68,6 +89,10 @@ var player = require('socket.io').listen(server).of('/player')
 
 // Watchdog
 var watchdog = require('./watchdog');
+watchdog.configure({
+  'song_model': Song,
+  'media_root': path.join(__dirname, 'media')
+});
 
 // Startup
 server.listen(app.get('port'), function() {
