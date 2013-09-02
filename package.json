@@ -9,6 +9,7 @@
     "socket.io": "*",
     "sequelize" : "*",
     "mysql": "*",
+    "id3": "*",
     "swig": "*"
   }
 }

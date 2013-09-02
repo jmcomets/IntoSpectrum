@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize'),
     db = new Sequelize('into_spectrum', 'root', '', {
       'dialect': 'mysql',
-      'logging': false,
+      //'logging': false,
       'sync': {
         'force': true
       }
@@ -34,7 +34,8 @@ var Song = exports.Song = db.define('Song', {
     'defaultValue': 0
   }
 }, {
-  'tableName': 'songs'
+  'tableName': 'songs',
+  'timestamps': false
 });
 
 Song.sync();

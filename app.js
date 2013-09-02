@@ -48,24 +48,16 @@ var io = require('socket.io').listen(server);
 var player = require('./player');
 player.init(io);
 
-// Watchdog
-var watchdog = require('./watchdog');
-watchdog.configure({
-  'media_root': path.join(__dirname, 'media')
-});
-
 // Startup
 server.listen(app.get('port'), function() {
   var address = server.address();
   console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
     address.address, address.port);
-  watchdog.start();
 });
 
 // Shutdown
 process.on('SIGINT', function() {
   console.log('Server shutting down');
-  watchdog.stop();
   server.close();
   process.exit();
 });

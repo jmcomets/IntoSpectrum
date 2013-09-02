@@ -1,5 +1,6 @@
 var path = require('path'),
     fs = require('fs'),
+    ID3 = require('id3'),
     Song = require('./models').Song;
 
 // Walk through a directory (parallel loop), found on SO:
@@ -29,7 +30,7 @@ var walk = function(dir, done) {
 
 // Options for watchdog
 var options = {
-  'media_root': __dirname,
+  'media_root': path.join(__dirname, 'media'),
   'interval': {
     'hours': 24,
     'minutes': 0,
@@ -39,40 +40,99 @@ var options = {
   'logging': true
 };
 
-// Configuration via options
-var configure = exports.configure = function(opts) {
-  if (opts.interval != undefined) { options.interval = opts.interval; }
-  if (opts.delay != undefined) { options.delay = opts.delay; }
-  if (opts.extensions != undefined) { options.extensions = opts.extensions; }
-  if (opts.media_root != undefined) { options.media_root = opts.media_root; }
-  if (opts.logging != undefined) { options.logging = opts.logging; }
-}
-
 // Internal ID of the current started
 var intervalId = null,
     started = false;
 
+var log = function(msg) {
+  if (options.logging) {
+    console.log('[Watchdog] ' + msg);
+  }
+}
+
+// Runner
+var run = function() {
+  log('running');
+  walk(options.media_root, function(error, files) {
+    // Handle errors
+    if (error) { throw error; };
+
+    // Add (or update) songs to the library
+    for (var i = 0; i < files.length; i++) {
+      var fname = files[i];
+      if (options.extensions.indexOf(fname.split('.').pop()) != -1) {
+        log('reading: ' + fname);
+        var data = fs.readFileSync(fname);
+        // Don't insert songs which can't be read
+        if (!data) {
+          log('failed reading: ' + fname);
+          return;
+        }
+
+        // Otherwise parse id3 tags and save
+        var id3 = new ID3(data);
+        if (id3.parse()) {
+          Song.findOrCreate({
+            'path': fname
+          }).success(function(song, created) {
+            // Log creation/find
+            if (created) {
+              log('created: ' + fname);
+            } else {
+              log('found: ' + fname);
+            }
+
+            // Parsed tags
+            var tags = {
+              'title': id3.get('title'),
+              'artist': id3.get('artist'),
+              'album': id3.get('album'),
+              'year': id3.get('year')
+            }
+
+            // Update instance attributes and decide if save is needed
+            var save = false;
+            for (var key in tags) {
+              if (tags[key] && !song[key]) {
+                song[key] = tags[key];
+                save = true;
+              }
+            }
+
+            // Save and emit success (if that is)
+            var success = function() { log('updated: ' + song.path); }
+            if (save) {
+              song.save().success(success);
+            } else {
+              success();
+            }
+          }).error(function() {
+            log('error:' + fname);
+          });
+        } else {
+          log('failed tag parsing: ' + fname);
+        }
+      }
+    }
+
+    // Delete the broken songs
+    Song.findAll().success(function(songs) {
+      songs.forEach(function(song) {
+        var fname = song.path;
+        if (fs.exists(song.path) == false) {
+          song.destroy().success(function() {
+            log('destroying bad song ' + fname);
+          });
+        }
+      });
+    });
+  });
+};
+
 // Start watchdog, reapplying all options
-exports.start = function(opts) {
+var start = exports.start = function(opts) {
   // Fail if already started
   if (started) { throw new Error('Already started'); }
-
-  // Configure if extra options are given
-  if (opts) { configure(opts); }
-  var seconds = options.interval.seconds || 0,
-      minutes = options.interval.minutes || 0,
-      hours = options.interval.hours || 0,
-      delay = options.delay || 0,
-      extensions = options.extensions || [],
-      total_seconds = seconds + 60*(minutes + 60*hours),
-      media_root = options.media_root || __dirname,
-      logging = options.logging || true;
-
-  // Logging
-  var log = (logging)
-    ? function(msg) { console.log('[Watchdog] ' + msg) }
-    : function(msg) {}
-  ;
 
   // Configuration
   log('will run every ' + total_seconds
@@ -80,48 +140,22 @@ exports.start = function(opts) {
 
   // Initial wait
   started = true;
+  var total_seconds = (options.seconds || 0)
+    + (60*((options.minutes || 0) + 60*(options.hours || 0)));
   setTimeout(function() {
-    var worker = function() {
-      log('running');
-      walk(media_root, function(error, files) {
-        // Handle errors
-        if (error) { throw error; };
-
-        // Add (or update) songs to the library
-        files.forEach(function(fname) {
-          if (extensions.indexOf(fname.split('.').pop()) != -1) {
-            Song.findOrCreate({ 'path': fname })
-              .success(function(song, created) {
-                if (created) { log('creating song ' + song.path); }
-                // TODO update with parsed id3 tags
-              });
-          }
-        });
-
-        // Delete the broken songs
-        Song.findAll().success(function(songs) {
-          songs.forEach(function(song) {
-            var fname = song.path;
-            if (fs.exists(song.path) == false) {
-              song.destroy().success(function() {
-                log('destroying bad song ' + fname);
-              });
-            }
-          });
-        });
-      });
-    };
-    worker();
-    intervalId = setInterval(worker, 1000*total_seconds);
+    run();
+    intervalId = setInterval(run, 1000*total_seconds);
   }, 1000*delay);
 }
 
 // Stop watchdog
-exports.stop = function() {
+var stop = exports.stop = function() {
   if (started == false) { throw new Error('Not started'); }
   if (intervalId != null) { clearInterval(intervalId); }
   started = false;
   intervalId = null;
 }
+
+if (require.main == module) { run(); }
 
 // vim: ft=javascript et sw=2 sts=2
