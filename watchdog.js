@@ -30,14 +30,14 @@ var walk = function(dir, done) {
 
 // Options for watchdog
 var options = {
-  'media_root': path.join(__dirname, 'media'),
+  'mediaRoot': path.join(__dirname, 'media'),
   'interval': {
     'hours': 24,
     'minutes': 0,
     'seconds': 0
   }, 'delay': 0,
   'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma'],
-  'logging': false
+  'logging': true
 };
 
 // Internal ID of the current started
@@ -52,8 +52,9 @@ var log = function(msg) {
 
 // Runner
 var run = function() {
-  log('running');
-  walk(options.media_root, function(error, files) {
+  var mediaRoot = options.mediaRoot;
+  log('collecting all songs in: ' + mediaRoot);
+  walk(options.mediaRoot, function(error, files) {
     // Handle errors
     if (error) { throw error; };
 
@@ -61,57 +62,62 @@ var run = function() {
     for (var i = 0; i < files.length; i++) {
       var fname = files[i];
       if (options.extensions.indexOf(fname.split('.').pop()) != -1) {
-        log('reading: ' + fname);
-        var data = fs.readFileSync(fname);
-        // Don't insert songs which can't be read
-        if (!data) {
-          log('failed reading: ' + fname);
-          return;
-        }
+        relFname = fname.substring(mediaRoot.length + 1);
+        Song.findOrCreate({
+          'path': relFname
+        }).success(function(song, created) {
+          log('found: ' + relFname);
 
-        // Otherwise parse id3 tags and save
-        var id3 = new ID3(data);
-        if (id3.parse()) {
-          Song.findOrCreate({
-            'path': fname
-          }).success(function(song, created) {
-            // Log creation/find
-            if (created) {
-              log('created: ' + fname);
-            } else {
-              log('found: ' + fname);
+          if (created || (song.title == undefined
+              && song.artist == undefined
+              && song.album == undefined
+              && song.year == undefined)) {
+            log('reading: ' + relFname);
+            var data = fs.readFileSync(fname);
+            // Don't insert songs which can't be read
+            if (!data) {
+              log('failed reading: ' + relFname);
+              return;
             }
 
-            // Parsed tags
-            var tags = {
-              'title': id3.get('title'),
-              'artist': id3.get('artist'),
-              'album': id3.get('album'),
-              'year': id3.get('year')
-            }
-
-            // Update instance attributes and decide if save is needed
-            var save = false;
-            for (var key in tags) {
-              if (tags[key] && !song[key]) {
-                song[key] = tags[key];
-                save = true;
+            // Parse tags
+            var id3 = new ID3(data);
+            if (id3.parse()) {
+              // FIXME id3.tags is always empty...
+              var tags = {
+                'title': id3.get('title'),
+                'artist': id3.get('artist'),
+                'album': id3.get('album'),
+                'year': id3.get('year')
               }
-            }
 
-            // Save and emit success (if that is)
-            var success = function() { log('updated: ' + song.path); }
-            if (save) {
-              song.save().success(success);
+              // Update instance attributes and decide if save is needed
+              var save = false;
+              for (var key in tags) {
+                if (tags[key] && song[key]) {
+                  song[key] = tags[key];
+                  save = true;
+                }
+              }
+
+              // Save and emit success (if that is)
+              var success = function() {
+                log('updated: { title: ' + song.title + ', artist: '
+                  + song.artist + ', album: ' + song.album
+                  + ', year: ' + song.year + ' }');
+              }
+              if (save) {
+                song.save().success(success);
+              } else {
+                success();
+              }
             } else {
-              success();
+              log('failed tag parsing: ' + relFname);
             }
-          }).error(function() {
-            log('error:' + fname);
-          });
-        } else {
-          log('failed tag parsing: ' + fname);
-        }
+          }
+        }).error(function() {
+          log('error:' + relFname);
+        });
       }
     }
 
