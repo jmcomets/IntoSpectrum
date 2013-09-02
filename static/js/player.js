@@ -12,11 +12,16 @@ function Player(url) {
 
   // Socket event hooks
   var that = this;
-  this._player
-    .on('connect', function() { that.log('connected on ' + url); })
-    .on('play', function(song) { that.emit('play', song); })
-    .on('pause', function() { that.emit('pause'); })
-    .on('pause', function() { that.emit('stop'); });
+  this._player.on('connect', function() {
+    that.log('connected on ' + url);
+    this.on('play', function(song) {
+      that.emit('play', song);
+    }).on('pause', function() {
+      that.emit('pause');
+    }).on('pause', function() {
+      that.emit('stop');
+    });
+  });
 }
 
 // Logging
@@ -54,63 +59,5 @@ Player.prototype.stop = function() {
   this.log('stopping');
   this._player.emit('stop');
 };
-
-$(window).load(function() {
-  // Main player instance
-  var player = new Player('/songs');
-
-  // Load songs
-  (function(fn) {
-    var loadSongs = function(c) {
-      var cursor = parseInt(c) || 1;
-      $.getJSON('/library/' + cursor, function(data) {
-        if (data.next) {
-          loadSongs(cursor + 1);
-          fn(data.songs);
-        }
-      });
-    };
-    loadSongs();
-  })(function(songs) {
-    // Append songs to the #library
-    var library = $('#library');
-    $.each(songs, function(_, song) {
-      var id = song.id || '',
-        title = song.title || '',
-        artist = song.artist || '',
-        album = song.album || '',
-        year = song.year || '',
-        play_count = song.play_count || '';
-
-      // Create the DOM element
-      var tr = $('<tr></tr>');
-      tr.html(
-        '<th>' + id         + '</th>' +
-        '<th>' + title      + '</th>' +
-        '<th>' + artist     + '</th>' +
-        '<th>' + album      + '</th>' +
-        '<th>' + year       + '</th>' +
-        '<th>' + play_count + '</th>'
-        );
-
-      // Hook events
-      tr.on('click', function() {
-        player.play($(this).children().first().text());
-      });
-
-      // Add to the library container
-      library.append(tr);
-    });
-  });
-
-  // Player event hooks
-  player.on('play', function(song) {
-    console.log('play event');
-  }).on('pause', function() {
-    console.log('pause event');
-  }).on('stop', function() {
-    console.log('stop event');
-  });
-});
 
 // vim: ft=javascript et sw=2 sts=2

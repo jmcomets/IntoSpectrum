@@ -41,22 +41,12 @@ app.get('/library/?(:cursor)?', routes.library);
 var http = require('http');
 var server = http.createServer(app);
 
+// Socket.IO
+var io = require('socket.io').listen(server);
+
 // Player
-var player = require('socket.io').listen(server).of('/player')
-      .on('connection', function(socket) {
-        socket.on('play', function(song_id) {
-          Song.find(song_id).success(function(song) {
-            // TODO play the music
-            player.emit('play', song);
-          });
-        }).on('pause', function() {
-          // TODO pause the music
-          player.emit('pause');
-        }).on('stop', function() {
-          // TODO stop the music
-          player.emit('stop');
-        });
-      }); // FIXME move in separate module
+var player = require('./player');
+player.init(io);
 
 // Watchdog
 var watchdog = require('./watchdog');
