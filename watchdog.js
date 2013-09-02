@@ -37,7 +37,7 @@ var options = {
     'seconds': 0
   }, 'delay': 0,
   'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma'],
-  'logging': true
+  'logging': false
 };
 
 // Internal ID of the current started
