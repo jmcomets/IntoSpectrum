@@ -1,6 +1,6 @@
 var path = require('path');
 
-// Database configuration
+// Database
 var Sequelize = exports.Sequelize = require('sequelize');
 exports.db = new Sequelize('into_spectrum', 'root', '', {
   'dialect': 'mysql',
@@ -8,15 +8,22 @@ exports.db = new Sequelize('into_spectrum', 'root', '', {
   'sync': { 'force': true }
 });
 
-// Media configuration
+// Media
 exports.media = {
   'root': path.join(__dirname, 'media'),
   'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
 };
 
-// Player configuration
+// Player
 exports.player = {
   'url': '/player'
+};
+
+// Views
+exports.views = {
+  'extension': 'html',
+  'path': path.join(__dirname, 'views'),
+  'cache': false
 };
 
 // vim: ft=javascript et sw=2 sts=2

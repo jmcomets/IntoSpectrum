@@ -7,31 +7,45 @@ var path = require('path'),
 // Mplayer class: wrapper for mplayer process
 var Mplayer = function() {
   this._process = null;
-}
+};
 
+// Play a song brutally, stopping any current playing song
 Mplayer.prototype.play = function(song) {
+  // Stored for convenience in callbacks
+  var that = this;
+
   // Reset process if already started
   if (this._process) { this._process.kill(); }
 
   // Spawn new process with appropriate file
   this._process = spawn('mplayer', ['-slave', '-quiet', song.fullPath()]);
-}
 
+  // Handle process end
+  this._process.on('exit', function() {
+    that._process = null;
+  });
+};
+
+// Stop the current playing song, throwing if none is playing
 Mplayer.prototype.stop = function() {
   if (this._process) {
-    this._process.kill();
+    this._process.write('stop');
+    this._process.disconnect();
     this._process = null;
+  } else {
+    throw new Error('Cannot stop, no song currently playing');
   }
-}
+};
 
 Mplayer.prototype.pause = function() {
   if (this._process) {
     this._process.write('pause');
+  } else {
+    throw new Error('Cannot pause, no song currently playing');
   }
-}
+};
 
-var mplayer = new Mplayer();
-
+// Listener export (main function of the module)
 exports.listen = function(server) {
   // Socket.IO
   var io = socketIO.listen(server);
@@ -47,10 +61,8 @@ exports.listen = function(server) {
         socket.broadcast.emit('play', song);
       });
     }).on('pause', function() {
-      if (mplayer) {
-        mplayer.pause();
-        socket.broadcast.emit('pause');
-      }
+      mplayer.pause();
+      socket.broadcast.emit('pause');
     }).on('stop', function() {
       mplayer.stop();
       socket.broadcast.emit('stop');

@@ -1,6 +1,7 @@
 // Module base dependencies
-var express = require('express');
-var path = require('path');
+var express = require('express'),
+    path = require('path')
+    settings = require('./settings');
 
 // Application instance
 var app = express();
@@ -12,11 +13,10 @@ app.set('port', process.env.PORT || 3000);
 app.use(express.favicon(path.join(__dirname, 'static/images/favicon.ico')));
 
 // Swig template engine
-var swig = require('swig');
-app.engine('html', swig.renderFile);
-app.set('view engine', 'html');
-app.set('views', path.join(__dirname, 'views'));
-app.set('view cache', false);
+app.engine('html', require('swig').renderFile);
+app.set('view engine', settings.views.extension);
+app.set('views', settings.views.path);
+app.set('view cache', settings.views.cache);
 
 // Static files
 app.use(express.static(path.join(__dirname, 'static')));

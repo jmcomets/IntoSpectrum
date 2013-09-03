@@ -17,6 +17,7 @@
         {# Bootstrap #}
         {% block bootstrap %}
         <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" media="screen">
+        <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.min.css" media="screen">
         <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
         {% endblock %}
 
@@ -27,6 +28,11 @@
 
         {# CSS #}
         <link type="text/css" rel="stylesheet" href="/css/player.css" media="screen">
+        <style type="text/css">
+            #wrap {
+                margin: 50px;
+            }
+        </style>
         {% block css %}
         {% endblock %}
 
@@ -53,30 +59,24 @@
 
 
         {# Content #}
-        <div class="container">
+        <div id="wrap">
             {% block content %}
-            <div id="library-loading-modal" class="modal hide" data-keyboard="false"
-                data-backdrop="static" aria-labelledby="Library loading">
-                <div class="modal-body">
-                    <h2>Library loading...</h2>
-                    <div class="progress progress-striped active">
-                        <div class="bar" style="width: 100%;"></div>
-                    </div>
-                    <em id="library-loading-current"></em>
+            <div id="library-loading" class="well">
+                <h2>Library loading...</h2>
+                <div class="progress progress-striped active">
+                    <div class="bar" style="width: 100%;"></div>
+                </div>
+                <em id="library-loading-current"></em>
+            </div>
+            <div id="library" class="container">
+                <div class="row">
+                    <span class="span2">Title</span>
+                    <span class="span2">Artist</span>
+                    <span class="span2">Album</span>
+                    <span class="span2">Year</span>
+                    <span class="span2">Play count</span>
                 </div>
             </div>
-            <table id="library" class="table table-hover table-condensed">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Artist</th>
-                    <th>Album</th>
-                    <th>Year</th>
-                    <th>Play count</th>
-                </tr>
-                </thead>
-            </table>
             {% endblock %}
         </div>
     </body>

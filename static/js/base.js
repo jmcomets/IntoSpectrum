@@ -28,18 +28,18 @@ $(window).load(function() {
         play_count = song.play_count || '';
 
       // Create the DOM element
-      var tr = $('<tr></tr>');
-      tr.html(
-        '<td>' + id         + '</td>' +
-        '<td>' + title      + '</td>' +
-        '<td>' + artist     + '</td>' +
-        '<td>' + album      + '</td>' +
-        '<td>' + year       + '</td>' +
-        '<td>' + play_count + '</td>'
+      var div = $('<div></div>');
+      div.html(
+        '<span>' + id         + '</span>' +
+        '<span>' + title      + '</span>' +
+        '<span>' + artist     + '</span>' +
+        '<span>' + album      + '</span>' +
+        '<span>' + year       + '</span>' +
+        '<span>' + play_count + '</span>'
         );
 
       // Hook events
-      tr.on('click', function() {
+      div.on('click', function() {
         player.play($(this).children().first().text());
       });
 
@@ -48,7 +48,7 @@ $(window).load(function() {
       loadModalCurrent.text('Loaded song "' + songTitle + '"');
 
       // Add to the library container
-      library.append(tr);
+      library.append(div);
     });
   }, function() {
     // Loading finished
