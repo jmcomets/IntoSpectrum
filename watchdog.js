@@ -60,30 +60,28 @@ var run = function() {
 
     // Add (or update) songs to the library
     for (var i = 0; i < files.length; i++) {
-      var fname = files[i];
-      if (options.extensions.indexOf(fname.split('.').pop()) != -1) {
-        relFname = fname.substring(mediaRoot.length + 1);
+      if (options.extensions.indexOf(files[i].split('.').pop()) != -1) {
         Song.findOrCreate({
-          'path': relFname
+          'path': files[i].substring(mediaRoot.length + 1)
         }).success(function(song, created) {
-          log('found: ' + relFname);
+          //log('found: ' + song.path);
+          var fname = path.join(options.mediaRoot, song.path);
 
           if (created || (song.title == undefined
               && song.artist == undefined
               && song.album == undefined
               && song.year == undefined)) {
-            log('reading: ' + relFname);
+            //log('reading: ' + song.path);
             var data = fs.readFileSync(fname);
             // Don't insert songs which can't be read
             if (!data) {
-              log('failed reading: ' + relFname);
+              log('failed reading: ' + song.path);
               return;
             }
 
             // Parse tags
             var id3 = new ID3(data);
             if (id3.parse()) {
-              // FIXME id3.tags is always empty...
               var tags = {
                 'title': id3.get('title'),
                 'artist': id3.get('artist'),
@@ -112,11 +110,9 @@ var run = function() {
                 success();
               }
             } else {
-              log('failed tag parsing: ' + relFname);
+              log('failed tag parsing: ' + song.path);
             }
           }
-        }).error(function() {
-          log('error:' + relFname);
         });
       }
     }
@@ -124,7 +120,7 @@ var run = function() {
     // Delete the broken songs
     Song.findAll().success(function(songs) {
       songs.forEach(function(song) {
-        var fname = song.path;
+        var fname = path.join(options.mediaRoot, song.path);
         if (fs.exists(song.path) == false) {
           song.destroy().success(function() {
             log('destroying bad song ' + fname);
