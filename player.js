@@ -7,6 +7,7 @@ var path = require('path'),
 // Mplayer class: wrapper for mplayer process
 var Mplayer = function() {
   this._process = null;
+  this._normalExit = true;
 };
 
 // Play a song brutally, stopping any current playing song
@@ -15,14 +16,21 @@ Mplayer.prototype.play = function(song) {
   var that = this;
 
   // Reset process if already started
-  if (this._process) { this._process.kill(); }
+  if (this._process) {
+    this._normalExit = false;
+    this._process.kill();
+  }
 
   // Spawn new process with appropriate file
   this._process = spawn('mplayer', ['-slave', '-quiet', song.fullPath()]);
 
   // Handle process end
   this._process.on('exit', function() {
-    that._process = null;
+    if (that._normalExit) {
+      that._process = null;
+    } else {
+      this._normalExit = true;
+    }
   });
 };
 
