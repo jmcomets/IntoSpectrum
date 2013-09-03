@@ -1,6 +1,7 @@
 var path = require('path'),
     fs = require('fs'),
     ID3 = require('id3'),
+    media = require('./settings').media,
     Song = require('./models').Song;
 
 // Walk through a directory (parallel loop), found on SO:
@@ -30,13 +31,11 @@ var walk = function(dir, done) {
 
 // Options for watchdog
 var options = {
-  'mediaRoot': path.join(__dirname, 'media'),
   'interval': {
     'hours': 24,
     'minutes': 0,
     'seconds': 0
   }, 'delay': 0,
-  'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma'],
   'logging': true
 };
 
@@ -52,15 +51,15 @@ var log = function(msg) {
 
 // Runner
 var run = function() {
-  var mediaRoot = options.mediaRoot;
+  var mediaRoot = media.root;
   log('collecting all songs in: ' + mediaRoot);
-  walk(options.mediaRoot, function(error, files) {
+  walk(mediaRoot, function(error, files) {
     // Handle errors
     if (error) { throw error; };
 
     // Add (or update) songs to the library
     for (var i = 0; i < files.length; i++) {
-      if (options.extensions.indexOf(files[i].split('.').pop()) != -1) {
+      if (media.extensions.indexOf(files[i].split('.').pop()) != -1) {
         Song.findOrCreate({
           'path': files[i].substring(mediaRoot.length + 1)
         }).success(function(song, created) {
