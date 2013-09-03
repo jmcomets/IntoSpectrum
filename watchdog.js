@@ -77,9 +77,10 @@ var run = function() {
               return;
             }
 
-            // Parse tags
+            // Update parsed tags
             var id3 = new ID3(data);
             if (id3.parse()) {
+              log('parsed: ' + song.path);
               song.updateAttributes({
                 'title': id3.get('title'),
                 'artist': id3.get('artist'),

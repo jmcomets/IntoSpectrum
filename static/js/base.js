@@ -26,18 +26,18 @@ $(window).load(function() {
         year = song.year || '';
 
       // Create the DOM element
-      var div = $('<div></div>');
-      div.html(
-        '<span song-id="' + song.id + '">' + song.id + '</span>' +
-        '<span>' + title      + '</span>' +
-        '<span>' + artist     + '</span>' +
-        '<span>' + album      + '</span>' +
-        '<span>' + year       + '</span>' +
-        '<span>' + song.playCount + '</span>'
+      var row = $('<tr></tr>');
+      row.html(
+        '<td song-id="' + song.id + '">' + song.id + '</td>' +
+        '<td>' + title      + '</td>' +
+        '<td>' + artist     + '</td>' +
+        '<td>' + album      + '</td>' +
+        '<td>' + year       + '</td>' +
+        '<td>' + song.playCount + '</td>'
         );
 
       // Hook events
-      div.on('click', function() {
+      row.on('click', function() {
         player.play($(this).children().first().text());
       });
 
@@ -46,7 +46,7 @@ $(window).load(function() {
       loadCurrent.text('Loaded song "' + songTitle + '"');
 
       // Add to the library container
-      library.append(div);
+      library.append(row);
     });
   }, function() {
     // Loading finished
@@ -54,11 +54,12 @@ $(window).load(function() {
 
     // Player event hooks
     player.on('play', function(song) {
-      $('[song-id="' + song.id + '"]').text(song.playCount);
+      // Update play count
+      $('[song-id="' + song.id + '"]').siblings().last().text(song.playCount);
     }).on('pause', function() {
-      console.log('pause event');
+      // TODO
     }).on('stop', function() {
-      console.log('stop event');
+      // TODO
     });
   });
 });

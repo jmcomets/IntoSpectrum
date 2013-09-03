@@ -15,11 +15,15 @@ function Player(url) {
   this._player.on('connect', function() {
     that.log('connected on ' + url);
     this.on('play', function(song) {
-      that.emit('play', song);
+      var callbacks = that._callbacks['play'];
+      for (var i = 0; i < callbacks.length; i++) { callbacks[i](song); }
     }).on('pause', function() {
-      that.emit('pause');
+      var callbacks = that._callbacks['pause'];
+      for (var i = 0; i < callbacks.length; i++) { callbacks[i](); }
     }).on('pause', function() {
       that.emit('stop');
+      var callbacks = that._callbacks['stop'];
+      for (var i = 0; i < callbacks.length; i++) { callbacks[i](); }
     });
   });
 }
@@ -37,12 +41,6 @@ Player.prototype.on = function(evt, fn) {
     this._callbacks[evt].push(fn);
   }
   return this;
-};
-// ...firing
-Player.prototype.emit = function(evt) {
-  this.log('emitting: ' + evt);
-  var callbacks = this._callbacks[evt];
-  for (var i = 0; i < callbacks.length; i++) { callbacks[i](); }
 };
 
 Player.prototype.play = function(song_id) {

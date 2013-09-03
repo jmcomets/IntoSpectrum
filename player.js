@@ -48,26 +48,26 @@ Mplayer.prototype.pause = function() {
 // Listener export (main function of the module)
 exports.listen = function(server) {
   // Socket.IO
-  var io = socketIO.listen(server);
+  var io = socketIO.listen(server).of(settings.player.url);
 
   // Mplayer
   var mplayer = new Mplayer();
 
   // Server setup
-  io.of(settings.player.url).on('connection', function(socket) {
+  io.on('connection', function(socket) {
     socket.on('play', function(song_id) {
       Song.find(song_id).success(function(song) {
         mplayer.play(song);
         song.playCount += 1
         song.save();
-        socket.broadcast.emit('play', song);
+        io.emit('play', song);
       });
     }).on('pause', function() {
       mplayer.pause();
-      socket.broadcast.emit('pause');
+      io.emit('pause');
     }).on('stop', function() {
       mplayer.stop();
-      socket.broadcast.emit('stop');
+      io.emit('stop');
     });
   });
 };
