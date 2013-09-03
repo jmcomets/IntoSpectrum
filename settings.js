@@ -14,4 +14,9 @@ exports.media = {
   'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
 };
 
+// Player configuration
+exports.player = {
+  'url': '/player'
+};
+
 // vim: ft=javascript et sw=2 sts=2

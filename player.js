@@ -1,8 +1,10 @@
 var path = require('path'),
+    socketIO = require('socket.io'),
     spawn = require('child_process').spawn,
+    settings = require('./settings'),
     Song = require('./models').Song;
 
-// Wrapper for mplayer process
+// Mplayer class: wrapper for mplayer process
 var Mplayer = function() {
   this._process = null;
 }
@@ -30,9 +32,15 @@ Mplayer.prototype.pause = function() {
 
 var mplayer = new Mplayer();
 
-// Module initializing
-exports.init = function(io) {
-  io.of('/player').on('connection', function(socket) {
+exports.listen = function(server) {
+  // Socket.IO
+  var io = socketIO.listen(server);
+
+  // Mplayer
+  var mplayer = new Mplayer();
+
+  // Server setup
+  io.of(settings.player.url).on('connection', function(socket) {
     socket.on('play', function(song_id) {
       Song.find(song_id).success(function(song) {
         mplayer.play(song);

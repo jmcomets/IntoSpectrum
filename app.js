@@ -41,12 +41,8 @@ app.get('/library/?(:cursor)?', routes.library);
 var http = require('http');
 var server = http.createServer(app);
 
-// Socket.IO
-var io = require('socket.io').listen(server);
-
 // Player
-var player = require('./player');
-player.init(io);
+var player = require('./player').listen(server);
 
 // Startup
 server.listen(app.get('port'), function() {
