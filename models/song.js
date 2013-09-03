@@ -18,7 +18,7 @@ var Song = exports.Song = db.define('Song', {
     'type': Sequelize.STRING
   }, 'year': {
     'type': Sequelize.INTEGER
-  }, 'play_count': {
+  }, 'playCount': {
     'type': Sequelize.INTEGER,
   'defaultValue': 0
   }

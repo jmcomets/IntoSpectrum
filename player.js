@@ -58,6 +58,8 @@ exports.listen = function(server) {
     socket.on('play', function(song_id) {
       Song.find(song_id).success(function(song) {
         mplayer.play(song);
+        song.playCount += 1
+        song.save();
         socket.broadcast.emit('play', song);
       });
     }).on('pause', function() {

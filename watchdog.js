@@ -51,9 +51,8 @@ var log = function(msg) {
 
 // Runner
 var run = function() {
-  var mediaRoot = media.root;
-  log('collecting all songs in: ' + mediaRoot);
-  walk(mediaRoot, function(error, files) {
+  log('collecting all songs in: ' + media.root);
+  walk(media.root, function(error, files) {
     // Handle errors
     if (error) { throw error; };
 
@@ -61,10 +60,10 @@ var run = function() {
     for (var i = 0; i < files.length; i++) {
       if (media.extensions.indexOf(files[i].split('.').pop()) != -1) {
         Song.findOrCreate({
-          'path': files[i].substring(mediaRoot.length + 1)
+          'path': files[i].substring(media.root.length + 1)
         }).success(function(song, created) {
           //log('found: ' + song.path);
-          var fname = path.join(options.mediaRoot, song.path);
+          var fname = path.join(media.root, song.path);
 
           if (created || (song.title == undefined
               && song.artist == undefined
@@ -81,33 +80,16 @@ var run = function() {
             // Parse tags
             var id3 = new ID3(data);
             if (id3.parse()) {
-              var tags = {
+              song.updateAttributes({
                 'title': id3.get('title'),
                 'artist': id3.get('artist'),
                 'album': id3.get('album'),
                 'year': id3.get('year')
-              }
-
-              // Update instance attributes and decide if save is needed
-              var save = false;
-              for (var key in tags) {
-                if (tags[key] && song[key]) {
-                  song[key] = tags[key];
-                  save = true;
-                }
-              }
-
-              // Save and emit success (if that is)
-              var success = function() {
+              }).success(function(song) {
                 log('updated: { title: ' + song.title + ', artist: '
                   + song.artist + ', album: ' + song.album
                   + ', year: ' + song.year + ' }');
-              }
-              if (save) {
-                song.save().success(success);
-              } else {
-                success();
-              }
+              });
             } else {
               log('failed tag parsing: ' + song.path);
             }
@@ -119,7 +101,7 @@ var run = function() {
     // Delete the broken songs
     Song.findAll().success(function(songs) {
       songs.forEach(function(song) {
-        var fname = path.join(options.mediaRoot, song.path);
+        var fname = path.join(media.root, song.path);
         if (fs.exists(song.path) == false) {
           song.destroy().success(function() {
             log('destroying bad song ' + fname);

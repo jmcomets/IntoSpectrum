@@ -14,28 +14,26 @@ $(window).load(function() {
   };
 
   // Load songs
-  var loadModal = $('#library-loading-modal').modal(),
-    loadModalCurrent = $('#library-loading-current');
+  var loadContainer = $('#library-loading'),
+    loadCurrent = $('#library-loading-current');
   loadSongs(function(data) {
     // Append songs to the #library
     var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var id = song.id || '',
-        title = song.title || '',
+      var title = song.title || '',
         artist = song.artist || '',
         album = song.album || '',
-        year = song.year || '',
-        play_count = song.play_count || '';
+        year = song.year || '';
 
       // Create the DOM element
       var div = $('<div></div>');
       div.html(
-        '<span>' + id         + '</span>' +
+        '<span song-id="' + song.id + '">' + song.id + '</span>' +
         '<span>' + title      + '</span>' +
         '<span>' + artist     + '</span>' +
         '<span>' + album      + '</span>' +
         '<span>' + year       + '</span>' +
-        '<span>' + play_count + '</span>'
+        '<span>' + song.playCount + '</span>'
         );
 
       // Hook events
@@ -45,18 +43,18 @@ $(window).load(function() {
 
       // Update the modal's "current" loading
       var songTitle = song.title || song.path;
-      loadModalCurrent.text('Loaded song "' + songTitle + '"');
+      loadCurrent.text('Loaded song "' + songTitle + '"');
 
       // Add to the library container
       library.append(div);
     });
   }, function() {
     // Loading finished
-    loadModal.modal('hide');
+    loadContainer.hide();
 
     // Player event hooks
     player.on('play', function(song) {
-      console.log('play event');
+      $('[song-id="' + song.id + '"]').text(song.playCount);
     }).on('pause', function() {
       console.log('pause event');
     }).on('stop', function() {
