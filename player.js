@@ -47,7 +47,7 @@ Mplayer.prototype.play = function(song) {
   }
 
   // Spawn new process with appropriate file
-  this._process = spawn('mplayer', ['-slave', '-really-quiet', song.fullPath()]);
+  this._process = spawn('mplayer', ['-slave', '-idle', '-really-quiet', song.fullPath()]);
   this.paused = false;
 
   // Handle process end
@@ -82,7 +82,7 @@ Mplayer.prototype.stop = function() {
 Mplayer.prototype.togglePause = function() {
   if (this._process) {
     this.paused = 1 - this.paused;
-    this._send('pause');
+    this._send('pause\n');
   }
 
   return _then();
@@ -109,7 +109,7 @@ Mplayer.prototype.pause = function() {
 // Set the volume
 Mplayer.prototype.setVolume = function(volume) {
   if (this._process) {
-    this._send('volume ' + volume + ' 1');
+    this._send('volume ' + volume + ' 1\n');
   }
 
   return _then();
@@ -117,20 +117,28 @@ Mplayer.prototype.setVolume = function(volume) {
 
 // Get the song duration
 Mplayer.prototype.getTotalTime = function() {
-  this._send('get_time_length');
+  if(this._process) {
+    this._process.stdout.on('data', function(data) {
+      console.log('Total time : ' + data);
+    });
+    this._process.stderr.on('data', function(data) {
+      console.log('[ERR] Total time : ' + data);
+    });
+    this._send('get_time_length\n');
+  }
 
   return _then();
 }
 
 // Get the song current time
 Mplayer.prototype.getTime = function() {
-  this._send('get_time_pos');
+  this._send('get_time_pos\n');
 
   return _then();
 }
 // ...set
 Mplayer.prototype.setTime = function(time) {
-  this._send('set_property time_pos ' + time);
+  this._send('set_property time_pos ' + time + '\n');
 
   return _then();
 }
@@ -186,6 +194,7 @@ exports.listen = function(server) {
               if (song.duration = undefined) {
                 song.duration = 60;
               }
+              mplayer.getTotalTime();
               song.playCount += 1;
               song.save();
 
