@@ -49,11 +49,11 @@ $(window).load(function() {
 
     // Update the play count
     if (data.playing) {
-      $('[song-id="' + id + '"]').siblings().last().text(data.play_count);
+      $('[song-id="' + data.id + '"]').siblings().last().text(data.play_count);
     }
 
     // Set the volume
-    volumeSlider.slider('value', volume);
+    volumeSlider.slider('value', data.volume);
   };
 
   // Explicitly connect the player
