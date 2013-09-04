@@ -10,6 +10,7 @@ Player.prototype.connect = function(url) {
   this._socket.on('connect', function() {
     this.on('info', function(state) {
       that.songId = state.id;
+      that._playing = state.playing;
       that.update(state);
     });
   });
@@ -22,7 +23,7 @@ Player.prototype.play = function(songId) {
 
 Player.prototype.togglePause = function() {
   if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
-  this._socket.emit('pause', this.songId);
+  this._socket.emit(this._playing ? 'pause' : 'unpause', this.songId);
 };
 
 Player.prototype.stop = function() {
