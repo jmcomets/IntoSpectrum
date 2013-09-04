@@ -61,26 +61,30 @@ $(window).load(function() {
 
   // Pause/Unpause control
   var pauseControl = $('#pause-control');
-  pauseControl.on('click', function() {
-    player.pause();
-  });
+  pauseControl.on('click', function() { player.togglePause(); });
 
   // Stop control
   var stopControl = $('#stop-control');
-  stopControl.on('click', function() {
-    player.stop();
-  });
+  stopControl.on('click', function() { player.stop(); });
 
   // Player event hooks
   player.on('play', function(song) {
-    // Update play count
     $('[song-id="' + song.id + '"]').siblings().last().text(song.playCount);
-
-    // Show player
-  }).on('pause', function() {
-    alert('music paused');
+    pauseControl.removeClass('disabled');
+    pauseControl.find('.icon-play').hide();
+    pauseControl.find('.icon-pause').show();
+  }).on('togglePause', function(paused) {
+    if (paused) {
+      pauseControl.find('.icon-play').show();
+      pauseControl.find('.icon-pause').hide();
+    } else {
+      pauseControl.find('.icon-play').hide();
+      pauseControl.find('.icon-pause').show();
+    }
   }).on('stop', function() {
-    alert('music stopped');
+    pauseControl.find('.icon-play').show();
+    pauseControl.find('.icon-pause').hide();
+    pauseControl.addClass('disabled');
   }).on('setVolume', function(volume) {
     volumeSlider.slider('setValue', volume);
   });

@@ -6,7 +6,7 @@ function Player(url) {
   // Base callbacks
   this._callbacks = {
     'play': [],
-    'pause': [],
+    'togglePause': [],
     'stop': [],
     'getVolume': [],
     'setVolume': [],
@@ -20,8 +20,8 @@ function Player(url) {
   this._socket.on('connect', function() {
     this
       .on('play', function(song) { that.emit('play', song); })
-      .on('pause', function() { that.emit('pause'); })
-      .on('pause', function() { that.emit('stop'); })
+      .on('togglePause', function(paused) { that.emit('togglePause', paused); })
+      .on('stop', function() { that.emit('stop'); })
       .on('getVolume', function(volume) { that.emit('getVolume', volume); })
       .on('setVolume', function(volume) { that.emit('setVolume', volume); })
       .on('getTime', function(time) { that.emit('getTime', time); })
@@ -50,8 +50,8 @@ Player.prototype.play = function(song_id) {
   this._socket.emit('play', song_id);
 };
 
-Player.prototype.pause = function() {
-  this._socket.emit('pause');
+Player.prototype.togglePause = function() {
+  this._socket.emit('togglePause');
 };
 
 Player.prototype.stop = function() {

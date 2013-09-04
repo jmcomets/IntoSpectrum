@@ -9,6 +9,7 @@ var path = require('path'),
 var Mplayer = function() {
   this._process = null;
   this._normalExit = true;
+  this.paused = false;
 };
 
 // Inherit from EventEmitter
@@ -38,6 +39,7 @@ Mplayer.prototype.play = function(song) {
 
   // Spawn new process with appropriate file
   this._process = spawn('mplayer', ['-slave', '-really-quiet', song.fullPath()]);
+  this.paused = false;
 
   // Handle process end
   this._process.on('exit', function() {
@@ -57,15 +59,16 @@ Mplayer.prototype.play = function(song) {
 // Stop the current playing song
 Mplayer.prototype.stop = function() {
   if (this._process) {
-    this._send('stop');
-    this._process.disconnect();
+    this._send('stop'); // or this._process.kill();
     this._process = null;
+    this.paused = true;
   }
 };
 
 // Pause/Unpause the current playing song
 Mplayer.prototype.togglePause = function() {
   if (this._process) {
+    this.paused = 1 - this.paused;
     this._send('pause');
   }
 };
@@ -115,9 +118,9 @@ exports.listen = function(server) {
         song.save();
         io.emit('play', song);
       });
-    }).on('pause', function() {
+    }).on('togglePause', function() {
       mplayer.togglePause();
-      io.emit('pause');
+      io.emit('togglePause', mplayer.paused);
     }).on('stop', function() {
       mplayer.stop();
       io.emit('stop');
