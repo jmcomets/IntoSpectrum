@@ -28,23 +28,22 @@
 
         {# Bootstrap slider #}
         {% block bootstrap-slider %}
-        <link type="text/css" rel="stylesheet" href="/bootstrap-slider/css/slider.css" media="screen">
+        <link type="text/css" rel="stylesheet" href="/bootstrap-slider/css/bootstrap-slider.css" media="screen">
         <script type="text/javascript" src="/bootstrap-slider/js/bootstrap-slider.js"></script>
         {% endblock %}
 
+        {# Socket.IO #}
+        {% block socket.io %}
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        {% endblock %}
+
         {# CSS #}
-        <link type="text/css" rel="stylesheet" href="/css/player.css" media="screen">
         <style type="text/css">
             #wrap {
                 margin: 50px;
             }
         </style>
         {% block css %}
-        {% endblock %}
-
-        {# Socket.IO #}
-        {% block socket.io %}
-        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
         {% endblock %}
 
         {# JavaScript #}
