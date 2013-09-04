@@ -246,11 +246,9 @@ exports.listen = function(server) {
           io.emit('info', out);
         });
       }
-    }).on('volume', function(id, volume) {
-      id = parseInt(id);
+    }).on('volume', function(volume) {
       volume = parseFloat(volume);
-      if(id != undefined && id == current_song['song'].id
-        && volume != undefined && volume >= 0 && volume <= 100) {
+      if(volume != undefined && volume >= 0 && volume <= 100) {
         mplayer.setVolume(volume).then(function() {
           current_song['volume'] = volume;
           out = {'id': current_song['song'].id,
