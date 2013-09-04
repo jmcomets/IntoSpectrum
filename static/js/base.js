@@ -1,6 +1,9 @@
 $(window).load(function() {
-  // Main player instance
+  // Player: client-server controller
   var player = new Player('/player');
+
+  // Controls: UI front-end to player
+  var controls = new Controls(player);
 
   // Load songs protocol (data handler, current cursor, end handler)
   var loadSongs = function(fn, end, c) {
@@ -52,20 +55,6 @@ $(window).load(function() {
     // Loading finished
     loadContainer.hide();
   });
-
-  // Volume control
-  var volumeSlider = $('#volume-progress').slider();
-  volumeSlider.on('slide', function(ev) {
-    player.setVolume(ev.value);
-  });
-
-  // Pause/Unpause control
-  var pauseControl = $('#pause-control');
-  pauseControl.on('click', function() { player.togglePause(); });
-
-  // Stop control
-  var stopControl = $('#stop-control');
-  stopControl.on('click', function() { player.stop(); });
 
   // Player event hooks
   player.on('play', function(song) {

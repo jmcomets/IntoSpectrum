@@ -10,7 +10,7 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 
 // Favicon
-app.use(express.favicon(path.join(__dirname, 'static/images/favicon.ico')));
+app.use(express.favicon(path.join(__dirname, 'static/img/favicon.ico')));
 
 // Swig template engine
 app.engine('html', require('swig').renderFile);
