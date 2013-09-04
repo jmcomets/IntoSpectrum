@@ -1,9 +1,63 @@
 $(window).load(function() {
   // Player: client-server controller
-  var player = new Player('/player');
+  var player = new Player();
 
-  // Controls: UI front-end to player
-  var controls = new Controls(player);
+  // Volume control -> slider
+  volumeSlider = $('#volume-progress').slider({
+    'animate': 'fast',
+    'orientation': 'vertical',
+    'min': 0,
+    'max': 100,
+    'slide': function(ev, ui) {
+      player.setVolume(ui.value);
+    }
+  });
+
+  // Pause/Unpause -> same button
+  pauseButton = $('#pause-control');
+
+  // Stop -> button
+  stopButton = $('#stop-control');
+
+  // Track progress control
+  trackSlider = $('#play-progress').slider({
+    'orientation': 'horizontal',
+    'disabled': true,
+    'min': 0,
+    'max': 242,
+    'slide': function(value) {
+      // TODO set song time
+    }
+  });
+
+  // Pause/Unpause control
+  pauseButton.on('click', function() { player.togglePause(); });
+
+  // Stop control
+  stopButton.on('click', function() { player.stop(); });
+
+  // Player event hooks
+  player.update = function(data) {
+    // Setup the play/pause button
+    if (data.playing) {
+      pauseButton.find('.icon-play').hide();
+      pauseButton.find('.icon-pause').show();
+    } else {
+      pauseButton.find('.icon-play').show();
+      pauseButton.find('.icon-pause').hide();
+    }
+
+    // Update the play count
+    if (data.playing) {
+      $('[song-id="' + id + '"]').siblings().last().text(data.play_count);
+    }
+
+    // Set the volume
+    volumeSlider.slider('value', volume);
+  };
+
+  // Explicitly connect the player
+  player.connect('/player');
 
   // Load songs protocol (data handler, current cursor, end handler)
   var loadSongs = function(fn, end, c) {
