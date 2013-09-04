@@ -246,11 +246,9 @@ exports.listen = function(server) {
           io.emit('info', out);
         });
       }
-    }).on('volume', function(id, volume) {
-      id = parseInt(id);
+    }).on('volume', function(volume) {
       volume = parseFloat(volume);
-      if(id != undefined && id == current_song['song'].id
-        && volume != undefined && volume >= 0 && volume <= 100) {
+      if(volume != undefined && volume >= 0 && volume <= 100) {
         mplayer.setVolume(volume).then(function() {
           current_song['volume'] = volume;
           out = {'id': current_song['song'].id,
@@ -267,7 +265,9 @@ exports.listen = function(server) {
       time = parseInt(time);
       if(id != undefined && id == current_song['song'].id
         && time != undefined
-        && time >= 0 && time <= current_song['song'].duration) {
+        && time >= 0
+        && (current_song['song'].duration == undefined
+          || time <= current_song['song'].duration)) {
         mplayer.setTime(time).then(function() {
           current_song['time'] = time;
           out = {'id': current_song['song'].id,
