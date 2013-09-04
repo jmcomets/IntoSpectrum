@@ -55,28 +55,6 @@ $(window).load(function() {
     // Loading finished
     loadContainer.hide();
   });
-
-  // Player event hooks
-  player.on('play', function(song) {
-    $('[song-id="' + song.id + '"]').siblings().last().text(song.playCount);
-    pauseControl.removeClass('disabled');
-    pauseControl.find('.icon-play').hide();
-    pauseControl.find('.icon-pause').show();
-  }).on('togglePause', function(paused) {
-    if (paused) {
-      pauseControl.find('.icon-play').show();
-      pauseControl.find('.icon-pause').hide();
-    } else {
-      pauseControl.find('.icon-play').hide();
-      pauseControl.find('.icon-pause').show();
-    }
-  }).on('stop', function() {
-    pauseControl.find('.icon-play').show();
-    pauseControl.find('.icon-pause').hide();
-    pauseControl.addClass('disabled');
-  }).on('setVolume', function(volume) {
-    volumeSlider.slider('setValue', volume);
-  });
 });
 
 // vim: ft=javascript et sw=2 sts=2

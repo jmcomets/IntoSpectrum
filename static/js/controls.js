@@ -35,13 +35,13 @@ function Controls(player) {
   this.stopButton.on('click', function() { player.stop(); });
 
   // Player event hooks
-  player.on('play', function(song) {
+  player.bind('play', function(song) {
     controls.play(song);
-  }).on('togglePause', function(paused) {
+  }).bind('togglePause', function(paused) {
     controls.togglePause(paused);
-  }).on('stop', function() {
+  }).bind('stop', function() {
     controls.stop();
-  }).on('setVolume', function(volume) {
+  }).bind('setVolume', function(volume) {
     controls.setVolume(volume);
   });
 }

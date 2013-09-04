@@ -19,32 +19,21 @@ function Player(url) {
   var that = this;
   this._socket.on('connect', function() {
     this
-      .on('play', function(song) { that.emit('play', song); })
-      .on('togglePause', function(paused) { that.emit('togglePause', paused); })
-      .on('stop', function() { that.emit('stop'); })
-      .on('getVolume', function(volume) { that.emit('getVolume', volume); })
-      .on('setVolume', function(volume) { that.emit('setVolume', volume); })
-      .on('getTime', function(time) { that.emit('getTime', time); })
-      .on('setTime', function(time) { that.emit('setTime', time); })
-      .on('getTotalTime', function(time) { that.emit('totalTimeChanged', time); })
+      .on('play', function(song) { that.trigger('play', song); })
+      .on('togglePause', function(paused) { that.trigger('togglePause', paused); })
+      .on('stop', function() { that.trigger('stop'); })
+      .on('getVolume', function(volume) { that.trigger('getVolume', volume); })
+      .on('setVolume', function(volume) { that.trigger('setVolume', volume); })
+      .on('getTime', function(time) { that.trigger('getTime', time); })
+      .on('setTime', function(time) { that.trigger('setTime', time); })
+      .on('getTotalTime', function(time) { that.trigger('totalTimeChanged', time); })
     ;
   });
 }
 
-// Event listening
-Player.prototype.on = function(evt, fn) {
-  if (this._callbacks[evt] == undefined) {
-    throw new Error('Unknown event: ' + evt);
-  } else {
-    this._callbacks[evt].push(fn);
-  }
-  return this;
-};
-// ...firing
-Player.prototype.emit = function(evt, data) {
-  var callbacks = this._callbacks[evt];
-  for (var i = 0; i < callbacks.length; i++) { callbacks[i](data); }
-};
+// Observer pattern with MicroEvent, credit:
+//  -> https://github.com/jeromeetienne/microevent.js
+MicroEvent.mixin(Player);
 
 Player.prototype.play = function(song_id) {
   this._socket.emit('play', song_id);
