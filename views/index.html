@@ -26,6 +26,12 @@
         <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
         {% endblock %}
 
+        {# Bootstrap slider #}
+        {% block bootstrap-slider %}
+        <link type="text/css" rel="stylesheet" href="/bootstrap-slider/css/slider.css" media="screen">
+        <script type="text/javascript" src="/bootstrap-slider/js/bootstrap-slider.js"></script>
+        {% endblock %}
+
         {# CSS #}
         <link type="text/css" rel="stylesheet" href="/css/player.css" media="screen">
         <style type="text/css">
@@ -61,15 +67,27 @@
         {# Content #}
         <div id="wrap">
             {% block content %}
+
+            {# Player #}
+            <div id="player">
+                <div id="play-progress"></div>
+                <input id="volume-progress" type="text" value="" data-slider-step="1"
+                    data-slider-min="0" data-slider-max="100" data-slider-orientation="vertical">
+            </div>
+
+            {# Loading #}
             <div id="library-loading" class="well">
-                <h2>Library loading...</h2>
+                <!--<h2>Library loading...</h2>-->
                 <div class="progress progress-striped active">
                     <div class="bar" style="width: 100%;"></div>
                 </div>
                 <em id="library-loading-current"></em>
             </div>
+
+            {# Songs #}
             <table class="table table-hover table-condensed">
                 <thead>
+                    <th>#</th>
                     <th>Title</th>
                     <th>Artist</th>
                     <th>Album</th>
@@ -77,8 +95,17 @@
                     <th>Play count</th>
                 </thead>
                 <tbody id="library">
+                    <!--<tr>-->
+                        <!--<td>0</td>-->
+                        <!--<td>Together</td>-->
+                        <!--<td>The Raconteurs</td>-->
+                        <!--<td>Broken Boy Soldiers</td>-->
+                        <!--<td>1337</td>-->
+                        <!--<td>0</td>-->
+                    <!--</tr>-->
                 </tbody>
             </table>
+
             {% endblock %}
         </div>
     </body>

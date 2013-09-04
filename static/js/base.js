@@ -51,16 +51,38 @@ $(window).load(function() {
   }, function() {
     // Loading finished
     loadContainer.hide();
+  });
 
-    // Player event hooks
-    player.on('play', function(song) {
-      // Update play count
-      $('[song-id="' + song.id + '"]').siblings().last().text(song.playCount);
-    }).on('pause', function() {
-      // TODO
-    }).on('stop', function() {
-      // TODO
-    });
+  // Volume control
+  var volumeSlider = $('#volume-progress').slider();
+  volumeSlider.on('slide', function(ev) {
+    player.setVolume(ev.value);
+  });
+
+  // Pause/Unpause control
+  var pauseControl = $('#pause-control');
+  pauseControl.on('click', function() {
+    player.pause();
+  });
+
+  // Stop control
+  var stopControl = $('#stop-control');
+  stopControl.on('click', function() {
+    player.stop();
+  });
+
+  // Player event hooks
+  player.on('play', function(song) {
+    // Update play count
+    $('[song-id="' + song.id + '"]').siblings().last().text(song.playCount);
+
+    // Show player
+  }).on('pause', function() {
+    alert('music paused');
+  }).on('stop', function() {
+    alert('music stopped');
+  }).on('setVolume', function(volume) {
+    volumeSlider.slider('setValue', volume);
   });
 });
 

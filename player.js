@@ -1,4 +1,5 @@
 var path = require('path'),
+    EventEmitter = require('events').EventEmitter,
     socketIO = require('socket.io'),
     spawn = require('child_process').spawn,
     settings = require('./settings'),
@@ -8,6 +9,20 @@ var path = require('path'),
 var Mplayer = function() {
   this._process = null;
   this._normalExit = true;
+};
+
+// Inherit from EventEmitter
+Mplayer.prototype.__proto__ = EventEmitter.prototype;
+
+// Helper private method for communicating with mplayer (raw data),
+// returns true if the data was written, false otherwise
+Mplayer.prototype._send = function(line) {
+  if (this._process) {
+    this._process.stdin.write(line + '\n');
+    return true;
+  } else {
+    return false;
+  }
 };
 
 // Play a song brutally, stopping any current playing song
@@ -22,7 +37,7 @@ Mplayer.prototype.play = function(song) {
   }
 
   // Spawn new process with appropriate file
-  this._process = spawn('mplayer', ['-slave', '-quiet', song.fullPath()]);
+  this._process = spawn('mplayer', ['-slave', '-really-quiet', song.fullPath()]);
 
   // Handle process end
   this._process.on('exit', function() {
@@ -32,26 +47,49 @@ Mplayer.prototype.play = function(song) {
       this._normalExit = true;
     }
   });
+
+  // Handle process output
+  that._process.stdout.on('data', function(data) {
+    console.log('data: ' + data);
+  });
 };
 
-// Stop the current playing song, throwing if none is playing
+// Stop the current playing song
 Mplayer.prototype.stop = function() {
   if (this._process) {
-    this._process.write('stop');
+    this._send('stop');
     this._process.disconnect();
     this._process = null;
-  } else {
-    throw new Error('Cannot stop, no song currently playing');
   }
 };
 
-Mplayer.prototype.pause = function() {
+// Pause/Unpause the current playing song
+Mplayer.prototype.togglePause = function() {
   if (this._process) {
-    this._process.write('pause');
-  } else {
-    throw new Error('Cannot pause, no song currently playing');
+    this._send('pause');
   }
 };
+
+// Set the volume
+Mplayer.prototype.setVolume = function(volume) {
+  if (this._process) {
+    this._send('volume ' + volume + ' 1');
+  }
+};
+
+// Get the song duration
+Mplayer.prototype.getTotalTime = function() {
+  this._send('get_time_length');
+}
+
+// Get the song current time
+Mplayer.prototype.getTime = function() {
+  this._send('get_time_pos');
+}
+// ...set
+Mplayer.prototype.setTime = function(time) {
+  this._send('set_property time_pos ' + time);
+}
 
 // Listener export (main function of the module)
 exports.listen = function(server) {
@@ -60,6 +98,13 @@ exports.listen = function(server) {
 
   // Mplayer
   var mplayer = new Mplayer();
+  mplayer.on('getVolume', function(volume) {
+    io.emit('getVolume', volume);
+  }).on('getTotalTime', function(time) {
+    io.emit('getTotalTime', time);
+  }).on('getTime', function(time) {
+    io.emit('getTime', time);
+  });
 
   // Server setup
   io.on('connection', function(socket) {
@@ -71,12 +116,28 @@ exports.listen = function(server) {
         io.emit('play', song);
       });
     }).on('pause', function() {
-      mplayer.pause();
+      mplayer.togglePause();
       io.emit('pause');
     }).on('stop', function() {
       mplayer.stop();
       io.emit('stop');
+    }).on('setVolume', function(volume) {
+      volume = parseFloat(volume);
+      if (volume != undefined) {
+        mplayer.setVolume(volume);
+        io.emit('setVolume', volume);
+      }
     });
+  }).on('setTime', function(time) {
+      time = parseInt(time);
+      if (time != undefined) {
+        mplayer.setTime(time);
+        io.emit('setTime', time);
+      }
+  }).on('getTotalTime', function() {
+    mplayer.getTotalTime();
+  }).on('getTime', function() {
+    mplayer.getTime();
   });
 };
 
