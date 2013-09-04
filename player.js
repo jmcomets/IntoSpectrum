@@ -47,7 +47,7 @@ Mplayer.prototype.play = function(song) {
   }
 
   // Spawn new process with appropriate file
-  this._process = spawn('mplayer', ['-slave', '-idle', '-really-quiet', song.fullPath()]);
+  this._process = spawn('mplayer', ['-slave', '-idle', '-quiet',  song.fullPath()]);
   this.paused = false;
 
   // Handle process end
@@ -119,10 +119,11 @@ Mplayer.prototype.setVolume = function(volume) {
 Mplayer.prototype.getTotalTime = function() {
   if(this._process) {
     this._process.stdout.on('data', function(data) {
-      console.log('Total time : ' + data);
-    });
-    this._process.stderr.on('data', function(data) {
-      console.log('[ERR] Total time : ' + data);
+      word = 'ANS_LENGTH=';
+      if(data.length > word.length && data.slice(0, word.length) == word) {
+        time_length = parseFloat(data.slice(word.length));
+        console.log('Total time : ' + time_length);
+      }
     });
     this._send('get_time_length\n');
   }
@@ -132,6 +133,13 @@ Mplayer.prototype.getTotalTime = function() {
 
 // Get the song current time
 Mplayer.prototype.getTime = function() {
+  this._process.stdout.on('data', function(data) {
+    word = 'ANS_TIME_POSITION=';
+    if(data.length > word.length && data.slice(0, word.length) == word) {
+      time_length = parseFloat(data.slice(word.length));
+      console.log('Position time : ' + time_length);
+    }
+  });
   this._send('get_time_pos\n');
 
   return _then();
@@ -195,6 +203,7 @@ exports.listen = function(server) {
                 song.duration = 60;
               }
               mplayer.getTotalTime();
+              mplayer.getTime();
               song.playCount += 1;
               song.save();
 
