@@ -62,18 +62,23 @@ var run = function() {
         Song.findOrCreate({
           'path': files[i].substring(media.root.length + 1)
         }).success(function(song, created) {
-          //log('found: ' + song.path);
           var fname = path.join(media.root, song.path);
-
           if (created || (song.title == undefined
               && song.artist == undefined
               && song.album == undefined
               && song.year == undefined)) {
-            //log('reading: ' + song.path);
-            var data = fs.readFileSync(fname);
-            // Don't insert songs which can't be read
-            if (!data) {
-              log('failed reading: ' + song.path);
+            // Read and parse file
+            var data;
+            try {
+              data = fs.readFileSync(fname);
+              // Don't insert songs which can't be read
+              if (!data) {
+                log('failed reading: ' + song.path);
+                return;
+              }
+            } catch (error) {
+              log('failed reading: ' + song.path + ', reason: ' + error);
+              song.destroy();
               return;
             }
 
