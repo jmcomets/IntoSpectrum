@@ -265,7 +265,9 @@ exports.listen = function(server) {
       time = parseInt(time);
       if(id != undefined && id == current_song['song'].id
         && time != undefined
-        && time >= 0 && time <= current_song['song'].duration) {
+        && time >= 0
+        && (current_song['song'].duration == undefined
+          || time <= current_song['song'].duration)) {
         mplayer.setTime(time).then(function() {
           current_song['time'] = time;
           out = {'id': current_song['song'].id,
