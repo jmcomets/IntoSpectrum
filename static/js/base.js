@@ -6,8 +6,8 @@ $(window).load(function() {
   var loadSongs = function(fn, end, c) {
     var cursor = parseInt(c) || 1;
     $.getJSON('/library/' + cursor, function(data) {
+      fn(data);
       if (data.next) {
-        fn(data);
         loadSongs(fn, end, cursor + 1);
       } else { end(); }
     });
