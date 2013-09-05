@@ -19,6 +19,16 @@ exports.player = {
   'url': '/player'
 };
 
+// Watchdog
+exports.watchdog = {
+  'interval': {
+    'hours': 24,
+    'minutes': 0,
+    'seconds': 0
+  }, 'delay': 0,
+  'logging': true
+};
+
 // Views
 exports.views = {
   'extension': 'html',

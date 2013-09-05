@@ -1,7 +1,9 @@
 var path = require('path'),
     fs = require('fs'),
     ID3 = require('id3'),
-    media = require('./settings').media,
+    settings = require('./settings'),
+    options = settings.watchdog,
+    media = settings.media,
     Song = require('./models').Song;
 
 // Walk through a directory (parallel loop), found on SO:
@@ -27,16 +29,6 @@ var walk = function(dir, done) {
       });
     });
   });
-};
-
-// Options for watchdog
-var options = {
-  'interval': {
-    'hours': 24,
-    'minutes': 0,
-    'seconds': 0
-  }, 'delay': 0,
-  'logging': true
 };
 
 // Internal ID of the current started
