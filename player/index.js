@@ -1,7 +1,7 @@
-var Song = require('./models').Song,
+var Song = require('../models').Song,
     mplayer = require('./mplayer').mplayer;
 
-var player = exports.player = function() {
+var player = module.exports = function() {
   // mplayer
   this._mplayer = new mplayer();
 

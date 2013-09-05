@@ -1,7 +1,7 @@
 var SocketIO = require('socket.io'),
-    Player = require('./player').player;
+    Player = require('../player');
 
-var listener = exports.listener = function(server) {
+exports.listen = function(server) {
   // Player
   var player = new Player();
 
