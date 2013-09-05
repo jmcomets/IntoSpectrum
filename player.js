@@ -9,8 +9,8 @@ var path = require('path'),
 var Mplayer = function() {
   // Current state
   this._paused = false;
-  this._time_lenght = 0;
-  this._time_pos = 0;
+  this._timeLength = 0;
+  this._timePos = 0;
 
   // Spawn new process with appropriate file
   this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
@@ -19,23 +19,23 @@ var Mplayer = function() {
   var self = this;
   this._process.stdout.on('data', function(data) {
     var get_word = function(word, data) {
-      if(data.length > word.length && data.slice(0, word.length) == word) {
+      if (data.length > word.length && data.slice(0, word.length) == word) {
         console.log('STDOUT : ' + data);
         return data.slice(word.length);
       }
       return undefined;
     };
 
-    var time_length = parseFloat(get_word('ANS_LENGTH=', data));
-    if(time_length != undefined
-      && !isNaN(time_length)) {
-        self._time_length = time_length;
+    var timeLength = parseFloat(get_word('ANS_LENGTH=', data));
+    if (timeLength != undefined
+      && !isNaN(timeLength)) {
+        self._time_length = timeLength;
       }
 
     var time_pos = parseFloat(get_word('ANS_TIME_POSITION=', data));
-    if(time_pos != undefined
+    if (time_pos != undefined
       && !isNaN(time_pos)) {
-        self._time_pos = time_pos;
+        self._timePos = time_pos;
       }
   });
 };
@@ -53,9 +53,9 @@ Mplayer.prototype._send = function(line) {
 // Play a song brutally, stopping any current playing song
 Mplayer.prototype.play = function(song) {
   this._send('loadfile "' + song.fullPath() + '"');
-  this.get_time_length();
+  this.getTimeLength();
   this._paused = false;
-  this._time_pos = 0;
+  this._timePos = 0;
   this._time_length = 0;
 };
 
@@ -64,24 +64,24 @@ Mplayer.prototype.stop = function() {
   // this._send('stop');
   // this._paused = true;
   this.unpause();
-  this.set_time_pos(0);
+  this.setTimePos(0);
   this.pause();
 };
 
 // Pause/Unpause the current playing song
 Mplayer.prototype.togglePause = function() {
-  this._send('pause\n');
+  this._send('pause');
   this._paused = !this._paused;
 };
 
 // unpause the current playing song
 Mplayer.prototype.unpause = function() {
-  if(this._paused) { this.togglePause(); }
+  if (this._paused) { this.togglePause(); }
 };
 
 // Pause the current playing song
 Mplayer.prototype.pause = function() {
-  if(!this._paused) { this.togglePause(); }
+  if (!this._paused) { this.togglePause(); }
 };
 
 // Set the volume
@@ -90,23 +90,24 @@ Mplayer.prototype.set_volume = function(volume) {
 };
 
 // Get the song duration
-Mplayer.prototype.get_time_length = function() {
+Mplayer.prototype.getTimeLength = function() {
   this._send('get_time_length');
 }
 
 // Get the song current time
-Mplayer.prototype.get_time_pos = function() {
+Mplayer.prototype.getTimePos = function() {
   this._send('get_time_pos');
 }
 // ...set
-Mplayer.prototype.set_time_pos = function(time) {
+Mplayer.prototype.setTimePos = function(time) {
   this._send('set_property time_pos ' + time);
-  this._time_pos = time;
+  this._timePos = time;
 }
 
 // Listener export (main function of the module)
 exports.listen = function(server) {
-  var current_song = {'song': undefined,
+  var currentSong = {
+    'song': undefined,
     'playing': false,
     'volume': 100,
     'time': 0
@@ -118,28 +119,30 @@ exports.listen = function(server) {
   var mplayer = new Mplayer();
 
   var timer;
-  var start_update = function() {
-    if(timer != undefined)
-      return;
+  var startUpdate = function() {
+    if (timer != undefined) { return; }
 
     timer = setInterval(function() {
-      mplayer.get_time_pos();
+      mplayer.getTimePos();
 
       // Plus 1s for the late
-      current_song['time'] = mplayer._time_pos;
-      if(current_song['time'] != undefined) { current_song['time'] += 1; }
-
-      if(current_song['song'] != undefined) {
-        current_song['song'].duration = mplayer._time_length;
+      currentSong['time'] = mplayer._timePos;
+      if (currentSong['time'] != undefined) {
+        currentSong['time'] += 1;
       }
 
-      send_song();
+      if (currentSong['song'] != undefined) {
+        currentSong['song'].duration = mplayer._time_length;
+      }
+
+      sendSong();
     }, 1000);
   };
 
-  var stop_update = function() {
-    if(timer != undefined)
+  var stopUpdate = function() {
+    if (timer != undefined) {
       clearInterval(timer);
+    }
     timer = undefined;
   };
 
@@ -150,25 +153,24 @@ exports.listen = function(server) {
   // VOLUME is an integer between 0 to 100
   // TIME is an integer (in seconds)
   // TIME_MAX is an integer (in seconds)
-  var send_song = function() {
-    var out = {'id': -1,
-      'playing': current_song['playing'] ? 1 : 0,
-      'volume': current_song['volume'],
-      'time': current_song['time'],
+  var sendSong = function() {
+    var out = {
+      'id': -1,
+      'playing': currentSong['playing'] ? 1 : 0,
+      'volume': currentSong['volume'],
+      'time': currentSong['time'],
       'time_max': 0
     };
 
-    if(current_song['song'] != undefined) {
-      out['id'] = current_song['song'].id;
-      out['time_max'] = current_song['song'].duration;
+    if (currentSong['song'] != undefined) {
+      out['id'] = currentSong['song'].id;
+      out['time_max'] = currentSong['song'].duration;
     }
-    if(out['time'] == undefined)      { out['time'] = 0; }
-    if(out['time_max'] == undefined)  { out['time_max'] = 0; }
+    if (out['time'] == undefined)      { out['time'] = 0; }
+    if (out['time_max'] == undefined)  { out['time_max'] = 0; }
 
-    if(out['playing'])
-      start_update();
-    else
-      stop_update();
+    if (out['playing']) { startUpdate(); }
+    else { stopUpdate(); }
 
     io.emit('info', out);
   };
@@ -176,78 +178,78 @@ exports.listen = function(server) {
   // Server setup
   io.on('connection', function(socket) {
     socket.on('get_info', function() {
-      send_song();
+      sendSong();
     }).on('play', function(id) {
       id = parseInt(id);
-      if(id != undefined) {
+      if (id != undefined) {
         Song.find(id).success(function(song) {
-          if(song != undefined) {
+          if (song != undefined) {
             mplayer.play(song);
 
-            song.duration = mplayer.time_length;
+            song.duration = mplayer.timeLength;
             song.playCount += 1;
             song.save();
 
-            current_song['song'] = song;
-            current_song['time'] = 0;
-            current_song['playing'] = true;
+            currentSong['song'] = song;
+            currentSong['time'] = 0;
+            currentSong['playing'] = true;
 
-            send_song();
+            sendSong();
           }
         });
       }
     }).on('pause', function(id) {
       id = parseInt(id);
-      if(id != undefined
-        && current_song['song'] != undefined
-        && id == current_song['song'].id
-        && current_song['playing']) {
+      if (id != undefined
+        && currentSong['song'] != undefined
+        && id == currentSong['song'].id
+        && currentSong['playing']) {
           mplayer.pause();
-          current_song['playing'] = false;
-          send_song();
+          currentSong['playing'] = false;
+          sendSong();
         }
     }).on('unpause', function(id) {
       id = parseInt(id);
-      if(id != undefined
-        && current_song['song'] != undefined
-        && id == current_song['song'].id
-        && !current_song['playing']) {
+      if (id != undefined
+        && currentSong['song'] != undefined
+        && id == currentSong['song'].id
+        && !currentSong['playing']) {
           mplayer.unpause();
-          current_song['playing'] = true;
-          send_song();
+          currentSong['playing'] = true;
+          sendSong();
         }
     }).on('stop', function(id) {
       id = parseInt(id);
-      if(id != undefined
-        && current_song['song'] != undefined
-        && id == current_song['song'].id) {
+      if (id != undefined
+        && currentSong['song'] != undefined
+        && id == currentSong['song'].id) {
           mplayer.stop();
-          current_song['time'] = 0;
-          current_song['playing'] = false;
-          send_song();
+          currentSong['time'] = 0;
+          currentSong['playing'] = false;
+          sendSong();
         }
     }).on('volume', function(volume) {
       volume = parseFloat(volume);
-      if(volume != undefined && volume >= 0 && volume <= 100) {
+      if (volume != undefined && volume >= 0 && volume <= 100) {
         mplayer.set_volume(volume);
-        current_song['volume'] = volume;
-        send_song();
+        currentSong['volume'] = volume;
+        sendSong();
       }
     }).on('time', function(id, time) {
       id = parseInt(id);
       time = parseFloat(time);
       console.log('timeimemie ' + time);
-      if(id != undefined
-        && current_song['song'] != undefined
-        && id == current_song['song'].id
+      if (id != undefined
+        && currentSong['song'] != undefined
+        && id == currentSong['song'].id
         && time != undefined
         && time >= 0
-        && (current_song['song'].duration == undefined
-          || time <= current_song['song'].duration)) {
-            mplayer.set_time_pos(time);
-            mplayer._time_pos = time;
-            current_song['time'] = time;
-            send_song();
+        && (currentSong['song'].duration == undefined
+          || time <= currentSong['song'].duration)) {
+            mplayer.setTimePos(time);
+            mplayer._timePos = time;
+            currentSong['time'] = time;
+            sendSong();
           }
     })
   });
