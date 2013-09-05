@@ -1,7 +1,8 @@
 // Player class
 function Player(update) {
-  if (update != undefined) { this.update = options.update; }
+  this.update = update;
   this._songId = -1;
+  that._playing = false;
 }
 
 Player.prototype.connect = function(url) {
@@ -11,7 +12,7 @@ Player.prototype.connect = function(url) {
     this.on('info', function(state) {
       that._songId = state.id;
       that._playing = state.playing;
-      that.update(state);
+      if (that.update) { that.update(state); }
     });
   });
 };
