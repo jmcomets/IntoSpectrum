@@ -1,0 +1,10 @@
+[Service]
+ExecStart=/usr/bin/node /home/jmcomets/IntoSpectrum/app.js
+Restart=always
+StandardOutput=syslog
+User=jmcomets
+Group=jmcomets
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
