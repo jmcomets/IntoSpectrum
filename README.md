@@ -17,7 +17,7 @@ launched once, or as a daemon process
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum image](../../blob/master/static/img/spectrum.jpg?raw=true)
+![Spectrum image][]
 
 ## Requirements
 
@@ -37,14 +37,15 @@ to correspond to one of our favorite pokemon.
 - [Jean-Marie Comets][]
 - [Pierre Turpin][]
 
-[Python 2.7]: (http://www.python.org/download/releases/2.7)
-[mutagen]: (https://code.google.com/p/mutagen)
-[MySQL]: (http://www.mysql.com)
-[Virtualenv]: (http://www.virtualenv.org)
-[peewee]: (https://github.com/coleifer/peewee)
-[Node.js]: (http://nodejs.org),
-[Mplayer]: (http://mplayerhq.hu)
-[Bootstrap 2.3.2]: (https://github.com/twbs/bootstrap/tree/v2.3.2)
-[Bootstrap JQuery UI]: (https://github.com/addyosmani/jquery-ui-bootstrap).
-[Jean-Marie Comets]: (https://github.com/jmcomets)
-[Pierre Turpin]: (https://github.com/TurpIF)
+[Python 2.7]: http://www.python.org/download/releases/2.7
+[mutagen]: https://code.google.com/p/mutagen
+[MySQL]: http://www.mysql.com
+[Virtualenv]: http://www.virtualenv.org
+[peewee]: https://github.com/coleifer/peewee
+[Node.js]: http://nodejs.org,
+[Mplayer]: http://mplayerhq.hu
+[Bootstrap 2.3.2]: https://github.com/twbs/bootstrap/tree/v2.3.2
+[Bootstrap JQuery UI]: https://github.com/addyosmani/jquery-ui-bootstrap.
+[Spectrum image]: ../../blob/master/static/img/spectrum.jpg?raw=true
+[Jean-Marie Comets]: https://github.com/jmcomets
+[Pierre Turpin]: https://github.com/TurpIF
