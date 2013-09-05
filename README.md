@@ -5,15 +5,15 @@ IntoSpectrum
 
 Server-side media player with a web front-end, written in NodeJS.
 
-The interface is based on [Bootstrap 2.3.2](/twbs/bootstrap/tree/v2.3.2)
-and [Bootstrap JQuery UI](/addyosmani/jquery-ui-bootstrap).
+The interface is based on [Bootstrap 2.3.2](https://github.com/twbs/bootstrap/tree/v2.3.2)
+and [Bootstrap JQuery UI](https://github.com/addyosmani/jquery-ui-bootstrap).
 
 ### Why IntoSpectrum ?
 
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum](/blob/master/static/img/spectrum.jpg?raw=true)
+![Spectrum](https://github.com/jmcomets/blob/master/static/img/spectrum.jpg?raw=true)
 
 # Requirements
 
@@ -21,5 +21,5 @@ to correspond to one of our favorite pokemon.
 - [Mplayer](http://mplayerhq.hu)
 
 # Authors
-- [Jean-Marie Comets](/jmcomets)
-- [Pierre Turpin](/TurpIF)
+- [Jean-Marie Comets](https://github.com/jmcomets)
+- [Pierre Turpin](https://github.com/TurpIF)
