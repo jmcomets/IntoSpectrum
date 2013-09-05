@@ -1,15 +1,15 @@
 {
   "name": "IntoSpectrum",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node app.js"
   }, "dependencies": {
-    "express": "*",
-    "socket.io": "*",
-    "sequelize" : "*",
-    "mysql": "*",
-    "id3": "*",
-    "swig": "*"
+    "express": "3.3.8",
+    "socket.io": "0.9.16",
+    "sequelize": "2.0.0-beta.0",
+    "mysql": "2.0.0-alpha9",
+    "id3": "0.0.3",
+    "swig": "1.0.0-rc1"
   }
 }
