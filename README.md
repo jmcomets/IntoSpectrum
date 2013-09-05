@@ -17,7 +17,7 @@ launched once, or as a daemon process
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum image][]
+![Spectrum image](../blob/master/static/img/spectrum.jpg?raw=true)
 
 ## Requirements
 
@@ -46,6 +46,5 @@ to correspond to one of our favorite pokemon.
 [Mplayer]: (http://mplayerhq.hu)
 [Bootstrap 2.3.2]: (https://github.com/twbs/bootstrap/tree/v2.3.2)
 [Bootstrap JQuery UI]: (https://github.com/addyosmani/jquery-ui-bootstrap).
-[Spectrum image]: (https://github.com/jmcomets/IntoSpectrum/blob/master/static/img/spectrum.jpg?raw=true)
 [Jean-Marie Comets]: (https://github.com/jmcomets)
 [Pierre Turpin]: (https://github.com/TurpIF)
