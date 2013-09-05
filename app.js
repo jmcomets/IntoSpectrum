@@ -42,7 +42,9 @@ var http = require('http');
 var server = http.createServer(app);
 
 // Player
-var player = require('./player').listen(server);
+// var player = require('./player').listen(server);
+var listener = require('./listener').listener;
+var player = new listener(server);
 
 // Startup
 server.listen(app.get('port'), function() {

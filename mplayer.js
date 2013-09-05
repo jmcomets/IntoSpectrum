@@ -1,5 +1,9 @@
 var spawn = require('child_process').spawn;
-    // EventEmitter = require('events').EventEmitter;
+
+var send = function(process, data) {
+  process.stdin.write(data);
+  console.log('STDIN: ' + data);
+};
 
 var mplayer_property = function(process,
         name,
@@ -14,26 +18,28 @@ var mplayer_property = function(process,
             this._get = get;
             this._set = set;
 
+            this.value = undefined;
+
             if(default_value != undefined)
                 this.set(default_value);
         };
 
 mplayer_property.prototype.parse_data = function(data) {
   var word = 'ANS_' + this._name + '=';
-  if (data.length > word
+  if(data.length > word.length
       && data.slice(0, word.length) == word) {
         if(this._type == 'float')
-          this._value = parseFloat(data.slice(word.length));
+          this.value = parseFloat(data.slice(word.length));
         else if(this._type == 'int')
-          this._value = parseInt(data.slice(word.length));
+          this.value = parseInt(data.slice(word.length));
         else if(this._type == 'flag')
-          this._value = data.slice(word.length) == 'yes';
+          this.value = data.slice(word.length) == 'yes';
         else if(this._type == 'string')
-          this._value = data.slice(word.length);
+          this.value = data.slice(word.length);
         else if(this._type == 'pos')
-          this._value = parseInt(data.slice(word.length));
+          this.value = parseInt(data.slice(word.length));
         else if(this._type == 'time')
-          this._value = parseInt(data.slice(word.length));
+          this.value = parseInt(data.slice(word.length));
       }
 };
 
@@ -60,8 +66,8 @@ mplayer_property.prototype.set = function(value) {
         throw "The property `" + this._name
             + "` can't be greater than " + this._max;
 
-    this._process.stdin.write("set_property " + this._name + " value\n");
-    this._value = value;
+    send(this._process, "pausing_keep_force set_property " + this._name + " " + value + "\n");
+    this.value = value;
 };
 
 mplayer_property.prototype.get = function() {
@@ -69,12 +75,12 @@ mplayer_property.prototype.get = function() {
         throw "The property `" + this._name
             + "` is not gettable";
 
-    this._process.stdin.write("get_property " + this._name + "\n");
+    send(this._process, "pausing_keep_force get_property " + this._name + "\n");
 };
 
-var mplayer = function() {
+var mplayer = exports.mplayer = function() {
     // Spawn new process with appropriate file
-    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', 'media/Queen/01. We Will Rock You - Queen - Absolute - .mp3']);
+    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
 
     // List of all properties
     this._properties = new Array();
@@ -169,7 +175,7 @@ var mplayer = function() {
         'float', 0, 1, true, true);
     this.vsync = this.add_property('vsync',
         'flag', undefined, undefined, true, true);
-    this.video_format = this.add_property('metadata',
+    this.video_format = this.add_property('video_format',
         'int', undefined, undefined, true, false);
     this.video_codec = this.add_property('video_codec',
         'string', undefined, undefined, true, false);
@@ -233,7 +239,6 @@ var mplayer = function() {
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
         var data = lines[i];
-        console.log('STDOUT : ' + data);
 
         for(var j in self._properties) {
           self._properties[j].parse_data(data);
@@ -263,8 +268,30 @@ mplayer.prototype.add_property = function(name,
           return prop;
         };
 
-// mplayer.prototype.__proto__ = EventEmitter.prototype;
+mplayer.prototype.quit = function(code) {
+  if(code == undefined)
+    code = 0;
+  send(this._process, 'quit ' + code + '\n');
+};
 
-var m = new mplayer();
+mplayer.prototype.loadfile = function(file, append) {
+  send(this._process, 'loadfile "' + file + '" ' + append + '\n');
+};
+
+mplayer.prototype.force_pause = function() {
+  if(!this._pause) {
+    send(this._process, 'pause\n');
+    console.log('pausing');
+    this._pause = true;
+  }
+};
+
+mplayer.prototype.force_unpause = function() {
+  if(this._pause) {
+    send(this._process, 'pause\n');
+    console.log('unpausing');
+    this._pause = false;
+  }
+};
 
 // vim: ft=javascript et sw=2 sts=2
