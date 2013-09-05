@@ -1,8 +1,13 @@
 var spawn = require('child_process').spawn;
 
 var send = function(process, data) {
+  try {
   process.stdin.write(data);
   console.log('STDIN: ' + data);
+  }
+  catch (err) {
+    console.log('oups');
+  }
 };
 
 var mplayer_property = function(process,

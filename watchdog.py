@@ -136,6 +136,8 @@ class Song(peewee.Model):
         database = database
         db_table = 'songs'
 
+Song.create_table(fail_silently=True)
+
 # Main section
 
 if __name__ == '__main__':
