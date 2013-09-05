@@ -17,7 +17,7 @@ launched once, or as a daemon process
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum image](../blob/master/static/img/spectrum.jpg?raw=true)
+![Spectrum image](../../blob/master/static/img/spectrum.jpg?raw=true)
 
 ## Requirements
 
