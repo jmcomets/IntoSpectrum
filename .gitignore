@@ -1,2 +1,5 @@
 # Node modules (installes via npm install
 node_modules/*
+
+# Virtualenv directory
+venv/*

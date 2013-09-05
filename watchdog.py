@@ -86,7 +86,7 @@ def get_song_metadata(path):
             'duration': get_id3_tag('duration'),
             }
 
-def collect_songs(media_root):
+def collect_songs(media_root, extensions):
     """
     Generator expression for collecting songs recursively under the
     given media_root. Yields each song as a dictionary (see the other
@@ -96,7 +96,12 @@ def collect_songs(media_root):
     logger.info('collecting all songs in %s' % media_root)
     for root, _, files in os.walk(media_root, followlinks=True):
         for fname in files:
+            # check extension
+            ext = os.path.splitext(fname)[1].lstrip('.')
+            if ext not in extensions:
+                continue
             full_fname = os.path.join(root, fname)
+            # store relative filename in database
             rel_fname = full_fname[len(media_root) + 1:]
             try:
                 song = get_song_metadata(full_fname)
@@ -145,7 +150,7 @@ if __name__ == '__main__':
                 song.delete_instance()
 
     # Step 2: search media root for songs and insert them in the database
-    for song in collect_songs(media_root):
+    for song in collect_songs(media_root, settings['media']['extensions']):
         with database.transaction():
             try:
                 song_instance = Song.get(Song.path == song['path'])
