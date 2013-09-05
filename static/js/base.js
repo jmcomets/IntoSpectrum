@@ -21,12 +21,12 @@ $(window).load(function() {
 
   // Track progress control
   trackSlider = $('#play-progress').slider({
+    'animate': 'fast',
     'orientation': 'horizontal',
-    'disabled': true,
     'min': 0,
     'max': 242,
-    'slide': function(value) {
-      // TODO set song time
+    'slide': function(ev, ui) {
+      player.setTime(ui.value);
     }
   });
 
@@ -54,6 +54,10 @@ $(window).load(function() {
 
     // Set the volume
     volumeSlider.slider('value', data.volume);
+
+    // Set the time
+    trackSlider.slider('value', data.time);
+    trackSlider.slider('option', 'max', data.time_max);
   };
 
   // Explicitly connect the player

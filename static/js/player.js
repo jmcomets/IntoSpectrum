@@ -36,4 +36,10 @@ Player.prototype.setVolume = function(volume) {
   this._socket.emit('volume', volume);
 };
 
+Player.prototype.setTime = function(time) {
+  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  console.log(time);
+  this._socket.emit('time', this.songId, time);
+};
+
 // vim: ft=javascript et sw=2 sts=2
