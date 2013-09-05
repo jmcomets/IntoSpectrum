@@ -10,7 +10,7 @@ Note that IntoSpectrum doesn't create the library for you,
 at least not with the web app.
 
 Instead, it comes with a *watchdog* utility script, which can be
-launched once, or as a daemon process
+launched once, or as a daemon process.
 
 ### Why IntoSpectrum ?
 
@@ -42,10 +42,10 @@ to correspond to one of our favorite pokemon.
 [MySQL]: http://www.mysql.com
 [Virtualenv]: http://www.virtualenv.org
 [peewee]: https://github.com/coleifer/peewee
-[Node.js]: http://nodejs.org,
+[Node.js]: http://nodejs.org
 [Mplayer]: http://mplayerhq.hu
 [Bootstrap 2.3.2]: https://github.com/twbs/bootstrap/tree/v2.3.2
-[Bootstrap JQuery UI]: https://github.com/addyosmani/jquery-ui-bootstrap.
+[Bootstrap JQuery UI]: https://github.com/addyosmani/jquery-ui-bootstrap
 [Spectrum image]: ../../blob/master/static/img/spectrum.jpg?raw=true
 [Jean-Marie Comets]: https://github.com/jmcomets
 [Pierre Turpin]: https://github.com/TurpIF
