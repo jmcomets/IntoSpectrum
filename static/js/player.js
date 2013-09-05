@@ -16,28 +16,34 @@ Player.prototype.connect = function(url) {
   });
 };
 
+Player.prototype.checkSocketConnection = function') {
+  if (!this._socket) {
+    throw new Error('[Player] Cannot play, socket not connected');
+  }
+};
+
 Player.prototype.play = function(songId) {
-  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  this.checkSocketConnection();
   this._socket.emit('play', songId);
 };
 
 Player.prototype.togglePause = function() {
-  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  this.checkSocketConnection();
   this._socket.emit(this._playing ? 'pause' : 'unpause', this._songId);
 };
 
 Player.prototype.stop = function() {
-  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  this.checkSocketConnection();
   this._socket.emit('stop', this._songId);
 };
 
 Player.prototype.setVolume = function(volume) {
-  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  this.checkSocketConnection();
   this._socket.emit('volume', volume);
 };
 
 Player.prototype.setTime = function(time) {
-  if (!this._socket) { throw new Error('[Player] Cannot play, socket not connected'); }
+  this.checkSocketConnection();
   this._socket.emit('time', this._songId, time);
 };
 
