@@ -86,6 +86,29 @@ def get_song_metadata(path):
             'duration': get_id3_tag('duration'),
             }
 
+def validate_song(song):
+    """
+    Validation for song dictionary, returning the expected data
+    dictionary for the database.
+    """
+    def validate_integer(number, default=None):
+        try:
+            number = int(number)
+            return number
+        except ValueError:
+            return default
+    validations = (
+            ('year', validate_integer),
+            ('duration', validate_integer),
+            ('play_count', None),
+            )
+    for field, validator in validations:
+        if callable(validator):
+            song.pop(field, None)
+        elif field in song:
+            song[field] = validator(song[field])
+    return song
+
 def collect_songs(media_root, extensions):
     """
     Generator expression for collecting songs recursively under the
@@ -107,7 +130,7 @@ def collect_songs(media_root, extensions):
                 song = get_song_metadata(full_fname)
                 logger.info('parsed: %s' % rel_fname)
                 song['path'] = rel_fname
-                yield song
+                yield validate_song(song)
             except IOError:
                 logger.warning('error parsing: %s' % rel_fname)
 
@@ -128,7 +151,7 @@ class Song(peewee.Model):
     artist = peewee.CharField(null=True)
     duration = peewee.IntegerField(null=True)
     path = peewee.CharField(null=True)
-    play_count = peewee.IntegerField(null=True, db_column='playCount')
+    play_count = peewee.IntegerField(default=0, db_column='playCount')
     title = peewee.CharField(null=True)
     year = peewee.IntegerField(null=True)
 
