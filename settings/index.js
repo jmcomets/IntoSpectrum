@@ -1,5 +1,6 @@
 var path = require('path'),
     db = require('./database.json'),
+    media = require('./media.json'),
     root = path.join(__dirname, '..');
 
 // Database
@@ -12,8 +13,8 @@ exports.db = new Sequelize(db.name, db.user, db.password, {
 
 // Media
 exports.media = {
-  'root': path.join(root, 'media'),
-  'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
+  'root': path.join(root, media.path),
+  'extensions': media.extensions
 };
 
 // Player
@@ -22,14 +23,7 @@ exports.player = {
 };
 
 // Watchdog
-exports.watchdog = {
-  'interval': {
-    'hours': 24,
-    'minutes': 0,
-    'seconds': 0
-  }, 'delay': 0,
-  'logging': true
-};
+exports.watchdog = require('./watchdog.json');
 
 // Views
 exports.views = {
