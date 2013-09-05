@@ -23,7 +23,7 @@ to correspond to one of our favorite pokemon.
 
 - [Node.js][] (at least v0.10.17)
 - [Mplayer][]
-- [MySQL][]
+- [MySQL][] (current engine)
 
 ### Watchdog requirements
 
