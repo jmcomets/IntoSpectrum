@@ -1,6 +1,6 @@
 $(window).load(function() {
   // Player: client-server controller
-  var player = new Player();
+  var player = new ClientPlayer();
 
   // Volume control -> slider
   volumeSlider = $('#volume-progress').slider({
