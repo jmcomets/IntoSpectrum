@@ -4,6 +4,7 @@ IntoSpectrum
 # Description
 
 Server-side media player with a web front-end, written in NodeJS.
+
 The interface is based on [Bootstrap 2.3.2](/twbs/bootstrap/tree/v2.3.2)
 and [Bootstrap JQuery UI](/addyosmani/jquery-ui-bootstrap).
 
@@ -12,7 +13,7 @@ and [Bootstrap JQuery UI](/addyosmani/jquery-ui-bootstrap).
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum](../blob/master/static/img/spectrum.jpg)
+![Spectrum](/blob/master/static/img/spectrum.jpg?raw=true)
 
 # Requirements
 
