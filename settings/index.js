@@ -1,16 +1,18 @@
-var path = require('path');
+var path = require('path'),
+    db = require('./database.json'),
+    root = path.join(__dirname, '..');
 
 // Database
 var Sequelize = exports.Sequelize = require('sequelize');
-exports.db = new Sequelize('into_spectrum', 'root', '', {
-  'dialect': 'mysql',
+exports.db = new Sequelize(db.name, db.user, db.password, {
+  'dialect': db.engine,
   'logging': false,
   'sync': { 'force': true }
 });
 
 // Media
 exports.media = {
-  'root': path.join(__dirname, 'media'),
+  'root': path.join(root, 'media'),
   'extensions': ['mp3', 'flac', 'ogg', 'wav', 'wma']
 };
 
@@ -32,7 +34,7 @@ exports.watchdog = {
 // Views
 exports.views = {
   'extension': 'html',
-  'path': path.join(__dirname, 'views'),
+  'path': path.join(root, 'views'),
   'cache': false
 };
 

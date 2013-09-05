@@ -1,0 +1,6 @@
+{
+    "engine": "mysql",
+    "name": "into_spectrum",
+    "user": "root",
+    "password": ""
+}
