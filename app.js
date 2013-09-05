@@ -44,21 +44,16 @@ var server = http.createServer(app);
 // Player
 var player = require('./player').listen(server);
 
-// Watchdog
-var watchdog = require('./watchdog');
-
 // Startup
 server.listen(app.get('port'), function() {
   var address = server.address();
   console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
     address.address, address.port);
-  watchdog.start({ 'logging': false });
 });
 
 // Shutdown
 process.on('SIGINT', function() {
   console.log('Server shutting down');
-  watchdog.stop();
   server.close();
   process.exit();
 });
