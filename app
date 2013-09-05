@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Module base dependencies
 var express = require('express'),
     path = require('path')
