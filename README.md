@@ -13,7 +13,7 @@ and [Bootstrap JQuery UI](https://github.com/addyosmani/jquery-ui-bootstrap).
 Its an anagram of the original author's last names, and also happens
 to correspond to one of our favorite pokemon.
 
-![Spectrum](https://github.com/jmcomets/blob/master/static/img/spectrum.jpg?raw=true)
+![Spectrum](https://github.com/jmcomets/IntoSpectrum/blob/master/static/img/spectrum.jpg?raw=true)
 
 # Requirements
 
