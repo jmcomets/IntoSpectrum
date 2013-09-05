@@ -1,7 +1,9 @@
 var path = require('path'),
     fs = require('fs'),
     ID3 = require('id3'),
-    media = require('./settings').media,
+    settings = require('./settings'),
+    options = settings.watchdog,
+    media = settings.media,
     Song = require('./models').Song;
 
 // Walk through a directory (parallel loop), found on SO:
@@ -29,16 +31,6 @@ var walk = function(dir, done) {
   });
 };
 
-// Options for watchdog
-var options = {
-  'interval': {
-    'hours': 24,
-    'minutes': 0,
-    'seconds': 0
-  }, 'delay': 0,
-  'logging': true
-};
-
 // Internal ID of the current started
 var intervalId = null,
     started = false;
@@ -50,6 +42,7 @@ var log = function(msg) {
 }
 
 // Runner
+// FIXME implement with a QueryChainer
 var run = function() {
   log('collecting all songs in: ' + media.root);
   walk(media.root, function(error, files) {
@@ -124,13 +117,18 @@ var start = exports.start = function(opts) {
   if (started) { throw new Error('Already started'); }
 
   // Configuration
-  log('will run every ' + total_seconds
-      + ' seconds, starting after ' + delay + ' seconds.');
+  for (var key in opts) {
+    if (options[key] != undefined) {
+      options[key] = opts[key];
+    }
+  }
 
   // Initial wait
   started = true;
-  var total_seconds = (options.seconds || 0)
+  var delay = options.delay, total_seconds = (options.seconds || 0)
     + (60*((options.minutes || 0) + 60*(options.hours || 0)));
+  log('will run every ' + total_seconds
+      + ' seconds, starting after ' + delay + ' seconds.');
   setTimeout(function() {
     run();
     intervalId = setInterval(run, 1000*total_seconds);
