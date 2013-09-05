@@ -31,7 +31,7 @@ to correspond to one of our favorite pokemon.
 - [mutagen][]
 - [peewee][]
 
-[Virtualenv] is recommended for deploying the watchdog.
+[Virtualenv][] is recommended for deploying the watchdog.
 
 ## Authors
 - [Jean-Marie Comets][]
@@ -46,6 +46,6 @@ to correspond to one of our favorite pokemon.
 [Mplayer]: (http://mplayerhq.hu)
 [Bootstrap 2.3.2]: (https://github.com/twbs/bootstrap/tree/v2.3.2)
 [Bootstrap JQuery UI]: (https://github.com/addyosmani/jquery-ui-bootstrap).
-[Spectrum image]: 
+[Spectrum image]: (https://github.com/jmcomets/IntoSpectrum/blob/master/static/img/spectrum.jpg?raw=true)
 [Jean-Marie Comets]: (https://github.com/jmcomets)
 [Pierre Turpin]: (https://github.com/TurpIF)
