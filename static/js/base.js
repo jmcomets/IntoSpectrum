@@ -22,7 +22,7 @@ $(window).load(function() {
 
   // Track progress control
   trackSlider = $('#play-progress').slider({
-    'animate': 'slow',
+    //'animate': true,
     'range': 'min',
     'orientation': 'horizontal',
     'slide': function(ev, ui) {
@@ -37,6 +37,7 @@ $(window).load(function() {
   stopButton.on('click', function() { player.stop(); });
 
   // Player event hooks
+  var advanceIntervalId = -1;
   player.update = function(data) {
     // Setup the play/pause button
     if (data.playing) {
@@ -49,7 +50,20 @@ $(window).load(function() {
 
     // Update the play count
     if (data.playing) {
-      $('[song-id="' + data.id + '"]').siblings().last().text(data.play_count);
+      $('#song-id-' + data.id + '').siblings().last().text(data.play_count);
+
+      // Advance the playing progress bar automatically
+      if (advanceIntervalId == -1) {
+        advanceIntervalId = setInterval(function() {
+          var value = trackSlider.slider('value');
+          trackSlider.slider('value', value + 1);
+        }, 1000);
+      }
+    } else {
+      if (advanceIntervalId != -1) {
+        clearInterval(advanceIntervalId);
+        advanceIntervalId = -1;
+      }
     }
 
     // Set the volume
@@ -115,13 +129,16 @@ $(window).load(function() {
       html = '<td colspan="' + titleColSpan + '">' + title + '</td>' + html;
 
       // Create the DOM element
-      var row = $('<tr></tr>');
-      row.attr('song-id', song.id);
+      var idPrefix = 'song-id-',
+          row = $('<tr></tr>');
+      row.attr('id', idPrefix + song.id);
       row.html(html);
 
       // Hook events
       row.on('click', function() {
-        player.play($(this).attr('song-id'));
+        var id = $(this).attr('id').substring(idPrefix.length);
+        console.log(id);
+        player.play(id);
       });
 
       // Update the modal's "current" loading
