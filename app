@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Module base dependencies
 var express = require('express'),
     path = require('path')
@@ -41,10 +43,10 @@ app.get('/library/?(:cursor)?', routes.library);
 var http = require('http');
 var server = http.createServer(app);
 
-// Player
-// var player = require('./player').listen(server);
-var listener = require('./listener').listener;
-var player = new listener(server);
+// Network
+var network = require('./network');
+// ...player
+network.player.listen(server);
 
 // Startup
 server.listen(app.get('port'), function() {

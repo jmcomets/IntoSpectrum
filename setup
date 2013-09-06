@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# Executables required dependencies)
+NPM=$(which npm)
+PIP=$(which pip-2.7)
+MYSQL=$(which mysql)
+
+# Required variable check, check variable and exit with error message
+# and exit code != 0 if the variable is empty:
+#   $1 - variable to check
+#   $2 - message to output on fail
+#   $3 - exit code (optional, default is 1)
+_required()
+{
+  if test -z "$1"; then
+    echo $2
+    test -n "$3" && exit $3
+    exit 1
+  fi
+}
+
+# Check dependencies
+_required "$NPM" "npm (node package manager) is required"
+_required "$PIP" "pip-2.7 is required"
+_required "$MYSQL" "mysql is required"
+
+# Directories
+ROOT=$(dirname $(readlink -e $0))
+VENV=$ROOT/venv
+
+# Setup application dependencies
+echo "Installing application dependencies"
+$NPM install
+if [ "$?" -ne "0" ]; then
+  echo "Node packages synchronizing failed"
+  exit 1
+fi
+
+# Setup watchdog virtualenv
+echo "Creating watchdog virtualenv: $VENV"
+if [ ! -f "$VENV" ]; then
+  # Check virtualenv executable
+  if test -z "$(which virtualenv)"; then
+    echo "Virtualenv isn't installed, installing"
+    sudo $PIP install virtualenv
+    if [ "$?" -ne "0" ]; then
+      echo "Virtualenv installation failed"
+      exit 1
+    fi
+  fi
+# Check virtualenv directory
+VIRTUALENV=$(which virtualenv)
+$VIRTUALENV --distribute $VENV
+fi
+# install dependencies
+EASY_INSTALL=$(which easy_install)
+echo "Installing watchdog dependencies"
+source $VENV/bin/activate
+$PIP install mutagen peewee MySQL-python
+if [ "$?" -ne "0" ]; then
+  echo "Watchdog dependencies installation failed"
+  exit 1
+fi
+
+# Finished
+echo "Installation finished"
+
+# vim: ft=sh et sw=2 sts=2
