@@ -1,4 +1,4 @@
-# Node modules (installes via npm install
+# Node modules
 node_modules/*
 
 # Media directory
@@ -6,3 +6,6 @@ media/*
 
 # Virtualenv directory
 venv/*
+
+# Build directory
+build/*
