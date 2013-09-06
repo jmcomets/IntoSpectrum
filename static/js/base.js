@@ -5,6 +5,7 @@ $(window).load(function() {
   // Volume control -> slider
   volumeSlider = $('#volume-progress').slider({
     'animate': 'fast',
+    'range': 'min',
     'orientation': 'vertical',
     'min': 0,
     'max': 100,
@@ -21,10 +22,9 @@ $(window).load(function() {
 
   // Track progress control
   trackSlider = $('#play-progress').slider({
-    'animate': 'fast',
+    'animate': 'slow',
+    'range': 'min',
     'orientation': 'horizontal',
-    'min': 0,
-    'max': 242,
     'slide': function(ev, ui) {
       player.setTime(ui.value);
     }
