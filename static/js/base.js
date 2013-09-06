@@ -121,7 +121,7 @@ $(window).load(function() {
 
       // Hook events
       row.on('click', function() {
-        player.play($(this).children().first().text());
+        player.play($(this).attr('song-id'));
       });
 
       // Update the modal's "current" loading
