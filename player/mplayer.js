@@ -1,22 +1,12 @@
 var spawn = require('child_process').spawn,
     fs = require('fs');
 
-var send = function(process, data) {
-  try {
-    process.stdin.write(data + '\n');
-    console.log('STDIN: ' + data);
-  }
-  catch (err) {
-    console.log(err);
-  }
-};
-
-var mplayer_property = function(process,
+var mplayer_property = function(mplayer,
         name,
         type, min, max,
         get, set,
         default_value) {
-            this._process = process;
+            this._mplayer = mplayer;
             this._name = name;
             this._type = type;
             this._min = min;
@@ -72,8 +62,13 @@ mplayer_property.prototype.set = function(value) {
         throw "The property `" + this._name
             + "` can't be greater than " + this._max;
 
-    send(this._process, "pausing_keep_force set_property " + this._name + " " + value);
-    this.value = value;
+    try {
+      this._mplayer._send("pausing_keep_force set_property " + this._name + " " + value);
+      this.value = value;
+    }
+    catch(err) {
+      console.log(err);
+    }
 };
 
 mplayer_property.prototype.get = function() {
@@ -81,12 +76,21 @@ mplayer_property.prototype.get = function() {
         throw "The property `" + this._name
             + "` is not gettable";
 
-    send(this._process, "pausing_keep_force get_property " + this._name);
+    try {
+      this._mplayer._send("pausing_keep_force get_property " + this._name);
+      this._mplayer._wait_response(this);
+    }
+    catch(err) {
+      console.log(err);
+    }
 };
 
 var mplayer = exports.mplayer = function() {
     // Spawn new process with appropriate file
     this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
+
+    // Waiting queue
+    this._waiting_queue = new Array();
 
     // List of all properties
     this._properties = new Array();
@@ -245,10 +249,12 @@ var mplayer = exports.mplayer = function() {
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
         var data = lines[i];
-        // console.log('STDOUT: ' + data);
+        if(data.length >= 3 && data.slice(0, 4) == 'ANS_') {
+          console.log('STDOUT: ' + data);
 
-        for(var j in self._properties) {
-          self._properties[j].parse_data(data);
+          if(self._waiting_queue.length == 0) { break; }
+
+          self._waiting_queue.shift().parse_data(data);
         }
       }
     });
@@ -256,6 +262,15 @@ var mplayer = exports.mplayer = function() {
     // this._process.stderr.on('data', function(data) {
     //   console.log('STDERR: ' + data);
     // });
+};
+
+mplayer.prototype._send = function(data) {
+  this._process.stdin.write(data + '\n');
+  console.log('STDIN: ' + data);
+};
+
+mplayer.prototype._wait_response = function(prop) {
+  this._waiting_queue.push(prop);
 };
 
 mplayer.prototype.update_all = function() {
@@ -268,7 +283,7 @@ mplayer.prototype.add_property = function(name,
         type, min, max,
         get, set,
         default_value) {
-          var prop = new mplayer_property(this._process,
+          var prop = new mplayer_property(this,
               name,
               type, min, max,
               get, set,
@@ -277,28 +292,30 @@ mplayer.prototype.add_property = function(name,
           return prop;
         };
 
+mplayer.prototype.waiting = function() {
+  return this._waiting_queue.length > 0;
+};
+
 mplayer.prototype.quit = function(code) {
   if(code == undefined)
     code = 0;
-  send(this._process, 'quit ' + code);
+  this._send('quit ' + code);
 };
 
 mplayer.prototype.loadfile = function(file, append) {
-  send(this._process, 'loadfile "' + file + '" ' + append);
+  this._send('loadfile "' + file + '" ' + append);
 };
 
 mplayer.prototype.force_pause = function() {
   if(!this._pause) {
-    send(this._process, 'pause');
-    console.log('pausing');
+    this._send('pause');
     this._pause = true;
   }
 };
 
 mplayer.prototype.force_unpause = function() {
   if(this._pause) {
-    send(this._process, 'pause');
-    console.log('unpausing');
+    this._send('pause');
     this._pause = false;
   }
 };

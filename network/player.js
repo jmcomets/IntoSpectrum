@@ -38,9 +38,10 @@ exports.listen = function(server) {
   });
 
   var send_info = function() {
-    var info = player.get_info();
-    console.log(info);
-    io.emit('info', info);
+    var info = player.get_info(function(info) {
+      // console.log(info);
+      io.emit('info', info);
+    });
   };
 
   // Timer
