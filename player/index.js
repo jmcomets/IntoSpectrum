@@ -13,25 +13,34 @@ player.prototype.close = function() {
   this.mplayer.quit();
 };
 
-player.prototype.get_info = function() {
+player.prototype.get_info = function(success) {
+  this._mplayer.volume.get();
   this._mplayer.time_pos.get();
   this._mplayer.length.get();
-  this._mplayer.volume.get();
   this._mplayer.pause.get();
 
-  var out = {
-    'id': -1,
-    'playing': this._mplayer.pause.value ? 0 : 1,
-    'volume': this._mplayer.volume.value,
-    'time': this._mplayer.time_pos.value,
-    'time_max': this._mplayer.length.value
+  var self = this;
+  var wait_out = function() {
+    if(!self._mplayer.waiting()) {
+      var out = {
+        'id': -1,
+        'playing': self._mplayer.pause.value ? 0 : 1,
+        'volume': self._mplayer.volume.value,
+        'time': self._mplayer.time_pos.value,
+        'time_max': self._mplayer.length.value
+      };
+
+      if (self._current_song != undefined) {
+        out['id'] = self._current_song.id;
+      }
+
+      if(success) { success(out); }
+    }
+    else {
+      setTimeout(wait_out, 100);
+    }
   };
-
-  if (this._current_song != undefined) {
-    out['id'] = this._current_song.id;
-  }
-
-  return out;
+  wait_out();
 };
 
 player.prototype.play = function(id) {
@@ -60,11 +69,9 @@ player.prototype.pause = function(id) {
 
 player.prototype.unpause = function(id) {
   id = parseInt(id);
-  console.log('#########');
   if(!isNaN(id)
       && this._current_song != undefined
       && this._current_song.id == id) {
-  console.log('@@@@@');
         this._mplayer.force_unpause();
       }
 }
