@@ -1,12 +1,13 @@
-var spawn = require('child_process').spawn;
+var spawn = require('child_process').spawn,
+    fs = require('fs');
 
 var send = function(process, data) {
   try {
-  process.stdin.write(data);
-  console.log('STDIN: ' + data);
+    process.stdin.write(data + '\n');
+    console.log('STDIN: ' + data);
   }
   catch (err) {
-    console.log('oups');
+    console.log(err);
   }
 };
 
@@ -71,7 +72,7 @@ mplayer_property.prototype.set = function(value) {
         throw "The property `" + this._name
             + "` can't be greater than " + this._max;
 
-    send(this._process, "pausing_keep_force set_property " + this._name + " " + value + "\n");
+    send(this._process, "pausing_keep_force set_property " + this._name + " " + value);
     this.value = value;
 };
 
@@ -80,7 +81,7 @@ mplayer_property.prototype.get = function() {
         throw "The property `" + this._name
             + "` is not gettable";
 
-    send(this._process, "pausing_keep_force get_property " + this._name + "\n");
+    send(this._process, "pausing_keep_force get_property " + this._name);
 };
 
 var mplayer = exports.mplayer = function() {
@@ -244,6 +245,7 @@ var mplayer = exports.mplayer = function() {
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
         var data = lines[i];
+        // console.log('STDOUT: ' + data);
 
         for(var j in self._properties) {
           self._properties[j].parse_data(data);
@@ -251,7 +253,9 @@ var mplayer = exports.mplayer = function() {
       }
     });
 
-    this.update_all();
+    // this._process.stderr.on('data', function(data) {
+    //   console.log('STDERR: ' + data);
+    // });
 };
 
 mplayer.prototype.update_all = function() {
@@ -276,16 +280,16 @@ mplayer.prototype.add_property = function(name,
 mplayer.prototype.quit = function(code) {
   if(code == undefined)
     code = 0;
-  send(this._process, 'quit ' + code + '\n');
+  send(this._process, 'quit ' + code);
 };
 
 mplayer.prototype.loadfile = function(file, append) {
-  send(this._process, 'loadfile "' + file + '" ' + append + '\n');
+  send(this._process, 'loadfile "' + file + '" ' + append);
 };
 
 mplayer.prototype.force_pause = function() {
   if(!this._pause) {
-    send(this._process, 'pause\n');
+    send(this._process, 'pause');
     console.log('pausing');
     this._pause = true;
   }
@@ -293,7 +297,7 @@ mplayer.prototype.force_pause = function() {
 
 mplayer.prototype.force_unpause = function() {
   if(this._pause) {
-    send(this._process, 'pause\n');
+    send(this._process, 'pause');
     console.log('unpausing');
     this._pause = false;
   }

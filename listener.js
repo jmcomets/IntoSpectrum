@@ -32,7 +32,7 @@ var listener = exports.listener = function(server) {
   });
 
   // Timer
-  var delay = 1000;
+  var delay = 420;
   var timer = setInterval(function() {
     var info = player.get_info();
     console.log(info);

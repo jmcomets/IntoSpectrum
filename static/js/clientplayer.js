@@ -2,6 +2,7 @@
 function ClientPlayer(update) {
   this.update = update;
   this._songId = -1;
+  this._playing = undefined;
 }
 
 // Explicit connect to socket at a given url
@@ -17,6 +18,7 @@ ClientPlayer.prototype.connect = function(url) {
     clearInterval(intervalID);
     this.on('info', function(state) {
       that._songId = state.id;
+      that._playing = state.playing;
       if (that.update) { that.update(state); }
     });
     that._socket = socket;
@@ -40,7 +42,7 @@ ClientPlayer.prototype.play = function(songId) {
 // the player's current state
 ClientPlayer.prototype.togglePause = function() {
   this.checkSocketConnection();
-  this._socket.emit(this._songId != -1 ? 'pause' : 'unpause', this._songId);
+  this._socket.emit(this._playing ? 'pause' : 'unpause', this._songId);
 };
 
 // Ask the server to stop the song playing, and reset the current time
