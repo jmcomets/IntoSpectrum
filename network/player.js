@@ -15,6 +15,14 @@ exports.listen = function(server) {
       player.play(id);
       send_info();
     });
+    socket.on('add_to_playlist', function(id, pos) {
+      player.add_to_playlist(id, pos);
+      send_info();
+    });
+    socket.on('play_next', function() {
+      player.play_next();
+      send_info();
+    });
     socket.on('pause', function(id) {
       player.pause(id);
       send_info();
@@ -39,8 +47,13 @@ exports.listen = function(server) {
 
   var send_info = function() {
     var info = player.get_info(function(info) {
-      // console.log(info);
-      io.emit('info', info);
+      if(player.song_over()) {
+        player.play_next();
+      }
+      else {
+        // console.log(info);
+        io.emit('info', info);
+      }
     });
   };
 

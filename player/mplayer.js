@@ -37,6 +37,8 @@ mplayer_property.prototype.parse_data = function(data) {
         else if(this._type == 'time')
           this.value = parseInt(data.slice(word.length));
       }
+  else
+    this.value = undefined;
 };
 
 mplayer_property.prototype.set = function(value) {
