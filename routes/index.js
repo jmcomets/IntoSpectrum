@@ -2,9 +2,7 @@ var Song = require('../models').Song;
 
 // Home page
 exports.index = function(req, res) {
-  res.render('index', {
-    'title': 'Player'
-  });
+  res.render('index.html');
 };
 
 // Library

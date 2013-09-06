@@ -11,17 +11,19 @@ var app = express();
 // All environments
 app.set('port', process.env.PORT || 3000);
 
-// Favicon
-app.use(express.favicon(path.join(__dirname, 'static/img/favicon.ico')));
-
-// Swig template engine
-app.engine('html', require('swig').renderFile);
-app.set('view engine', settings.views.extension);
+// Views
 app.set('views', settings.views.path);
+app.set('view options', settings.views.options);
 app.set('view cache', settings.views.cache);
+app.engine('html', settings.views.engine);
 
 // Static files
-app.use(express.static(path.join(__dirname, 'static')));
+var staticFilesDir = path.join(__dirname, 'static'),
+    staticMiddleware = express.static(staticFilesDir);
+app.use(staticMiddleware);
+
+// Favicon
+app.use(express.favicon(path.join(staticFilesDir, 'img/favicon.ico')));
 
 // Other configuration options
 app.use(express.logger('dev'));

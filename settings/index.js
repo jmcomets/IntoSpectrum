@@ -29,7 +29,10 @@ exports.watchdog = require('./watchdog.json');
 exports.views = {
   'extension': 'html',
   'path': path.join(root, 'views'),
-  'cache': false
+  'options': {
+    'layout': false
+  }, 'cache': false,
+  'engine': require('ejs').renderFile
 };
 
 // vim: ft=javascript et sw=2 sts=2
