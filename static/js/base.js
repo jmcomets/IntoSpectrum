@@ -81,21 +81,43 @@ $(window).load(function() {
     // Append songs to the #library
     var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var title = song.title || '',
-        artist = song.artist || '',
-        album = song.album || '',
-        year = song.year || '';
+      var html = '', titleColSpan = 1;
+
+      // Artist section
+      if (song.artist) {
+        html += '<td>' + song.artist + '</td>';
+      } else {
+        titleColSpan += 1;
+      }
+
+      // Album section
+      if (song.album) {
+        html += '<td>' + song.album + '</td>';
+      } else {
+        titleColSpan += 1;
+      }
+
+      // Year section
+      if (song.year) {
+        html += '<td>' + song.year + '</td>';
+      } else {
+        titleColSpan += 1;
+      }
+
+      // Play count section
+      html += '<td>' + song.playCount + '</td>';
+
+      // Title is either given or file basename without extension
+      var title = (song.title) ? song.title : function(str) {
+        str = str.substring(str.lastIndexOf('/') + 1, str.length);
+        return str.substring(0, str.lastIndexOf('.'));
+      } (song.path);
+      html = '<td colspan="' + titleColSpan + '">' + title + '</td>' + html;
 
       // Create the DOM element
       var row = $('<tr></tr>');
-      row.html(
-        '<td song-id="' + song.id + '">' + song.id + '</td>' +
-        '<td>' + title      + '</td>' +
-        '<td>' + artist     + '</td>' +
-        '<td>' + album      + '</td>' +
-        '<td>' + year       + '</td>' +
-        '<td>' + song.playCount + '</td>'
-        );
+      row.attr('song-id', song.id);
+      row.html(html);
 
       // Hook events
       row.on('click', function() {
