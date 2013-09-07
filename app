@@ -48,7 +48,7 @@ var server = http.createServer(app);
 // Network
 var network = require('./network');
 // ...player
-network.player.listen(server);
+var listener = new network.player.listener(server);
 
 // Startup
 server.listen(app.get('port'), function() {
@@ -58,10 +58,22 @@ server.listen(app.get('port'), function() {
 });
 
 // Shutdown
-process.on('SIGINT', function() {
+var shutdown = function() {
   console.log('Server shutting down');
+  listener.quit();
   server.close();
+  listener.kill(); // Just in case
   process.exit();
+};
+
+process.on('SIGINT', shutdown);
+// process.on('exit', shutdown);
+
+// Only in debug mode
+process.on('uncaughtException', function(err) {
+  console.log('Exception :' + err);
+  shutdown();
 });
+
 
 // vim: ft=javascript et sw=2 sts=2

@@ -12,8 +12,12 @@ var player = module.exports = function() {
   this._playlist = new Array();
 };
 
-player.prototype.close = function() {
-  this.mplayer.quit();
+player.prototype.kill = function(signal) {
+  this._mplayer.kill(signal);
+};
+
+player.prototype.quit = function(code) {
+  this._mplayer.quit(code);
 };
 
 player.prototype.song_over = function() {
