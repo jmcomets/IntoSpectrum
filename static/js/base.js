@@ -15,10 +15,16 @@ $(window).load(function() {
   });
 
   // Pause/Unpause -> same button
-  pauseButton = $('#pause-control');
+  var pauseButton = $('#pause-control');
 
   // Stop -> button
-  stopButton = $('#stop-control');
+  var stopButton = $('#stop-control');
+
+  // Next -> button
+  var nextButton = $('#next-control');
+
+  // Previous -> button
+  var previousButton = $('#previous-control');
 
   // Track progress control
   trackSlider = $('#play-progress').slider({
@@ -36,6 +42,12 @@ $(window).load(function() {
   // Stop control
   stopButton.on('click', function() { player.stop(); });
 
+  // Next control
+  nextButton.on('click', function() { player.playNext(); });
+
+  // Previous control
+  previousButton.on('click', function() { player.playPrevious(); });
+
   // Player event hooks
   var advanceIntervalId = -1;
   player.update = function(data) {
@@ -48,9 +60,18 @@ $(window).load(function() {
       pauseButton.find('.icon-pause').hide();
     }
 
+    // Clear all active rows
+    $('#library').children().removeClass('info');
+
     // Update the play count
     if (data.playing) {
-      $('#song-id-' + data.id + '').siblings().last().text(data.play_count);
+      var songRow = $('#song-id-' + data.id + '');
+
+      // Set as "active" row
+      songRow.addClass('info');
+
+      // Update play count
+      songRow.siblings().last().text(data.play_count);
 
       // Advance the playing progress bar automatically
       if (advanceIntervalId == -1) {

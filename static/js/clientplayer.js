@@ -51,6 +51,17 @@ ClientPlayer.prototype.stop = function() {
   this._socket.emit('stop', this._songId);
 };
 
+// Ast the server to play the next song
+ClientPlayer.prototype.playNext = function() {
+  this.checkSocketConnection();
+  this._socket.emit('play_next');
+};
+
+// Ast the server to play the previous song
+ClientPlayer.prototype.playPrevious = function() {
+  throw new Error('"previous" action not yet implemented');
+};
+
 // Ask the server player to set the volume
 ClientPlayer.prototype.setVolume = function(volume) {
   this.checkSocketConnection();
