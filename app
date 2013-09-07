@@ -70,10 +70,10 @@ process.on('SIGINT', shutdown);
 // process.on('exit', shutdown);
 
 // Only in debug mode
-process.on('uncaughtException', function(err) {
-  console.log('Exception :' + err);
-  shutdown();
-});
+// process.on('uncaughtException', function(err) {
+//   console.log('Exception :' + err);
+//   shutdown();
+// });
 
 
 // vim: ft=javascript et sw=2 sts=2

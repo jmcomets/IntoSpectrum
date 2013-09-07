@@ -10,6 +10,11 @@ var player = module.exports = function() {
 
   // Playlist
   this._playlist = new Array();
+  this._playlist_size = 200;
+
+  // History
+  this._history = new Array();
+  this._history_size = 200;
 };
 
 player.prototype.kill = function(signal) {
@@ -72,21 +77,38 @@ player.prototype.add_to_playlist = function(id, pos) {
 
     var self = this;
     Song.find(id).success(function(song) {
-      self._playlist.slice(pos, 0, song);
+      self._playlist.splice(pos, 0, song);
+      console.log(pos + ' ' + self._playlist);
     });
   }
 }
 
-player.prototype._play = function(song) {
-  this._current_song = song;
-  this._mplayer.loadfile(this._current_song.fullPath(), 0);
-  this._current_song.playCount += 1;
-  this._current_song.save();
+player.prototype._play = function(song, from_history) {
+  if(song != undefined) {
+    if(from_history == undefined)
+      from_history = false;
+
+    if(from_history) {
+      this._playlist.unshift(this._current_song);
+      if(this._playlist.length > this._playlist_size)
+        this._playlist.shift();
+    }
+    else {
+      this._history.push(this._current_song);
+      if(this._history.length > this._history_size)
+        this._history.shift();
+    }
+
+    this._current_song = song;
+    this._mplayer.loadfile(this._current_song.fullPath(), 0);
+    this._current_song.playCount += 1;
+    this._current_song.save();
+  }
 };
 
 player.prototype.play_next = function() {
   if(this._playlist.length > 0) {
-    this._play(this._playlist[i].shift());
+    this._play(this._playlist.shift());
   }
   else {
     var self = this;
@@ -94,6 +116,21 @@ player.prototype.play_next = function() {
       Song.findAll({offset: Math.floor(Math.random() * n),
         limit: 1}).success(function (songs) {
           if(songs.length > 0) { self._play(songs[0]); }
+        });
+    });
+  }
+};
+
+player.prototype.play_prev = function() {
+  if(this._history.length > 0) {
+    this._play(this._history.pop(), true);
+  }
+  else {
+    var self = this;
+    Song.count().success(function(n) {
+      Song.findAll({offset: Math.floor(Math.random() * n),
+        limit: 1}).success(function (songs) {
+          if(songs.length > 0 && songs[0]) { self._play(songs[0], true); }
         });
     });
   }
