@@ -10,6 +10,10 @@ var player = module.exports = function() {
 
   // Playlist
   this._playlist = new Array();
+
+
+  // History
+  this._history = new Array();
 };
 
 player.prototype.kill = function(signal) {
@@ -69,6 +73,7 @@ player.prototype.add_to_playlist = function(id, pos) {
   if(!isNaN(id) && !isNaN(pos)) {
     if(pos < 0 || pos > this._playlist.length)
       pos = this._playlist.length;
+    console.log(id + ' ' + pos);
 
     var self = this;
     Song.find(id).success(function(song) {
@@ -82,6 +87,9 @@ player.prototype._play = function(song) {
   this._mplayer.loadfile(this._current_song.fullPath(), 0);
   this._current_song.playCount += 1;
   this._current_song.save();
+  this._history.push(this._current_song);
+  if(this._history.length > this._history_size)
+    this._history.shift();
 };
 
 player.prototype.play_next = function() {
