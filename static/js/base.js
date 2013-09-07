@@ -60,7 +60,7 @@ $(window).load(function() {
   }));
 
   // Player update
-  var advanceIntervalId = -1;
+  var advanceIntervalId = -1, percentage = 0;
   player.update = function(data) {
     // Setup the play/pause button
     if (data.playing) {
@@ -74,10 +74,6 @@ $(window).load(function() {
     // Clear all active rows
     $('#library').children().removeClass('info');
 
-    // Play progress section
-    var percentage = 100 * data.time / data.time_max;
-    playProgress.css('width', percentage + '%');
-
     // Set the player's max-time attribute
     playProgress.attr('data-max-time', data.time_max);
 
@@ -90,7 +86,26 @@ $(window).load(function() {
 
       // Update play count
       songRow.siblings().last().text(data.play_count);
+
+      // Advance progress bar automatically
+      var updatesPerSec = 1;
+      if (advanceIntervalId == -1) {
+        advanceIntervalId = setInterval(function() {
+          var percentageInc = 100 / parseFloat(playProgress.attr('data-max-time'));
+          percentage += percentageInc / updatesPerSec;
+          playProgress.css('width', percentage + '%');
+        }, 1000 / updatesPerSec);
+      }
+    } else {
+      if (advanceIntervalId != -1) {
+        clearInterval(advanceIntervalId);
+        advanceIntervalId = -1;
+      }
     }
+
+    // Play progress section
+    percentage = 100 * data.time / data.time_max;
+    playProgress.css('width', percentage + '%');
 
     // Set the volume
     volumeSlider.slider('value', data.volume);
