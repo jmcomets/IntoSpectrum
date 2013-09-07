@@ -66,7 +66,7 @@ player.prototype.get_info = function(success) {
 player.prototype.add_to_playlist = function(id, pos) {
   id = parseInt(id);
   pos = parseInt(pos);
-  if(!isNaN(id) && !isNan(pos)) {
+  if(!isNaN(id) && !isNaN(pos)) {
     if(pos < 0 || pos > this._playlist.length)
       pos = this._playlist.length;
 
