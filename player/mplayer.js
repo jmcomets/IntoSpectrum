@@ -261,9 +261,9 @@ var mplayer = exports.mplayer = function() {
       }
     });
 
-    // this._process.stderr.on('data', function(data) {
-    //   console.log('STDERR: ' + data);
-    // });
+    this._process.stderr.on('data', function(data) {
+      console.log('STDERR: ' + data);
+    });
 };
 
 mplayer.prototype._send = function(data) {
