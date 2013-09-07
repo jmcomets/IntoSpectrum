@@ -1,6 +1,15 @@
 var spawn = require('child_process').spawn,
     fs = require('fs');
 
+Array.prototype.contains = function(obj) {
+  var i = this.length;
+  while(i--) {
+    if(this[i] == obj)
+      return true;
+  }
+  return false;
+};
+
 var mplayer_property = function(mplayer,
         name,
         type, min, max,
@@ -78,20 +87,33 @@ mplayer_property.prototype.get = function() {
         throw "The property `" + this._name
             + "` is not gettable";
 
-    try {
-      this._mplayer._send("pausing_keep_force get_property " + this._name);
-      this._mplayer._wait_response(this);
-    }
-    catch(err) {
-      console.log(err);
+    if(!this._mplayer.waiting(this)) {
+      try {
+        this._mplayer._send("pausing_keep_force get_property " + this._name);
+        this._mplayer._wait_response(this);
+      }
+      catch(err) {
+        console.log(err);
+      }
     }
 };
 
 var mplayer = exports.mplayer = function() {
-    // Spawn new process with appropriate file
-    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
+    var self = this;
 
-    // Waiting queue
+    // Prepare subproc of mplayer
+    this._proc_opened = false;
+    this._proc_opening = false;
+    this._proc_waiting_time = 1000;
+    this._process = undefined;
+
+    // Start it
+    this.start();
+
+    // Message queue to stdin
+    this._message_queue = new Array();
+
+    // Waiting queue for the request to mplayer
     this._waiting_queue = new Array();
 
     // List of all properties
@@ -245,8 +267,22 @@ var mplayer = exports.mplayer = function() {
         'int', 0, 3, true, true);
     this.teletext_half_page = this.add_property('teletext_half_page',
         'int', 0, 2, true, true);
+};
 
+mplayer.prototype.start = function() {
+  if(!this._proc_opened && !this._proc_opening) {
     var self = this;
+    this._proc_opening = true;
+    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
+
+    // Active the communication with the process after a little time
+    var timer = setTimeout(function() {
+      self._proc_opened = true;
+      self._proc_opening = false;
+      self.flush();
+    }, this._proc_waiting_time);
+
+    // Listen the stdio stream
     this._process.stdout.on('data', function(data) {
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
@@ -264,11 +300,49 @@ var mplayer = exports.mplayer = function() {
     this._process.stderr.on('data', function(data) {
       console.log('STDERR: ' + data);
     });
+
+    this._process.on('exit', function(code, signal) {
+      clearInterval(timer);
+      self._proc_opened = false;
+      self._proc_opening = false;
+      self._process = undefined;
+
+      // Restart the mplayer
+      self.start();
+    });
+  }
+};
+
+mplayer.prototype.quit = function(code) {
+  if(code == undefined)
+    code = 0;
+  this._send('quit ' + code);
+};
+
+mplayer.prototype.kill = function(signal) {
+  if(signal == undefined)
+    signal = 'SIGTERM';
+  if(this._process) {
+    this._process.kill(signal);
+    this._process = undefined;
+    this._proc_opened = false;
+    this._proc_opening = false;
+  }
+};
+
+mplayer.prototype.flush = function() {
+  if(this._proc_opened) {
+    while(this._message_queue.length) {
+      var data = this._message_queue.shift();
+      this._process.stdin.write(data + '\n');
+      console.log('STDIN: ' + data);
+    }
+  }
 };
 
 mplayer.prototype._send = function(data) {
-  this._process.stdin.write(data + '\n');
-  console.log('STDIN: ' + data);
+  this._message_queue.push(data);
+  this.flush();
 };
 
 mplayer.prototype._wait_response = function(prop) {
@@ -294,14 +368,11 @@ mplayer.prototype.add_property = function(name,
           return prop;
         };
 
-mplayer.prototype.waiting = function() {
-  return this._waiting_queue.length > 0;
-};
+mplayer.prototype.waiting = function(prop) {
+  if(prop == undefined)
+    return this._waiting_queue.length > 0;
 
-mplayer.prototype.quit = function(code) {
-  if(code == undefined)
-    code = 0;
-  this._send('quit ' + code);
+  return this._waiting_queue.contains(prop);
 };
 
 mplayer.prototype.loadfile = function(file, append) {
