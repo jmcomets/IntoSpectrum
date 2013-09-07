@@ -84,24 +84,26 @@ player.prototype.add_to_playlist = function(id, pos) {
 }
 
 player.prototype._play = function(song, from_history) {
-  if(from_history == undefined)
-    from_history = false;
+  if(song != undefined) {
+    if(from_history == undefined)
+      from_history = false;
 
-  if(from_history) {
-    this._playlist.unshift(this._current_song);
-    if(this._playlist.length > this._playlist_size)
-      this._playlist.shift();
-  }
-  else {
-    this._history.push(this._current_song);
-    if(this._history.length > this._history_size)
-      this._history.shift();
-  }
+    if(from_history) {
+      this._playlist.unshift(this._current_song);
+      if(this._playlist.length > this._playlist_size)
+        this._playlist.shift();
+    }
+    else {
+      this._history.push(this._current_song);
+      if(this._history.length > this._history_size)
+        this._history.shift();
+    }
 
-  this._current_song = song;
-  this._mplayer.loadfile(this._current_song.fullPath(), 0);
-  this._current_song.playCount += 1;
-  this._current_song.save();
+    this._current_song = song;
+    this._mplayer.loadfile(this._current_song.fullPath(), 0);
+    this._current_song.playCount += 1;
+    this._current_song.save();
+  }
 };
 
 player.prototype.play_next = function() {
@@ -128,7 +130,7 @@ player.prototype.play_prev = function() {
     Song.count().success(function(n) {
       Song.findAll({offset: Math.floor(Math.random() * n),
         limit: 1}).success(function (songs) {
-          if(songs.length > 0) { self._play(songs[0], true); }
+          if(songs.length > 0 && songs[0]) { self._play(songs[0], true); }
         });
     });
   }
