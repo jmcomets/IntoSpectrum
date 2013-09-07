@@ -25,6 +25,10 @@ var listener = exports.listener = function(server) {
       self._player.play_next();
       send_info('response');
     });
+    socket.on('play_prev', function() {
+      self._player.play_prev();
+      send_info('response');
+    });
     socket.on('pause', function(id) {
       self._player.pause(id);
       send_info('response');
