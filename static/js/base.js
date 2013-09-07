@@ -1,5 +1,3 @@
-"use strict";
-
 $(window).load(function() {
   // Player: client-server controller
   var player = new ClientPlayer();
@@ -19,14 +17,10 @@ $(window).load(function() {
   // Pause/Unpause -> same button
   var pauseButton = $('#pause-control');
 
-  // Stop -> button
-  var stopButton = $('#stop-control');
-
-  // Next -> button
-  var nextButton = $('#next-control');
-
-  // Previous -> button
-  var previousButton = $('#previous-control');
+  // Other controls
+  $('#stop-control').on('click', function() { player.stop(); });
+  $('#next-control').on('click', function() { player.playNext(); });
+  $('#previous-control').on('click', function() { player.playPrevious(); });
 
   // Track progress control
   var playProgress = $('#play-progress').tooltip();
@@ -41,14 +35,29 @@ $(window).load(function() {
   // Pause/Unpause control
   pauseButton.on('click', function() { player.togglePause(); });
 
-  // Stop control
-  stopButton.on('click', function() { player.stop(); });
-
-  // Next control
-  nextButton.on('click', function() { player.playNext(); });
-
-  // Previous control
-  previousButton.on('click', function() { player.playPrevious(); });
+  // Right-click context menu for songs
+  var songContextMenu = $('#song-context-menu'),
+      songContextMenuDropdown = songContextMenu.children().first(),
+      songAction = function(fn) {
+        return function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          fn(songContextMenuDropdown.attr('data-song-id'));
+          songContextMenu.removeClass('open');
+        };
+      };
+  // ...play song
+  $('#song-action-play').on('click', songAction(function(songId) {
+    player.play(songId);
+  }));
+  // ...play song next
+  $('#song-action-next').on('click', songAction(function(songId) {
+    player.addAsNext(songId);
+  }));
+  // ...add song to play queue
+  $('#song-action-queue').on('click', songAction(function(songId) {
+    player.addToPlayQueue(songId);
+  }));
 
   // Player update
   var advanceIntervalId = -1;
@@ -67,7 +76,6 @@ $(window).load(function() {
 
     // Play progress section
     var percentage = 100 * data.time / data.time_max;
-    console.log(percentage);
     playProgress.css('width', percentage + '%');
 
     // Set the player's max-time attribute
@@ -129,8 +137,23 @@ $(window).load(function() {
       // Hook events
       row.on('click', function() {
         var id = $(this).attr('id').substring(idPrefix.length);
-        console.log(id);
         player.play(id);
+        songContextMenu.removeClass('open');
+      }).on('contextmenu', function(e) {
+        // Disable context menu
+        e.preventDefault();
+
+        // Song selected
+        var songId = $(this).attr('id').substring(idPrefix.length);
+        songContextMenuDropdown.attr('data-song-id', songId);
+
+        // Toggle dropdown and move to cursor position
+        songContextMenuDropdown.dropdown('toggle');
+        songContextMenu.css({
+          'position': 'absolute',
+          'top': e.pageY,
+          'left': e.pageX
+        });
       });
 
       // Update the modal's "current" loading

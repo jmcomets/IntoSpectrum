@@ -74,4 +74,16 @@ ClientPlayer.prototype.setTime = function(time) {
   this._socket.emit('time', this._songId, time);
 };
 
+// Ask the server to add a song to play next
+ClientPlayer.prototype.addAsNext = function(songId) {
+  this.checkSocketConnection();
+  this._socket.emit('add_to_playlist', songId, 0);
+};
+
+// Ask the server to add a song to the play queue
+ClientPlayer.prototype.addToPlayQueue = function(songId) {
+  this.checkSocketConnection();
+  this._socket.emit('add_to_playlist', songId, -1);
+};
+
 // vim: ft=javascript et sw=2 sts=2
