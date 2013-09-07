@@ -85,7 +85,7 @@ $(window).load(function() {
       songRow.addClass('info');
 
       // Update play count
-      songRow.siblings().last().text(data.play_count);
+      songRow.children().last().text(data.play_count);
 
       // Advance progress bar automatically
       var updatesPerSec = 1;
