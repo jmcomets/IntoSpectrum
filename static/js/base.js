@@ -1,12 +1,14 @@
+"use strict";
+
 $(window).load(function() {
   // Player: client-server controller
   var player = new ClientPlayer();
 
   // Volume control -> slider
-  volumeSlider = $('#volume-progress').slider({
+  var volumeSlider = $('#volume-progress').slider({
     'animate': 'fast',
     'range': 'min',
-    'orientation': 'vertical',
+    'orientation': 'horizontal',
     'min': 0,
     'max': 100,
     'slide': function(ev, ui) {
@@ -27,12 +29,12 @@ $(window).load(function() {
   var previousButton = $('#previous-control');
 
   // Track progress control
-  trackSlider = $('#play-progress').slider({
-    //'animate': true,
-    'range': 'min',
-    'orientation': 'horizontal',
-    'slide': function(ev, ui) {
-      player.setTime(ui.value);
+  var playProgress = $('#play-progress').tooltip();
+  playProgress.parents().first().on('click', function(e) {
+    var ratio = (e.pageX - $(this).position().left) / $(this).width(),
+      maxTime = parseInt(playProgress.attr('data-max-time'));
+    if (maxTime) {
+      player.setTime(maxTime * ratio);
     }
   });
 
@@ -48,7 +50,7 @@ $(window).load(function() {
   // Previous control
   previousButton.on('click', function() { player.playPrevious(); });
 
-  // Player event hooks
+  // Player update
   var advanceIntervalId = -1;
   player.update = function(data) {
     // Setup the play/pause button
@@ -63,6 +65,14 @@ $(window).load(function() {
     // Clear all active rows
     $('#library').children().removeClass('info');
 
+    // Play progress section
+    var percentage = 100 * data.time / data.time_max;
+    console.log(percentage);
+    playProgress.css('width', percentage + '%');
+
+    // Set the player's max-time attribute
+    playProgress.attr('data-max-time', data.time_max);
+
     // Update the play count
     if (data.playing) {
       var songRow = $('#song-id-' + data.id + '');
@@ -72,27 +82,10 @@ $(window).load(function() {
 
       // Update play count
       songRow.siblings().last().text(data.play_count);
-
-      // Advance the playing progress bar automatically
-      if (advanceIntervalId == -1) {
-        advanceIntervalId = setInterval(function() {
-          var value = trackSlider.slider('value');
-          trackSlider.slider('value', value + 1);
-        }, 1000);
-      }
-    } else {
-      if (advanceIntervalId != -1) {
-        clearInterval(advanceIntervalId);
-        advanceIntervalId = -1;
-      }
     }
 
     // Set the volume
     volumeSlider.slider('value', data.volume);
-
-    // Set the time
-    trackSlider.slider('value', data.time);
-    trackSlider.slider('option', 'max', data.time_max);
   };
 
   // Explicitly connect the player
@@ -116,43 +109,21 @@ $(window).load(function() {
     // Append songs to the #library
     var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var html = '', titleColSpan = 1;
-
-      // Artist section
-      if (song.artist) {
-        html += '<td>' + song.artist + '</td>';
-      } else {
-        titleColSpan += 1;
-      }
-
-      // Album section
-      if (song.album) {
-        html += '<td>' + song.album + '</td>';
-      } else {
-        titleColSpan += 1;
-      }
-
-      // Year section
-      if (song.year) {
-        html += '<td>' + song.year + '</td>';
-      } else {
-        titleColSpan += 1;
-      }
-
-      // Play count section
-      html += '<td>' + song.playCount + '</td>';
+      var missing = 'N/A', html = ''
+        +  '<td>'  +  (song.artist    ||  missing)  +  '</td>'
+        +  '<td>'  +  (song.album     ||  missing)  +  '</td>'
+        +  '<td>'  +  (song.year      ||  missing)  +  '</td>'
+        +  '<td>'  +  song.playCount  +   '</td>';
 
       // Title is either given or file basename without extension
       var title = (song.title) ? song.title : function(str) {
         str = str.substring(str.lastIndexOf('/') + 1, str.length);
         return str.substring(0, str.lastIndexOf('.'));
       } (song.path);
-      html = '<td colspan="' + titleColSpan + '">' + title + '</td>' + html;
+      html = '<td>' + title + '</td>' + html;
 
       // Create the DOM element
-      var idPrefix = 'song-id-',
-          row = $('<tr></tr>');
-      row.attr('id', idPrefix + song.id);
+      var idPrefix = 'song-id-', row = $('<tr id="' + idPrefix + song.id + '"></tr>');
       row.html(html);
 
       // Hook events
