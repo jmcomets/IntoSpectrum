@@ -59,7 +59,8 @@ ClientPlayer.prototype.playNext = function() {
 
 // Ast the server to play the previous song
 ClientPlayer.prototype.playPrevious = function() {
-  throw new Error('[ClientPlayer] "previous" action not yet implemented');
+  this.checkSocketConnection();
+  this._socket.emit('play_prev');
 };
 
 // Ask the server player to set the volume
