@@ -48,7 +48,8 @@ player.prototype.get_info = function(success) {
         'volume': self._mplayer.volume.value,
         'time': self._mplayer.time_pos.value,
         'time_max': self._mplayer.length.value,
-        'playlist': new Array()
+        'playlist': new Array(),
+        'play_count': 0
       };
 
       for(var i = 0 ; i < self._playlist.length ; i++) {
@@ -57,6 +58,7 @@ player.prototype.get_info = function(success) {
 
       if (self._current_song != undefined) {
         out['id'] = self._current_song.id;
+        out['play_count'] = self._current_song.playCount;
       }
 
       if(success) { success(out); }
