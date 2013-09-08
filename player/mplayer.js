@@ -1,5 +1,4 @@
-var spawn = require('child_process').spawn,
-    fs = require('fs');
+var spawn = require('child_process').spawn;
 
 Array.prototype.contains = function(obj) {
   var i = this.length;

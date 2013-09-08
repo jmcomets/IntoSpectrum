@@ -20,6 +20,10 @@ var listener = exports.listener = function(server) {
       self._player.play(id);
       send_info('response');
     });
+    socket.on('play_youtube', function(url) {
+      self._player.play_youtube(url);
+      send_info('response');
+    });
     socket.on('add_to_playlist', function(id, pos) {
       self._player.add_to_playlist(id, pos);
       send_info('response');

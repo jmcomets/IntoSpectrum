@@ -1,5 +1,6 @@
 var Song = require('../models').Song,
     mplayer = require('./mplayer').mplayer;
+    Youtube = require('../youtube');
 
 var player = module.exports = function() {
   // mplayer
@@ -87,6 +88,8 @@ player.prototype.add_to_playlist = function(id, pos) {
 
 player.prototype._play = function(song, from_history) {
   if(song != undefined) {
+    var self = this;
+
     if(from_history == undefined)
       from_history = false;
 
@@ -102,9 +105,19 @@ player.prototype._play = function(song, from_history) {
     }
 
     this._current_song = song;
-    this._mplayer.loadfile(this._current_song.fullPath(), 0);
-    this._current_song.playCount += 1;
-    this._current_song.save();
+
+    if(this._current_song.youtube != undefined) {
+      Youtube.get_link(this._current_song.youtube, function(url) {
+        self._mplayer.loadfile(url, 0);
+      }, function(err) {
+        console.log('Youtube error: ' + err);
+      });
+    }
+    else {
+      this._mplayer.loadfile(this._current_song.fullPath(), 0);
+      this._current_song.playCount += 1;
+      this._current_song.save();
+    }
   }
 };
 
@@ -147,6 +160,14 @@ player.prototype.play = function(id) {
         self._play(song);
       }
     });
+  }
+};
+
+player.prototype.play_youtube = function(url) {
+  if(url != undefined) {
+    var song = new Object();
+    song.youtube = url;
+    this._play(song);
   }
 };
 
