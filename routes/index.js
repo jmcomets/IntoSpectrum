@@ -5,6 +5,11 @@ exports.index = function(req, res) {
   res.render('index.html');
 };
 
+// Tests pages
+exports.test_pause = function(req, res) {
+  res.render('../tests/pause.html');
+};
+
 // Library
 exports.library = function(req, res) {
   var cursor = (parseInt(req.params.cursor) || 1) - 1,

@@ -1,0 +1,35 @@
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+var test = function(id) {
+    var socket = io.connect('0.0.0.0:3000/player');
+
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('pause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('unpause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('pause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('unpause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('pause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('unpause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('stop', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('pause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('stop', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('unpause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('pause', id);
+    for(var i = 0 ; i < 100 ; i++)
+        socket.emit('unpause', id);
+
+    console.log('done');
+}
+
+test(1);
+</script>

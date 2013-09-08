@@ -39,6 +39,7 @@ if ('development' == app.get('env')) {
 // Routes
 var routes = require('./routes');
 app.get('/', routes.index);
+app.get('/test_pause', routes.test_pause);
 app.get('/library/?(:cursor)?', routes.library);
 
 // Start server

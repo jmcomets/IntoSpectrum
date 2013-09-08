@@ -14,7 +14,7 @@ var player = module.exports = function() {
 
   // History
   this._history = new Array();
-  this._history_size = 200;
+  this._history_size = 100;
 };
 
 player.prototype.kill = function(signal) {
@@ -93,7 +93,7 @@ player.prototype._play = function(song, from_history) {
     if(from_history) {
       this._playlist.unshift(this._current_song);
       if(this._playlist.length > this._playlist_size)
-        this._playlist.shift();
+        this._playlist.pop();
     }
     else {
       this._history.push(this._current_song);
