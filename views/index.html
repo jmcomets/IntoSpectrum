@@ -58,9 +58,9 @@
         </div>
 
         <!--Content-->
-        <div id="wrap">
+        <div id="wrap" class="container-fluid">
             <!--Loading-->
-            <div id="library-loading" class="well">
+            <div id="library-loading" class="span12 well well-small" style="position:fixed;bottom:10px;">
                 <!--<h2>Library loading...</h2>-->
                 <div class="progress progress-striped active">
                     <div class="bar" style="width: 100%;"></div>
@@ -70,60 +70,58 @@
 
             <div class="row-fluid">
                 <!-- Left Panel -->
-                <div class="span4 tabbable tabs-left">
+                <div class="span3 tabbable tabs-left">
                     <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab-youtube" data-toggle="tab"><i class="icon-youtube"> </i></a></li>
-                        <li><a href="#tab-playlist" data-toggle="tab"><i class="icon-list"> </i></a></li>
+                        <li class="active">
+                            <a href="#tab-playlist" data-toggle="tab">
+                                <i class="icon-list"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab-youtube" data-toggle="tab">
+                                <i class="icon-youtube"></i>
+                            </a>
+                        </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tab-youtube">
+                        <div id="tab-playlist" class="tab active">
+                        </div>
+                        <div id="tab-youtube" class="tab-pane">
                             <form class="form-search" action="#">
-                                <div class="input-append">
-                                    <input class="search-query" type="text" placeholder="Song" />
-                                    <button type="submit" class="btn">Search</button>
-                                </div>
+                                <input class="search-query" type="text" placeholder="Song">
                             </form>
                             <table class="table table-striped">
                                 <tr>
                                     <td>Musique 1</td>
                                     <td>
-                                        <a href="#"><i class="icon-play"> </i></a>
-                                        <a href="#"><i class="icon-plus"> </i></a>
-                                        <a href="#"><i class="icon-arrow-down"> </i></a>
+                                        <a href="#"><i class="icon-play"></i></a>
+                                        <a href="#"><i class="icon-angle-down"></i></a>
+                                        <a href="#"><i class="icon-double-angle-down"></i></a>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Musique 1</td>
+                                    <td>Musique 2</td>
                                     <td>
-                                        <a href="#"><i class="icon-play"> </i></a>
-                                        <a href="#"><i class="icon-plus"> </i></a>
-                                        <a href="#"><i class="icon-arrow-down"> </i></a>
+                                        <a href="#"><i class="icon-play"></i></a>
+                                        <a href="#"><i class="icon-angle-down"></i></a>
+                                        <a href="#"><i class="icon-double-angle-down"></i></a>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Musique 1</td>
+                                    <td>Musique 3</td>
                                     <td>
-                                        <a href="#"><i class="icon-play"> </i></a>
-                                        <a href="#"><i class="icon-plus"> </i></a>
-                                        <a href="#"><i class="icon-arrow-down"> </i></a>
+                                        <a href="#"><i class="icon-play"></i></a>
+                                        <a href="#"><i class="icon-angle-down"></i></a>
+                                        <a href="#"><i class="icon-double-angle-down"></i></a>
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="tab" id="tab-playlist">
-                        </div>
                     </div>
                 </div>
-                <div class="span8">
+                <div class="span9">
                     <!--Songs-->
                     <table class="table table-hover table-condensed">
-                        <thead>
-                            <th>Title</th>
-                            <th>Artist</th>
-                            <th>Album</th>
-                            <th>Year</th>
-                            <th>#</th>
-                        </thead>
                         <tbody id="library"></tbody>
                     </table>
                 </div>
@@ -134,8 +132,8 @@
         <div id="song-context-menu" class="dropdown clearfix">
             <ul class="dropdown-menu" role="menu">
                 <li><a id="song-action-play" class="disabled" href="#"><i class="icon-play"> </i> Play</a></li>
-                <li><a id="song-action-next" class="disabled" href="#"><i class="icon-plus"> </i> Play next</a></li>
-                <li><a id="song-action-queue" class="disabled" href="#"><i class="icon-arrow-down"> </i> Add to play queue</a></li>
+                <li><a id="song-action-next" class="disabled" href="#"><i class="icon-arrow-right"> </i> Play next</a></li>
+                <li><a id="song-action-queue" class="disabled" href="#"><i class="icon-plus"> </i> Add to play queue</a></li>
             </ul>
         </div>
         </body>

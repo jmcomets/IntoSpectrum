@@ -84,9 +84,6 @@ $(window).load(function() {
       // Set as "active" row
       songRow.addClass('info');
 
-      // Update play count
-      songRow.children().last().text(data.play_count);
-
       // Advance progress bar automatically
       var updatesPerSec = 1;
       if (advanceIntervalId == -1) {
@@ -134,9 +131,7 @@ $(window).load(function() {
     $.each(data.songs, function(_, song) {
       var missing = 'N/A', html = ''
         +  '<td>'  +  (song.artist    ||  missing)  +  '</td>'
-        +  '<td>'  +  (song.album     ||  missing)  +  '</td>'
-        +  '<td>'  +  (song.year      ||  missing)  +  '</td>'
-        +  '<td>'  +  song.playCount  +   '</td>';
+        +  '<td>'  +  (song.album     ||  missing)  +  '</td>';
 
       // Title is either given or file basename without extension
       var title = (song.title) ? song.title : function(str) {
