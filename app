@@ -40,6 +40,7 @@ if ('development' == app.get('env')) {
 var routes = require('./routes');
 app.get('/', routes.index);
 app.get('/test_pause', routes.test_pause);
+app.get('/test_play', routes.test_play);
 app.get('/library/?(:cursor)?', routes.library);
 
 // Start server

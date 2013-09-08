@@ -1,0 +1,15 @@
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+var test = function() {
+    var socket = io.connect('0.0.0.0:3000/player');
+
+    for(var j = 0 ; j < 5 ; j++) {
+        for(var i = 0 ; i < 100 ; i++)
+            socket.emit('play', i);
+    }
+
+    console.log('done');
+}
+
+test();
+</script>

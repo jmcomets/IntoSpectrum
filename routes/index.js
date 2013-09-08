@@ -9,6 +9,9 @@ exports.index = function(req, res) {
 exports.test_pause = function(req, res) {
   res.render('../tests/pause.html');
 };
+exports.test_play = function(req, res) {
+  res.render('../tests/play.html');
+};
 
 // Library
 exports.library = function(req, res) {
