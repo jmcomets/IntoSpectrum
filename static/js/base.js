@@ -59,11 +59,77 @@ $(window).load(function() {
     player.addToPlayQueue(songId);
   }));
 
-  // Player update
-  var advanceIntervalId = -1, percentage = 0;
-  player.update = function(data) {
-    // Setup the play/pause button
-    if (data.playing) {
+  // Pause button refactoring
+  var setPauseButtonState = function(playing) {
+    if (playing) {
+      pauseButton.find('.icon-play').show();
+      pauseButton.find('.icon-pause').hide();
+    } else {
+      pauseButton.find('.icon-pause').hide();
+      pauseButton.find('.icon-play').show();
+    }
+  };
+
+  // Active row refactoring
+  var setActiveRow = function(songId) {
+    $('#library .info').removeClass('info');
+    if (songId != undefined) {
+      $('#song-id-' + songId).addClass('info');
+    }
+  };
+
+  // Progress bar refactoring
+  var advanceIntervalId = -1;
+  var startAdvancingProgress = function(updatesPerSec) {
+    if (advanceIntervalId != -1) { clearInterval(advanceIntervalId); }
+    advanceIntervalId = setInterval(function() {
+      var percentage = parseFloat(playProgress.attr('data-percentage')) || 0,
+        percentageInc = 100 / parseFloat(playProgress.attr('data-max-time'));
+      percentage += percentageInc / updatesPerSec;
+      updateProgress(percentage);
+    }, 1000 / updatesPerSec);
+  }, stopAdvancingProgress = function() {
+    if (advanceIntervalId != -1) {
+      clearInterval(advanceIntervalId);
+      advanceIntervalId = -1;
+    }
+  }, updateProgress = function(percentage) {
+    playProgress.attr('data-percentage', percentage);
+    playProgress.css('width', percentage + '%');
+  };
+
+  // Player event hooks
+  var percentage = 0;
+  player.bind('play', function() {
+    setPauseButtonState(true);
+
+    // Active row -> current playing
+    setActiveRow(this.state.id);
+
+    // Change play progress max time
+    playProgress.attr('data-max-time', this.state.time_max);
+
+    // Advance progress bar automatically
+    var updatesPerSec = 1;
+  }).bind('stop', function() {
+    setPauseButtonState(false);
+    stopAdvancingProgress();
+    updateProgress(0);
+    setActiveRow();
+  }).bind('unpause', function() {
+    setPauseButtonState(true);
+    startAdvancingProgress();
+  }).bind('pause', function() {
+    setPauseButtonState(false);
+    stopAdvancingProgress();
+  }).bind('volume', function() {
+    volumeSlider.slider('value', this.state.volume);
+  }).bind('time', function() {
+    percentage = 100 * this.state.time / this.state.time_max;
+    updateProgress(percentage);
+  }).bind('info', function() {
+    // Play/pause button
+    if (this.state.playing) {
       pauseButton.find('.icon-play').hide();
       pauseButton.find('.icon-pause').show();
     } else {
@@ -75,38 +141,22 @@ $(window).load(function() {
     $('#library').children().removeClass('info');
 
     // Set the player's max-time attribute
-    playProgress.attr('data-max-time', data.time_max);
+    playProgress.attr('data-max-time', this.state.time_max);
 
     // Update the play count
-    if (data.playing) {
-      var songRow = $('#song-id-' + data.id + '');
+    if (this.state.playing) {
+      var songRow = $('#song-id-' + this.state.id + '');
 
       // Set as "active" row
       songRow.addClass('info');
-
-      // Advance progress bar automatically
-      var updatesPerSec = 1;
-      if (advanceIntervalId == -1) {
-        advanceIntervalId = setInterval(function() {
-          var percentageInc = 100 / parseFloat(playProgress.attr('data-max-time'));
-          percentage += percentageInc / updatesPerSec;
-          playProgress.css('width', percentage + '%');
-        }, 1000 / updatesPerSec);
-      }
-    } else {
-      if (advanceIntervalId != -1) {
-        clearInterval(advanceIntervalId);
-        advanceIntervalId = -1;
-      }
     }
 
     // Play progress section
-    percentage = 100 * data.time / data.time_max;
-    playProgress.css('width', percentage + '%');
+    updateProgress(percentage);
 
     // Set the volume
-    volumeSlider.slider('value', data.volume);
-  };
+    volumeSlider.slider('value', this.state.volume);
+  });
 
   // Explicitly connect the player
   player.connect('/player');

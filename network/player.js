@@ -59,7 +59,7 @@ var listener = exports.listener = function(server) {
   });
 
   var send_info = function(name) {
-    name = 'info'; // TODO on client side
+    //name = 'info'; // TODO on client side
     if(name == undefined)
       name = 'info';
 
