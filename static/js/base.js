@@ -60,7 +60,7 @@ $(window).load(function() {
   }));
 
   // Panel interface
-  $('#tab-youtube tbody').sortable();
+  $('#tab-playlist').children().first().sortable();
 
   // Pause button refactoring
   var setPauseButtonState = function(playing) {
