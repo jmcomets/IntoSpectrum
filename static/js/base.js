@@ -59,6 +59,9 @@ $(window).load(function() {
     player.addToPlayQueue(songId);
   }));
 
+  // Panel interface
+  $('#tab-youtube tbody').sortable();
+
   // Pause button refactoring
   var setPauseButtonState = function(playing) {
     if (playing) {
