@@ -272,7 +272,7 @@ mplayer.prototype.start = function() {
   if(!this._proc_opened && !this._proc_opening) {
     var self = this;
     this._proc_opening = true;
-    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet']);
+    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol']);
 
     // Active the communication with the process after a little time
     var timer = setTimeout(function() {
@@ -283,12 +283,12 @@ mplayer.prototype.start = function() {
 
     // Listen the stdio stream
     this._process.stdout.on('data', function(data) {
+      console.log('STDOUT: ' + data);
+
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
         var data = lines[i];
         if(data.length >= 3 && data.slice(0, 4) == 'ANS_') {
-          console.log('STDOUT: ' + data);
-
           if(self._waiting_queue.length == 0) { break; }
 
           self._waiting_queue.shift().parse_data(data);
