@@ -21,6 +21,7 @@
     "jquery": "~1.9.1",
     "jquery-ui": "~1.10.3",
     "font-awesome": "~3.2.1",
-    "bootstrap": "~3.0.0"
+    "bootstrap": "~3.0.0",
+    "jquery-ui-bootstrap": "~0.25"
   }
 }
