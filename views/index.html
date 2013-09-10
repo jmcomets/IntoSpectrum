@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8">
         <title>Library | IntoSpectrum</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Jean-Marie Comets, Pierre Turpin">
+        <meta name="description" content="IntoSpectrum, a web-exposed server audio player">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!--Socket.IO-->
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
         <!--JQuery-->
         <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
 
@@ -17,8 +20,13 @@
         <!--Bootstrap-->
         <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" media="screen">
         <link type="text/css" rel="stylesheet" href="/css/bootstrap-responsive.min.css" media="screen">
-        <link type="text/css" rel="stylesheet" href="/css/font-awesome.min.css" media="screen">
         <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+
+        <!--Font-awesome-->
+        <link type="text/css" rel="stylesheet" href="/css/font-awesome.min.css" media="screen">
+
+        <!--MicroEvent-->
+        <script type="text/javascript" src="/js/microevent.js"></script>
 
         <!--CSS-->
         <link type="text/css" rel="stylesheet" href="/css/base.css" media="screen">
@@ -84,38 +92,29 @@
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div id="tab-playlist" class="tab active">
+                        <div id="tab-playlist" class="tab-pane active">
+                            <ul class="unstyled">
+                                <li>
+                                    <div class="span10">Never gonna give you up</div>
+                                    <a href="#" class="span1"><i class="icon-play"></i></a>
+                                    <a href="#" class="span1"><i class="icon-remove"></i></a>
+                                </li>
+                                <li>
+                                    <div class="span10">Never gonna let you down</div>
+                                    <a href="#" class="span1"><i class="icon-play"></i></a>
+                                    <a href="#" class="span1"><i class="icon-remove"></i></a>
+                                </li>
+                                <li>
+                                    <div class="span10">Never gonna run around and hurt you</div>
+                                    <a href="#" class="span1"><i class="icon-play"></i></a>
+                                    <a href="#" class="span1"><i class="icon-remove"></i></a>
+                                </li>
+                            </ul>
                         </div>
                         <div id="tab-youtube" class="tab-pane">
                             <form class="form-search" action="#">
-                                <input class="search-query" type="text" placeholder="Song">
+                                <input class="search-query" type="text" placeholder="Search on Youtube">
                             </form>
-                            <table class="table table-striped">
-                                <tr>
-                                    <td>Musique 1</td>
-                                    <td>
-                                        <a href="#"><i class="icon-play"></i></a>
-                                        <a href="#"><i class="icon-angle-down"></i></a>
-                                        <a href="#"><i class="icon-double-angle-down"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Musique 2</td>
-                                    <td>
-                                        <a href="#"><i class="icon-play"></i></a>
-                                        <a href="#"><i class="icon-angle-down"></i></a>
-                                        <a href="#"><i class="icon-double-angle-down"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Musique 3</td>
-                                    <td>
-                                        <a href="#"><i class="icon-play"></i></a>
-                                        <a href="#"><i class="icon-angle-down"></i></a>
-                                        <a href="#"><i class="icon-double-angle-down"></i></a>
-                                    </td>
-                                </tr>
-                            </table>
                         </div>
                     </div>
                 </div>

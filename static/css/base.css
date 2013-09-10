@@ -3,7 +3,11 @@
 }
 
 .nav.progress {
-    margin:10px;
+    margin: 10px;
+}
+
+#volume-progress {
+    margin: 15px;
 }
 
 #library tr {
@@ -18,4 +22,26 @@
 
 .tabs-left .nav-tabs > li > a {
     min-width: 18px;
-};
+}
+
+#tab-playlist li {
+    font-size: 12px;
+    cursor: move;
+}
+
+#tab-playlist li.ui-sortable-helper {
+    background-color: #fff;
+}
+
+
+#tab-playlist li div:first-child {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#tab-playlist li a {
+    color: #333;
+    text-decoration: none;
+    text-align center;
+}

@@ -1,28 +1,95 @@
 // ClientPlayer class
-function ClientPlayer(update) {
-  this.update = update;
-  this._songId = -1;
-  this._playing = undefined;
+function ClientPlayer() {
+  this.state = {};
 }
+
+// Make ClientPlayer an event emitter
+MicroEvent.mixin(ClientPlayer);
+
+// Events available (checked -> supported):
+//  - [x] connected
+//  - [x] disconnected
+//  - [x] play
+//  - [x] pause
+//  - [x] unpause
+//  - [x] stop
+//  - [x] volume
+//  - [] time
+//  - [] next
+//  - [] previous
+//  - [] playlist
 
 // Explicit connect to socket at a given url
 ClientPlayer.prototype.connect = function(url) {
-  var socket = io.connect(url), tryReconnect = function() {
-    if (!socket.socket.connected && !socket.socket.connecting) {
-      socket.socket.connect();
-    }
-  }, intervalID = setInterval(tryReconnect, 2000);
+  // Stored for convenience
+  var that = this;
+
+  // Try to connect until connected
+  var socket = io.connect(url);
+
+  // Reconnect interval ID
+  var intervalID = -1;
+  // ...reconnect setup
+  var tryReconnect = function(seconds) {
+    intervalID = setInterval(function() {
+      if (!socket.socket.connected && !socket.socket.connecting) {
+        socket.socket.connect();
+      }
+    }, seconds*1000);
+  };
+
+  // Try to reconnect immediately (applied after 2 seconds, unless failure)
+  tryReconnect(2);
 
   var that = this;
-  socket.on('connect', function () {
+  socket.on('connect', function() {
     clearInterval(intervalID);
-    this.on('info', function(state) {
-      that._songId = state.id;
-      that._playing = state.playing;
-      if (that.update) { that.update(state); }
-    });
+    that.trigger('connected');
+    this
+      .on('info', function(info) { that._handleInfo(info); })
+      .on('response', function(response) { that._handleResponse(response); })
+    ;
     that._socket = socket;
-  })
+  }).on('disconnect', function() {
+    tryReconnect(5);
+    that._socket = undefined;
+    that.trigger('disconnected');
+  });
+};
+
+// Info -> regular update (no specific event)
+ClientPlayer.prototype._handleInfo = function(info) {
+  this.state = info;
+  this.trigger('info');
+};
+
+// Response -> immediate response (specific event)
+ClientPlayer.prototype._handleResponse = function(response) {
+  // Change state for event hooks
+  var oldState = this.state;
+  this.state = response;
+
+  // Play/pause/unpause/stop
+  if (oldState.playing != response.playing) {
+    if (oldState.playing) { // stop/pause
+      if (oldState.time == 0) { // stop
+        this.trigger('stop');
+      } else { // pause
+        this.trigger('pause');
+      }
+    } else { // play/unpause
+      if (oldState.id != response.id || response.time == 0) { // play
+        this.trigger('play');
+      } else { // unpause
+        this.trigger('unpause');
+      }
+    }
+  }
+
+  // volume
+  if (oldState.volume != response.volume) {
+    this.trigger('volume');
+  }
 };
 
 // Check the socket connection, throwing if the socket is invalid
@@ -42,13 +109,13 @@ ClientPlayer.prototype.play = function(songId) {
 // the player's current state
 ClientPlayer.prototype.togglePause = function() {
   this.checkSocketConnection();
-  this._socket.emit(this._playing ? 'pause' : 'unpause', this._songId);
+  this._socket.emit(this.state.playing ? 'pause' : 'unpause', this.state.id);
 };
 
 // Ask the server to stop the song playing, and reset the current time
 ClientPlayer.prototype.stop = function() {
   this.checkSocketConnection();
-  this._socket.emit('stop', this._songId);
+  this._socket.emit('stop', this.state.id);
 };
 
 // Ast the server to play the next song
@@ -72,7 +139,7 @@ ClientPlayer.prototype.setVolume = function(volume) {
 // Ask the server player to set the current time
 ClientPlayer.prototype.setTime = function(time) {
   this.checkSocketConnection();
-  this._socket.emit('time', this._songId, time);
+  this._socket.emit('time', this.state.id, time);
 };
 
 // Ask the server to add a song to play next

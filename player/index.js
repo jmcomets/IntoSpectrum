@@ -1,6 +1,6 @@
 var Song = require('../models').Song,
     mplayer = require('./mplayer').mplayer;
-    Youtube = require('../youtube');
+    youtube = require('./youtube');
 
 var player = module.exports = function() {
   // mplayer
@@ -107,7 +107,7 @@ player.prototype._play = function(song, from_history) {
     this._current_song = song;
 
     if(this._current_song.youtube != undefined) {
-      Youtube.get_link(this._current_song.youtube, function(url) {
+      youtube.get_link(this._current_song.youtube, function(url) {
         self._mplayer.loadfile(url, 0);
       }, function(err) {
         console.log('Youtube error: ' + err);
