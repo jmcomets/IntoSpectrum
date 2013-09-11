@@ -30,8 +30,10 @@ var mplayer_property = function(mplayer,
 
 mplayer_property.prototype.parse_error = function(data) {
   var error = 'Failed to get value of property \'' + this._name + '\'';
-  if(data == error)
+  if(data == error) {
+    this.value = undefined;
     return true;
+  }
   return false;
 };
 
