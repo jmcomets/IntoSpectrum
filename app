@@ -21,6 +21,7 @@ app.engine('html', settings.views.engine);
 var staticFilesDir = path.join(__dirname, 'static'),
     staticMiddleware = express.static(staticFilesDir);
 app.use(staticMiddleware);
+app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
 
 // Favicon
 app.use(express.favicon(path.join(staticFilesDir, 'img/favicon.ico')));
