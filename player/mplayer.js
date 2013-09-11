@@ -57,6 +57,10 @@ mplayer_property.prototype.parse_data = function(data) {
           this.value = parseInt(data.slice(word.length));
         return true;
       }
+  if(data.length > error.length
+      && data.slice(0, error.length) == error) {
+        return true;
+         }
   return false;
 };
 
@@ -283,7 +287,7 @@ mplayer.prototype.start = function() {
   if(!this._proc_opened && !this._proc_opening) {
     var self = this;
     this._proc_opening = true;
-    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol']);
+    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol', '-nolirc']);
 
     // Active the communication with the process after a little time
     var timer = setTimeout(function() {
@@ -389,7 +393,8 @@ mplayer.prototype.flush = function() {
 };
 
 mplayer.prototype._send = function(data) {
-  this._message_queue.push(data);
+  if(data.input == undefined || !this._message_queue.contains(data))
+    this._message_queue.push(data);
   this.flush();
 };
 
