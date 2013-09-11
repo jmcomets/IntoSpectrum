@@ -1,0 +1,27 @@
+{
+  "name": "IntoSpectrum",
+  "version": "0.0.1",
+  "homepage": "https://github.com/jmcomets/IntoSpectrum",
+  "authors": [
+    "Jean-Marie Comets <jean.marie.comets@gmail.com>",
+    "Pierre Turpin <pierre.turpin@gmail.com>"
+  ],
+  "description": "IntoSpectrum, a server-side audio player exposed via a web interface",
+  "main": "app",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "jquery-ui": "~1.10.3",
+    "font-awesome": "~3.2.1",
+    "bootstrap": "~3.0.0",
+    "jquery-ui-bootstrap": "~0.2.5"
+  }
+}
