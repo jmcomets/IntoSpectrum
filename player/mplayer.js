@@ -28,8 +28,17 @@ var mplayer_property = function(mplayer,
                 this.set(default_value);
         };
 
+mplayer_property.prototype.parse_error = function(data) {
+  var error = 'Failed to get value of property \'' + this._name + '\'';
+  if(data == error)
+    return true;
+  return false;
+};
+
 mplayer_property.prototype.parse_data = function(data) {
   var word = 'ANS_' + this._name + '=';
+  var error = 'ANS_ERROR=';
+  this.value = undefined;
   if(data.length > word.length
       && data.slice(0, word.length) == word) {
         if(this._type == 'float')
@@ -44,9 +53,9 @@ mplayer_property.prototype.parse_data = function(data) {
           this.value = parseInt(data.slice(word.length));
         else if(this._type == 'time')
           this.value = parseInt(data.slice(word.length));
+        return true;
       }
-  else
-    this.value = undefined;
+  return false;
 };
 
 mplayer_property.prototype.set = function(value) {
@@ -88,8 +97,8 @@ mplayer_property.prototype.get = function() {
 
     if(!this._mplayer.waiting(this)) {
       try {
-        this._mplayer._send("pausing_keep_force get_property " + this._name);
-        this._mplayer._wait_response(this);
+        this._mplayer._send({input: "pausing_keep_force get_property " + this._name,
+        waiting: this});
       }
       catch(err) {
         console.log(err);
@@ -283,21 +292,47 @@ mplayer.prototype.start = function() {
 
     // Listen the stdio stream
     this._process.stdout.on('data', function(data) {
-      console.log('STDOUT: ' + data);
-
       var lines = (new String(data)).split('\n');
       for(var i = 0 ; i < lines.length ; i++) {
         var data = lines[i];
-        if(data.length >= 3 && data.slice(0, 4) == 'ANS_') {
-          if(self._waiting_queue.length == 0) { break; }
+        console.log('STDOUT: ' + data);
+        if(self._waiting_queue.length == 0) { break; }
 
-          self._waiting_queue.shift().parse_data(data);
+        var waiting = self._waiting_queue[0];
+        if(waiting instanceof mplayer_property) {
+          if(self._waiting_queue.shift().parse_data(data)) {
+            self._waiting_queue.shift();
+          }
+        }
+        else {
+          if(waiting.stdout == data) {
+            self._waiting_queue.shift();
+          }
         }
       }
+      self.flush();
     });
 
     this._process.stderr.on('data', function(data) {
-      console.log('STDERR: ' + data);
+      var lines = (new String(data)).split('\n');
+      for(var i = 0 ; i < lines.length ; i++) {
+        var data = lines[i];
+        console.log('STDERR: ' + data);
+        if(self._waiting_queue.length == 0) { break; }
+
+        var waiting = self._waiting_queue[0];
+        if(waiting instanceof mplayer_property) {
+          if(self._waiting_queue.shift().parse_error(data)) {
+            self._waiting_queue.shift();
+          }
+        }
+        else {
+          if(waiting.stderr == data) {
+            self._waiting_queue.shift();
+          }
+        }
+      }
+      self.flush();
     });
 
     this._process.on('exit', function(code, signal) {
@@ -331,10 +366,22 @@ mplayer.prototype.kill = function(signal) {
 
 mplayer.prototype.flush = function() {
   if(this._proc_opened) {
-    while(this._message_queue.length) {
+    while(this._waiting_queue.length == 0) {
+      if(this._message_queue.length == 0) {
+        break;
+      }
+
       var data = this._message_queue.shift();
-      this._process.stdin.write(data + '\n');
-      console.log('STDIN: ' + data);
+      var input = data;
+      if(data.input != undefined) {
+        input = data.input;
+      }
+      this._process.stdin.write(input + '\n');
+      console.log('STDIN: ' + input);
+
+      if(data.waiting != undefined) {
+        this._waiting_queue.push(data.waiting);
+      }
     }
   }
 };
@@ -375,7 +422,10 @@ mplayer.prototype.waiting = function(prop) {
 };
 
 mplayer.prototype.loadfile = function(file, append) {
-  this._send('loadfile "' + file + '" ' + append);
+  this._send({input: 'loadfile "' + file + '" ' + append,
+    waiting: {stdout: 'Starting playback...',
+      stderr: 'Failed to open ' + file + '.'
+    }});
 };
 
 mplayer.prototype.force_pause = function() {
