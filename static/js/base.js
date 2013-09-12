@@ -34,13 +34,16 @@ $(window).load(function() {
   var pauseButton = $init('#pause-control', {
     'init': function() {
       this.$.on('click', function() { player.togglePause(); });
+      this._playIcon = this.$.find('.glyphicon-play');
+      this._pauseIcon = this.$.find('.glyphicon-pause');
     }, 'setPlaying': function(playing) {
+      console.log('setPlaying: ' + playing);
       if (playing == true || playing == undefined) {
-        this.$.find('.glyphicon-play').show();
-        this.$.find('.glyphicon-pause').hide();
+        this._playIcon.hide();
+        this._pauseIcon.show();
       } else {
-        this.$.find('.glyphicon-pause').hide();
-        this.$.find('.glyphicon-play').show();
+        this._playIcon.show();
+        this._pauseIcon.hide();
       }
     }
   });
