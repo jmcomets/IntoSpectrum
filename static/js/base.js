@@ -1,17 +1,48 @@
 $(window).load(function() {
+  // Inplace objects: define with a dictionary,
+  // constructor is the (optional) init method
+  var init = function(obj) {
+    if (obj.init != undefined) { obj.init(); }
+    return obj;
+  };
+  // ...same with JQuery objects, passing a selector to the $ function
+  // and setting the "$" member as a reference to its return value
+  var $init = function(selector, obj) {
+    obj.$ = $(selector);
+    return init(obj);
+  };
+
   // Player: client-server controller
   var player = new ClientPlayer();
 
   // Volume control -> slider
-  var volumeSlider = $('#volume-progress').slider({
-    'range': 'min',
-    'slide': function(ev, ui) {
-      player.setVolume(ui.value);
+  var volumeControl = $init('#volume-progress', {
+    'init': function() {
+      this.$.slider({
+        'range': 'min',
+        'slide': function(ev, ui) {
+          player.setVolume(ui.value);
+        }
+      });
+    }, 'setVolume': function(volume) {
+      this.$.slider('value', volume);
     }
   });
 
   // Pause/Unpause -> same button
-  var pauseButton = $('#pause-control');
+  var pauseButton = $init('#pause-control', {
+    'init': function() {
+      this.$.on('click', function() { player.togglePause(); });
+    }, 'setPlaying': function(playing) {
+      if (playing) {
+        this.$.find('.glyphicon-play').show();
+        this.$.find('.glyphicon-pause').hide();
+      } else {
+        this.$.find('.glyphicon-pause').hide();
+        this.$.find('.glyphicon-play').show();
+      }
+    }
+  });
 
   // Other controls
   $('#stop-control').on('click', function() { player.stop(); });
@@ -28,17 +59,10 @@ $(window).load(function() {
     }
   });
 
-  // Pause/Unpause control
-  pauseButton.on('click', function() { player.togglePause(); });
-
   // Right-click context menu for songs
-  var songContextMenu = {
+  var songMenu = $init('#song-context-menu', {
     'init': function() {
-      this.$ = $('#song-context-menu');
       this.dropdown = this.$.children().first();
-      return this;
-    }, 'setSongId': function(songId) {
-      this.dropdown.attr('data-song-id', songId);
     }, 'action': function(fn) {
       var that = this;
       return function(e) {
@@ -55,34 +79,19 @@ $(window).load(function() {
       }
     }, 'close': function() {
       this.$.removeClass('open');
+    }, 'setSongId': function(songId) {
+      this.dropdown.attr('data-song-id', songId);
     }
-  }.init();
+  });
   // ...play song
-  $('#song-action-play').on('click', songContextMenu.action(function(songId) {
-    player.play(songId);
-  }));
+  $('#song-action-play').click(songMenu.action(function(songId) { player.play(songId); }));
   // ...play song next
-  $('#song-action-next').on('click', songContextMenu.action(function(songId) {
-    player.addAsNext(songId);
-  }));
+  $('#song-action-next').click(songMenu.action(function(songId) { player.addAsNext(songId); }));
   // ...add song to play queue
-  $('#song-action-queue').on('click', songContextMenu.action(function(songId) {
-    player.addToPlayQueue(songId);
-  }));
+  $('#song-action-queue').click(songMenu.action(function(songId) { player.addToPlayQueue(songId); }));
 
   // Panel interface
   $('#tab-playlist').children().first().sortable();
-
-  // Pause button refactoring
-  var setPauseButtonState = function(playing) {
-    if (playing) {
-      pauseButton.find('.glyphicon-play').show();
-      pauseButton.find('.glyphicon-pause').hide();
-    } else {
-      pauseButton.find('.glyphicon-pause').hide();
-      pauseButton.find('.glyphicon-play').show();
-    }
-  };
 
   // Active row refactoring
   var setActiveRow = function(songId) {
@@ -115,7 +124,7 @@ $(window).load(function() {
   // Player event hooks
   var percentage = 0;
   player.bind('play', function() {
-    setPauseButtonState(true);
+    pauseButton.setPlaying(true);
 
     // Active row -> current playing
     setActiveRow(this.state.id);
@@ -126,24 +135,24 @@ $(window).load(function() {
     // Advance progress bar automatically
     var updatesPerSec = 1;
   }).bind('stop', function() {
-    setPauseButtonState(false);
+    pauseButton.setPlaying(false);
     stopAdvancingProgress();
     updateProgress(0);
     setActiveRow();
   }).bind('unpause', function() {
-    setPauseButtonState(true);
+    pauseButton.setPlaying(true);
     startAdvancingProgress();
   }).bind('pause', function() {
-    setPauseButtonState(false);
+    pauseButton.setPlaying(false);
     stopAdvancingProgress();
   }).bind('volume', function() {
-    volumeSlider.slider('value', this.state.volume);
+    volumeControl.setVolume(this.state.volume);
   }).bind('time', function() {
     percentage = 100 * this.state.time / this.state.time_max;
     updateProgress(percentage);
   }).bind('info', function() {
     // Play/pause button
-    setPauseButtonState(this.state.playing);
+    pauseButton.setPlaying(this.state.playing);
 
     // Clear all active rows
     $('#library').children().removeClass('info');
@@ -164,7 +173,7 @@ $(window).load(function() {
     updateProgress(100 * this.state.time / this.state.time_max);
 
     // Set the volume
-    volumeSlider.slider('value', this.state.volume);
+    volumeControl.setVolume(this.state.volume);
   }).bind('disconnected', function() {
     stopAdvancingProgress();
   });
@@ -207,17 +216,17 @@ $(window).load(function() {
       row.on('click', function() {
         var id = $(this).attr('id').substring(idPrefix.length);
         player.play(id);
-        songContextMenu.close();
+        songMenu.close();
       }).on('contextmenu', function(e) {
         // Disable context menu
         e.preventDefault();
 
         // Song selected
         var songId = $(this).attr('id').substring(idPrefix.length);
-        songContextMenu.setSongId(songId);
+        songMenu.setSongId(songId);
 
         // Toggle dropdown and move to cursor position
-        songContextMenu.open(e.pageX, e.pageY);
+        songMenu.open(e.pageX, e.pageY);
       });
 
       // Add to the library container
