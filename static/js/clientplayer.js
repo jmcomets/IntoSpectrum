@@ -44,7 +44,7 @@ ClientPlayer.prototype.connect = function(url) {
   var that = this;
   socket.on('connect', function() {
     clearInterval(intervalID);
-    that.trigger('connected');
+    that.trigger('connected'); console.log('triggered: connected');
     this
       .on('info', function(info) { that._handleInfo(info); })
       .on('response', function(response) { that._handleResponse(response); })
@@ -53,14 +53,14 @@ ClientPlayer.prototype.connect = function(url) {
   }).on('disconnect', function() {
     tryReconnect(5);
     that._socket = undefined;
-    that.trigger('disconnected');
+    that.trigger('disconnected'); console.log('triggered: disconnected');
   });
 };
 
 // Info -> regular update (no specific event)
 ClientPlayer.prototype._handleInfo = function(info) {
   this.state = info;
-  this.trigger('info');
+  this.trigger('info'); console.log('triggered: info');
 };
 
 // Response -> immediate response (specific event)
@@ -73,22 +73,22 @@ ClientPlayer.prototype._handleResponse = function(response) {
   if (oldState.playing != response.playing) {
     if (oldState.playing) { // stop/pause
       if (oldState.time == 0) { // stop
-        this.trigger('stop');
+        this.trigger('stop'); console.log('triggered: stop');
       } else { // pause
-        this.trigger('pause');
+        this.trigger('pause'); console.log('triggered: pause');
       }
     } else { // play/unpause
       if (oldState.id != response.id || response.time == 0) { // play
-        this.trigger('play');
+        this.trigger('play'); console.log('triggered: play');
       } else { // unpause
-        this.trigger('unpause');
+        this.trigger('unpause'); console.log('triggered: unpause');
       }
     }
   }
 
   // volume
   if (oldState.volume != response.volume) {
-    this.trigger('volume');
+    this.trigger('volume'); console.log('triggered: volume');
   }
 };
 

@@ -123,6 +123,23 @@ $(window).load(function() {
     }
   });
 
+  // Connection modal (showing when client is disconnected)
+  var connectionModal = $init('#disconnected-modal', {
+    'init': function() {
+      this.$.modal({
+        'show': false,
+        'keyboard': false,
+        'backdrop': 'static'
+      });
+    }, 'setVisible': function(visible) {
+      if (visible == true || visible == undefined) {
+        this.$.modal('show');
+      } else {
+        this.$.modal('hide');
+      }
+    }
+  });
+
   // Active row refactoring
   var activateRow = function(songId) {
     var emphasisClass = 'warning';
@@ -192,9 +209,15 @@ $(window).load(function() {
 
     // Update the volume
     volumeControl.setVolume(this.state.volume);
+  }).bind('connected', function() {
+    // Explicitly hide the modal
+    connectionModal.setVisible(false);
   }).bind('disconnected', function() {
     // Stop updating the progress
     playProgress.autoUpdate(false);
+
+    // Show the modal
+    connectionModal.setVisible();
   });
 
   // Loading progress
@@ -203,7 +226,9 @@ $(window).load(function() {
       this._index = 0;
       this._count = undefined;
       this._bar = this.$.find('.progress').children().first();
+      this._text = this.$.find('#library-loading-current');
     }, 'update': function() {
+      this._text.text('Loaded ' + this._index + '/' + this._count + ' songs');
       this._bar.css('width', (100 * this._index / this._count) + '%');
     }, 'step': function() {
       this._index += 1;
