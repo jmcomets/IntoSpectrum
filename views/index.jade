@@ -59,7 +59,7 @@ html
         em#library-loading-current
       div.row
         // Left Panel
-        div.col-md-3.tabbable.tabs-left
+        div.col-md-3.tabbable
           ul.nav.nav-tabs
             li.active
               a(href='#tab-playlist', data-toggle='tab')
@@ -77,8 +77,8 @@ html
                   a.col-md-1(href='#')
                     span.glyphicon.glyphicon-remove
             div#tab-youtube.tab-pane
-              form.form-search(action='#')
-                input.search-query(type='text', placeholder='Search on Youtube')
+              form.navbar-form(role='search')
+                input.form-control(type='text', role='search', placeholder='Search on Youtube')
         div.col-md-9
           // Songs
           table.table.table-hover.table-condensed
