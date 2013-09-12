@@ -109,8 +109,9 @@ player.prototype.add_to_playlist = function(id, pos) {
 
     var self = this;
     Song.find(id).success(function(song) {
-      self._playlist.splice(pos, 0, song);
-      console.log(pos + ' ' + self._playlist);
+      if(song) {
+        self._playlist.splice(pos, 0, song);
+      }
     });
   }
 }
