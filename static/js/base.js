@@ -91,13 +91,14 @@ $(window).load(function() {
   // Right-click context menu for songs
   var songMenu = $init('#song-context-menu', {
     'init': function() {
+      this._songId = -1;
       this._dropdown = this.$.children().first();
     }, 'action': function(fn) {
       var that = this;
       return function(e) {
         e.stopPropagation();
         e.preventDefault();
-        fn(that._dropdown.attr('data-song-id'));
+        fn(that._songId);
         that.close();
       };
     }, 'open': function(x, y) {
@@ -111,7 +112,7 @@ $(window).load(function() {
     }, 'close': function() {
       this.$.removeClass('open');
     }, 'setSongId': function(songId) {
-      this._dropdown.attr('data-song-id', songId);
+      this._songId;
     }
   });
   // ...play song
@@ -145,11 +146,14 @@ $(window).load(function() {
     }
   });
 
+  // Prefix for identifying songs
+  var songIdPrefix = 'song-id-';
+
   // Active row refactoring
   var activateRow = function(songId) {
     var emphasisClass = 'warning';
     $('#library .' + emphasisClass).removeClass(emphasisClass);
-    if (songId != undefined) { $('#song-id-' + songId).addClass(emphasisClass); }
+    if (songId != undefined) { $('#' + songIdPrefix + songId).addClass(emphasisClass); }
   };
 
   // Player event hooks
@@ -276,12 +280,12 @@ $(window).load(function() {
       html = '<td>' + title + '</td>' + html;
 
       // Create the DOM element
-      var idPrefix = 'song-id-', row = $('<tr id="' + idPrefix + song.id + '"></tr>');
+      var row = $('<tr id="' + songIdPrefix + song.id + '"></tr>');
       row.html(html);
 
       // Hook events
       row.on('click', function() {
-        var id = $(this).attr('id').substring(idPrefix.length);
+        var id = $(this).attr('id').substring(songIdPrefix.length);
         player.play(id);
         songMenu.close();
       }).on('contextmenu', function(e) {
@@ -289,7 +293,7 @@ $(window).load(function() {
         e.preventDefault();
 
         // Song selected
-        var songId = $(this).attr('id').substring(idPrefix.length);
+        var songId = $(this).attr('id').substring(songIdPrefix.length);
         songMenu.setSongId(songId);
 
         // Toggle dropdown and move to cursor position
@@ -309,7 +313,17 @@ $(window).load(function() {
     loadProgress.finish();
   });
 
-  // Shortcuts
+  // Shortcut to go to current
+  $(document).on('keypress', function(e) {
+    if (String.fromCharCode(e.charCode || e.keyCode) == 'M')
+    {
+      var currentRow = $('#library tr.warning');
+      if (currentRow) {
+        var topOffset = currentRow.offset().top - $(window).height() / 2;
+        $('html, body').animate({ 'scrollTop': topOffset }, 1000);
+      }
+    }
+  }); // TODO clean this up
 });
 
 // vim: ft=javascript et sw=2 sts=2
