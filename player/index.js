@@ -135,6 +135,7 @@ player.prototype._play = function(song, from_history) {
 
     this._current_song = song;
 
+    var volume = this._mplayer.get_volume();
     if(this._current_song.youtube != undefined) {
       youtube.get_link(this._current_song.youtube, function(url) {
         self._mplayer.loadfile(url, 0);
@@ -147,6 +148,7 @@ player.prototype._play = function(song, from_history) {
       this._current_song.playCount += 1;
       this._current_song.save();
     }
+    this._mplayer.set_volume(volume);
   }
 };
 
