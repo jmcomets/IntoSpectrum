@@ -8,6 +8,7 @@ $(window).load(function() {
   // ...same with JQuery objects, passing a selector to the $ function
   // and setting the "$" member as a reference to its return value
   var $init = function(selector, obj) {
+    if (obj == undefined) { obj = {}; }
     obj.$ = $(selector);
     return init(obj);
   };
@@ -34,7 +35,7 @@ $(window).load(function() {
     'init': function() {
       this.$.on('click', function() { player.togglePause(); });
     }, 'setPlaying': function(playing) {
-      if (playing) {
+      if (playing == true || playing == undefined) {
         this.$.find('.glyphicon-play').show();
         this.$.find('.glyphicon-pause').hide();
       } else {
@@ -87,17 +88,17 @@ $(window).load(function() {
   // Right-click context menu for songs
   var songMenu = $init('#song-context-menu', {
     'init': function() {
-      this.dropdown = this.$.children().first();
+      this._dropdown = this.$.children().first();
     }, 'action': function(fn) {
       var that = this;
       return function(e) {
         e.stopPropagation();
         e.preventDefault();
-        fn(that.dropdown.attr('data-song-id'));
+        fn(that._dropdown.attr('data-song-id'));
         that.$.removeClass('open');
       };
     }, 'open': function(x, y) {
-      this.dropdown.dropdown('toggle');
+      this._dropdown.dropdown('toggle');
       this.$.css('position', 'absolute');
       if (x != undefined && y != undefined) {
         this.$.css({ 'top': y, 'left': x });
@@ -105,7 +106,7 @@ $(window).load(function() {
     }, 'close': function() {
       this.$.removeClass('open');
     }, 'setSongId': function(songId) {
-      this.dropdown.attr('data-song-id', songId);
+      this._dropdown.attr('data-song-id', songId);
     }
   });
   // ...play song
@@ -116,71 +117,102 @@ $(window).load(function() {
   $('#song-action-queue').click(songMenu.action(function(songId) { player.addToPlayQueue(songId); }));
 
   // Panel interface
-  $('#tab-playlist').children().first().sortable();
+  var playlistTab = $init('#tab-playlist', {
+    'init': function() {
+      this.$.children().first().sortable();
+    }
+  });
 
   // Active row refactoring
-  var setActiveRow = function(songId) {
-    $('#library .info').removeClass('info');
-    if (songId != undefined) {
-      $('#song-id-' + songId).addClass('info');
-    }
+  var activateRow = function(songId) {
+    var emphasisClass = 'warning';
+    $('#library .' + emphasisClass).removeClass(emphasisClass);
+    if (songId != undefined) { $('#song-id-' + songId).addClass(emphasisClass); }
   };
 
   // Player event hooks
   var percentage = 0;
   player.bind('play', function() {
-    pauseButton.setPlaying(true);
+    // Switch the pause button
+    pauseButton.setPlaying();
 
-    // Active row -> current playing
-    setActiveRow(this.state.id);
+      // Set the current active row
+    activateRow(this.state.id);
 
-    // Change play progress max time
+    // Set the player's new max-time, start/continue updating the progress
     playProgress.setMaxTime(this.state.time_max);
-
-    // Advance progress bar automatically
     playProgress.autoUpdate();
   }).bind('stop', function() {
+    // Switch the pause button
     pauseButton.setPlaying(false);
+
+    // Stop updating the progress, reset as well
     playProgress.autoUpdate(false);
     playProgress.setPercentage(0);
-    setActiveRow();
+
+    // Deactivate all rows
+    activateRow();
   }).bind('unpause', function() {
-    pauseButton.setPlaying(true);
+    // Switch the pause button
+    pauseButton.setPlaying();
+
+    // Start/continue updating the progress
     playProgress.autoUpdate();
   }).bind('pause', function() {
+    // Switch the pause button
     pauseButton.setPlaying(false);
+
+    // Stop updating the progress
     playProgress.autoUpdate(false);
   }).bind('volume', function() {
     volumeControl.setVolume(this.state.volume);
   }).bind('time', function() {
-    percentage = 100 * this.state.time / this.state.time_max;
-    playProgress.setPercentage(percentage);
+    playProgress.setPercentage(100 * this.state.time / this.state.time_max);
   }).bind('info', function() {
     // Play/pause button
     pauseButton.setPlaying(this.state.playing);
 
-    // Clear all active rows
-    $('#library').children().removeClass('info');
-
-    // Set the player's max-time attribute
+    // Set the player's new max-time
     playProgress.setMaxTime(this.state.time_max);
 
-    // Update the play count
+    // Update the play state
     if (this.state.playing) {
+      // Start/continue updating the progress
       playProgress.autoUpdate();
-      var songRow = $('#song-id-' + this.state.id + '');
 
-      // Set as "active" row
-      songRow.addClass('info');
+      // Set the current active row
+      activateRow(this.state.id);
+    } else {
+      // Clear all active rows
+      activateRow();
     }
 
-    // Play progress section
+    // Update the play progress' percentage
     playProgress.setPercentage(100 * this.state.time / this.state.time_max);
 
-    // Set the volume
+    // Update the volume
     volumeControl.setVolume(this.state.volume);
   }).bind('disconnected', function() {
+    // Stop updating the progress
     playProgress.autoUpdate(false);
+  });
+
+  // Loading progress
+  var loadProgress = $init('#library-loading', {
+    'init': function() {
+      this._index = 0;
+      this._count = undefined;
+      this._bar = this.$.find('.progress').children().first();
+    }, 'update': function() {
+      this._bar.css('width', (100 * this._index / this._count) + '%');
+    }, 'step': function() {
+      this._index += 1;
+    }, 'setCount': function(count) {
+      count = parseInt(count);
+      if (count != undefined) { this._count = count; }
+    }, 'finish': function() {
+      this.$.fadeOut();
+    }
   });
 
   // Explicitly connect the player
@@ -238,11 +270,13 @@ $(window).load(function() {
       library.append(row);
 
       // Update load progress
-      //updateLoadProgress();
+      loadProgress.setCount(data.count);
+      loadProgress.step();
     });
+    loadProgress.update();
   }, function() {
     // Loading finished
-    $('#library-loading').hide();
+    loadProgress.finish();
   });
 });
 
