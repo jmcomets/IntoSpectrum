@@ -22,6 +22,6 @@
     "jquery-ui": "~1.10.3",
     "font-awesome": "~3.2.1",
     "bootstrap": "~3.0.0",
-    "jqueryuibootstrap": "https://github.com/addyosmani/jquery-ui-bootstrap/archive/masterbs3.zip"
+    "jqueryuibootstrap": "jqueryuibootstrap#masterbs3"
   }
 }
