@@ -112,7 +112,7 @@ $(window).load(function() {
     }, 'close': function() {
       this.$.removeClass('open');
     }, 'setSongId': function(songId) {
-      this._songId;
+      this._songId = songId;
     }
   });
   // ...play song
