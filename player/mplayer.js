@@ -1,452 +1,349 @@
 var spawn = require('child_process').spawn;
 
-Array.prototype.contains = function(obj) {
-  var i = this.length;
-  while(i--) {
-    if(this[i] == obj)
-      return true;
-  }
-  return false;
+var request = function(input, out_waiting, err_waiting, on_finish) {
+    this._input = input;
+    this._out_waiting = out_waiting;
+    this._err_waiting = err_waiting;
+
+    this._on_finish = on_finish;
+
+    this._checked_out = false;
+    this._checked_err = false;
 };
 
-var mplayer_property = function(mplayer,
-        name,
-        type, min, max,
-        get, set,
-        default_value) {
-            this._mplayer = mplayer;
-            this._name = name;
-            this._type = type;
-            this._min = min;
-            this._max = max;
-            this._get = get;
-            this._set = set;
-
-            this.value = undefined;
-
-            if(default_value != undefined)
-                this.set(default_value);
-        };
-
-mplayer_property.prototype.parse_error = function(data) {
-  var error = 'Failed to get value of property \'' + this._name + '\'';
-  if(data == error) {
-    this.value = undefined;
-    return true;
-  }
-  return false;
+request.prototype.ask = function() {
+    return this._input;
 };
 
-mplayer_property.prototype.parse_data = function(data) {
-  var word = 'ANS_' + this._name + '=';
-  var error = 'ANS_ERROR=';
-  this.value = undefined;
-  if(data.length > word.length
-      && data.slice(0, word.length) == word) {
-        if(this._type == 'float')
-          this.value = parseFloat(data.slice(word.length));
-        else if(this._type == 'int')
-          this.value = parseInt(data.slice(word.length));
-        else if(this._type == 'flag')
-          this.value = data.slice(word.length) == 'yes';
-        else if(this._type == 'string')
-          this.value = data.slice(word.length);
-        else if(this._type == 'pos')
-          this.value = parseInt(data.slice(word.length));
-        else if(this._type == 'time')
-          this.value = parseInt(data.slice(word.length));
-        return true;
-      }
-  if(data.length > error.length
-      && data.slice(0, error.length) == error) {
-        return true;
-         }
-  return false;
+request.prototype.checked = function() {
+    return this._checked_out || this._checked_err
+      || (this._out_waiting === null && this._err_waiting == null);
 };
 
-mplayer_property.prototype.set = function(value) {
-    if(!this._set)
-        throw "The property `" + this._name
-            + "` is not settable";
+request.prototype.check_out = function(data) {
+    if(this._checked_out)
+        return this._checked_out;
 
-    if((typeof value == 'number'
-          && this._type != 'int'
-          && this._type != 'float'
-          && this._type != 'pos'
-          && this._type != 'time')
-        || (typeof value == 'string' && this._type != 'string')
-        || (typeof value == 'boolean' && this._type != 'flag'))
-      throw "The type of the property `" + this._name
-        + "` is " + this._type;
-
-    if(this._min != undefined && value < this._min)
-        throw "The property `" + this._name
-            + "` can't be lower than " + this._min;
-
-    if(this._max != undefined && value > this._max)
-        throw "The property `" + this._name
-            + "` can't be greater than " + this._max;
-
-    try {
-      this._mplayer._send("pausing_keep_force set_property " + this._name + " " + value);
-      this.value = value;
+    var re = false;
+    if(this._out_waiting === null) {
+        re = true;
+        if(this._err_waiting !== null)
+            re = false;
     }
-    catch(err) {
-      console.log(err);
+    else if(this._out_waiting == undefined)
+        re = false;
+    else {
+        var word = this._out_waiting;
+        if(data.length >= word.length
+            && data.slice(0, word.length) == word)
+            re = true;
     }
+
+    if(re == true && this._on_finish != undefined)
+        this._on_finish(data);
+    this._checked_out = re;
+    return re;
 };
 
-mplayer_property.prototype.get = function() {
-    if(!this._get)
-        throw "The property `" + this._name
-            + "` is not gettable";
+request.prototype.check_err = function(data) {
+    if(this._checked_err)
+        return this._checked_err;
 
-    if(!this._mplayer.waiting(this)) {
-      try {
-        this._mplayer._send({input: "pausing_keep_force get_property " + this._name,
-        waiting: this});
-      }
-      catch(err) {
-        console.log(err);
-      }
+    var re = false;
+    if(this._err_waiting === null) {
+        re = true;
+        if(this._out_waiting !== null)
+            re = false;
     }
+    else if(this._err_waiting == undefined)
+        re = false;
+    else {
+        var word = this._err_waiting;
+        if(data.length >= word.length
+            && data.slice(0, word.length) == word)
+            re = true;
+    }
+
+    if(re == true && this._on_finish != undefined)
+        this._on_finish(data);
+    this._checked_err = re;
+    return re;
 };
 
 var mplayer = exports.mplayer = function() {
-    var self = this;
+    // 3 input/output fifo
+    this._in_fifo = new Array();
+    this._out_fifo = new Array();
+    this._err_fifo = new Array();
 
-    // Prepare subproc of mplayer
+    // Current request
+    this._request = null;
+
+    // Subproc of mplayer
     this._proc_opened = false;
     this._proc_opening = false;
-    this._proc_waiting_time = 1000;
-    this._process = undefined;
+    this._process = null;
 
-    // Start it
-    this.start();
+    // Load the list of properties
+    this._properties = {
+      pause:    {value: undefined,  type: 'flag'},
+      filename: {value: undefined,  type: 'string'},
+      length:   {value: undefined,  type: 'time'},
+      time_pos: {value: undefined,  type: 'time'},
+      volume:   {value: undefined,  type: 'float'},
+    };
 
-    // Message queue to stdin
-    this._message_queue = new Array();
-
-    // Waiting queue for the request to mplayer
-    this._waiting_queue = new Array();
-
-    // List of all properties
-    this._properties = new Array();
-
-    this.osdlevel = this.add_property('osdlevel',
-        'int', 0, 3, true, true);
-    this.speed = this.add_property('speed',
-        'float', 0.01, 100, true, true);
-    this.loop = this.add_property('loop',
-        'int', -1, undefined, true, true, -1); // -1 = no loop, 0 = loop
-    this.pause = this.add_property('pause',
-        'flag', undefined, undefined, true, false);
-    this.filename = this.add_property('filename',
-        'string', undefined, undefined, true, false);
-    this.path = this.add_property('path',
-        'string', undefined, undefined, true, false);
-    this.demuxer = this.add_property('demuxer',
-        'string', undefined, undefined, true, false);
-    this.stream_pos = this.add_property('stream_pos',
-        'pos', 0, undefined, true, true);
-    this.stream_start = this.add_property('stream_start',
-        'pos', 0, undefined, true, false);
-    this.stream_end = this.add_property('stream_end',
-        'pos', 0, undefined, true, false);
-    this.stream_length = this.add_property('stream_length',
-        'pos', 0, undefined, true, false);
-    this.stream_time_pos = this.add_property('stream_time_pos',
-        'time', 0, undefined, true, false);
-    this.chapter = this.add_property('chapter',
-        'int', 0, undefined, true, true);
-    this.chapters = this.add_property('chapters',
-        'int', undefined, undefined, true, false);
-    this.angle = this.add_property('angle',
-        'int', 0, undefined, true, true);
-    this.length = this.add_property('length',
-        'time', undefined, undefined, true, false);
-    this.percent_pos = this.add_property('percent_pos',
-        'int', 0, 100, true, true);
-    this.time_pos = this.add_property('time_pos',
-        'time', 0, undefined, true, true);
-    this.metadata = this.add_property('metadata',
-        'string', undefined, undefined, true, false);
-    this.volume = this.add_property('volume',
-        'float', 0, 100, true, true);
-    this.balance = this.add_property('balance',
-        'float', -1, 1, true, true);
-    this.mute = this.add_property('mute',
-        'flag', undefined, undefined, true, true);
-    this.audio_delay = this.add_property('audio_delay',
-        'float', -100, 100, true, true);
-    this.audio_format = this.add_property('audio_format',
-        'int', undefined, undefined, true, false);
-    this.audio_codec = this.add_property('audio_codec',
-        'string', undefined, undefined, true, false);
-    this.audio_bitrate = this.add_property('audio_bitrate',
-        'int', undefined, undefined, true, false);
-    this.samplerate = this.add_property('samplerate',
-        'int', undefined, undefined, true, false);
-    this.channels = this.add_property('channels',
-        'int', undefined, undefined, true, false);
-    this.switch_audio = this.add_property('switch_audio',
-        'int', -2, 255, true, true);
-    this.switch_angle = this.add_property('switch_angle',
-        'int', -2, 255, true, true);
-    this.switch_title = this.add_property('switch_title',
-        'int', -2, 255, true, true);
-    this.capturing = this.add_property('capturing',
-        'flag', undefined, undefined, true, true);
-    this.fullscreen = this.add_property('fullscreen',
-        'flag', undefined, undefined, true, true);
-    this.deinterlace = this.add_property('deinterlace',
-        'flag', undefined, undefined, true, true);
-    this.ontop = this.add_property('ontop',
-        'flag', undefined, undefined, true, true);
-    this.rootwin = this.add_property('rootwin',
-        'flag', undefined, undefined, true, true);
-    this.border = this.add_property('border',
-        'flag', undefined, undefined, true, true);
-    this.framedropping = this.add_property('framedropping',
-        'int', 0, 2, true, true);
-    this.gamma = this.add_property('gamma',
-        'int', -100, 100, true, true);
-    this.brightness = this.add_property('brightness',
-        'int', -100, 100, true, true);
-    this.contrast = this.add_property('contrast',
-        'int', -100, 100, true, true);
-    this.saturation = this.add_property('saturation',
-        'int', -100, 100, true, true);
-    this.hue = this.add_property('hue',
-        'int', -100, 100, true, true);
-    this.panscan = this.add_property('panscan',
-        'float', 0, 1, true, true);
-    this.vsync = this.add_property('vsync',
-        'flag', undefined, undefined, true, true);
-    this.video_format = this.add_property('video_format',
-        'int', undefined, undefined, true, false);
-    this.video_codec = this.add_property('video_codec',
-        'string', undefined, undefined, true, false);
-    this.video_bitrate = this.add_property('video_bitrate',
-        'int', undefined, undefined, true, false);
-    this.width = this.add_property('width',
-        'int', undefined, undefined, true, false);
-    this.height = this.add_property('height',
-        'int', undefined, undefined, true, false);
-    this.fps = this.add_property('fps',
-        'float', undefined, undefined, true, false);
-    this.aspect = this.add_property('aspect',
-        'float', undefined, undefined, true, false);
-    this.switch_video = this.add_property('switch_video',
-        'int', -2, 255, true, true);
-    this.switch_program = this.add_property('switch_program',
-        'int', -1, 65535, true, true);
-    this.sub = this.add_property('sub',
-        'int', -1, undefined, true, true);
-    this.sub_source = this.add_property('sub_source',
-        'int', -1, 2, true, true);
-    this.sub_file = this.add_property('sub_file',
-        'int', -1, undefined, true, true);
-    this.sub_vob = this.add_property('sub_vob',
-        'int', -1, undefined, true, true);
-    this.sub_demux = this.add_property('sub_demux',
-        'int', -1, undefined, true, true);
-    this.sub_delay = this.add_property('sub_delay',
-        'float', undefined, undefined, true, true);
-    this.sub_pos = this.add_property('sub_pos',
-        'int', 0, 100, true, true);
-    this.sub_alignment = this.add_property('sub_alignment',
-        'int', 0, 2, true, true);
-    this.sub_visibility = this.add_property('sub_visibility',
-        'flag', undefined, undefined, true, true);
-    this.sub_forced_only = this.add_property('sub_forced_only',
-        'flag', undefined, undefined, true, true);
-    this.sub_scale = this.add_property('sub_scale',
-        'float', 0, 100, true, true);
-    this.tv_brightness = this.add_property('tv_brightness',
-        'int', -100, 100, true, true);
-    this.tv_contrast = this.add_property('tv_contrast',
-        'int', -100, 100, true, true);
-    this.tv_saturation = this.add_property('tv_saturation',
-        'int', -100, 100, true, true);
-    this.tv_hue = this.add_property('tv_hue',
-        'int', -100, 100, true, true);
-    this.teletext_page = this.add_property('teletext_page',
-        'int', 0, 799, true, true);
-    this.teletext_subpage = this.add_property('teletext_subpage',
-        'int', 0, 64, true, true);
-    this.teletext_mode = this.add_property('teletext_mode',
-        'flag', undefined, undefined, true, true);
-    this.teletext_format = this.add_property('teletext_format',
-        'int', 0, 3, true, true);
-    this.teletext_half_page = this.add_property('teletext_half_page',
-        'int', 0, 2, true, true);
+    // Flush, listen and update sometimes
+    var self = this;
+    var time_to_update = 200;
+    var f = function() {
+      self._get_filename(function() {
+        self._get_volume(function() {
+          self._get_length(function() {
+            self._get_time_pos(function() {
+              self._get_pause(function() {
+                setTimeout(f, time_to_update);
+              });
+            });
+          });
+        });
+      });
+    };
+    f();
+    setInterval(function() { self.flush(); }, time_to_update);
+    setInterval(function() { self.listen(); }, time_to_update);
 };
 
 mplayer.prototype.start = function() {
-  if(!this._proc_opened && !this._proc_opening) {
+    if(this._proc_opened || this._proc_opening)
+        return;
+
     var self = this;
     this._proc_opening = true;
     this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol', '-nolirc']);
 
     // Active the communication with the process after a little time
+    // TODO find another way to detect if it's on
     var timer = setTimeout(function() {
       self._proc_opened = true;
       self._proc_opening = false;
-      self.flush();
     }, this._proc_waiting_time);
 
-    // Listen the stdio stream
     this._process.stdout.on('data', function(data) {
-      var lines = (new String(data)).split('\n');
-      for(var i = 0 ; i < lines.length ; i++) {
-        var data = lines[i];
-        console.log('STDOUT: ' + data);
-        if(self._waiting_queue.length == 0) { break; }
-
-        var waiting = self._waiting_queue[0];
-        if(waiting instanceof mplayer_property) {
-          if(self._waiting_queue.shift().parse_data(data)) {
-            self._waiting_queue.shift();
-          }
+        // console.log('STDOUT: ' + data);
+        var lines = (new String(data)).split('\n');
+        for(var i = 0 ; i < lines.length ; i++) {
+            self._out_fifo.push(lines[i]);
         }
-        else {
-          if(waiting.stdout == data) {
-            self._waiting_queue.shift();
-          }
-        }
-      }
-      self.flush();
+        self.listen();
+        self.flush();
     });
-
     this._process.stderr.on('data', function(data) {
-      var lines = (new String(data)).split('\n');
-      for(var i = 0 ; i < lines.length ; i++) {
-        var data = lines[i];
-        console.log('STDERR: ' + data);
-        if(self._waiting_queue.length == 0) { break; }
-
-        var waiting = self._waiting_queue[0];
-        if(waiting instanceof mplayer_property) {
-          if(self._waiting_queue.shift().parse_error(data)) {
-            self._waiting_queue.shift();
-          }
+        // console.log('STDERR: ' + data);
+        var lines = (new String(data)).split('\n');
+        for(var i = 0 ; i < lines.length ; i++) {
+            self._err_fifo.push(lines[i]);
         }
-        else {
-          if(waiting.stderr == data) {
-            self._waiting_queue.shift();
-          }
-        }
-      }
-      self.flush();
+        self.listen();
+        self.flush();
     });
-
     this._process.on('exit', function(code, signal) {
-      clearInterval(timer);
-      self._proc_opened = false;
-      self._proc_opening = false;
-      self._process = undefined;
+        clearInterval(timer);
+        self._proc_opened = false;
+        self._proc_opening = false;
+        self._process = null;
 
-      // Restart the mplayer
-      self.start();
+        // Restart mplayer
+        self.start();
     });
-  }
-};
-
-mplayer.prototype.quit = function(code) {
-  if(code == undefined)
-    code = 0;
-  this._send('quit ' + code);
 };
 
 mplayer.prototype.kill = function(signal) {
-  if(signal == undefined)
-    signal = 'SIGTERM';
-  if(this._process) {
-    this._process.kill(signal);
-    this._process = undefined;
-    this._proc_opened = false;
-    this._proc_opening = false;
-  }
+    if(signal = undefined)
+        signal = 'SIGTERM';
+    if(this._process)
+        this._process.kill(signal);
 };
 
 mplayer.prototype.flush = function() {
-  if(this._proc_opened) {
-    while(this._waiting_queue.length == 0) {
-      if(this._message_queue.length == 0) {
-        break;
-      }
+  if(!this._proc_opened)
+    return;
 
-      var data = this._message_queue.shift();
-      var input = data;
-      if(data.input != undefined) {
-        input = data.input;
-      }
-      this._process.stdin.write(input + '\n');
-      console.log('STDIN: ' + input);
-
-      if(data.waiting != undefined) {
-        this._waiting_queue.push(data.waiting);
-      }
-    }
+  while(this._request === null
+    && this._in_fifo.length > 0) {
+    this._request = this._in_fifo.shift();
+    this._write(this._request.ask());
   }
 };
 
-mplayer.prototype._send = function(data) {
-  if(data.input == undefined || !this._message_queue.contains(data))
-    this._message_queue.push(data);
+mplayer.prototype.listen = function() {
+    if(!this._proc_opened)
+        return;
+    if(this._request === null)
+        return;
+
+    // Check output fifo
+    while(this._out_fifo.length > 0) {
+        var out = this._out_fifo.shift();
+        this._request.check_out(out);
+    };
+
+    // Check error fifo
+    while(this._err_fifo.length > 0) {
+        var err = this._err_fifo.shift();
+        this._request.check_err(err);
+    };
+
+    if(this._request.checked())
+        this._request = null;
+
+    // Flush both output fifo
+    for(; this._out_fifo.length ; this._out_fifo.shift());
+    for(; this._err_fifo.length ; this._err_fifo.shift());
+};
+
+mplayer.prototype._write = function(data) {
+    if(!this._proc_opened)
+        return;
+
+    console.log('STDIN: ' + data);
+    this._process.stdin.write(data + '\n');
+};
+
+mplayer.prototype._get_property = function(prop, on_finish) {
+  // TODO more secured
+  if(this._properties[prop] == undefined)
+    return;
+
+  var self = this;
+  this._in_fifo.push(new request('pausing_keep_force get_property ' + prop,
+        'ANS_' + prop + '=',
+        'Failed to get value of property \'' + prop + '\'',
+        function(data) {
+          var word = 'ANS_' + prop + '=';
+          var type = self._properties[prop].type;
+          self._properties[prop].value = undefined;
+          if(data.length > word.length
+            && data.slice(0, word.length) == word) {
+              if(type == 'float')
+    self._properties[prop].value = parseFloat(data.slice(word.length));
+              else if(type == 'int')
+    self._properties[prop].value = parseInt(data.slice(word.length));
+              else if(type == 'flag')
+    self._properties[prop].value = data.slice(word.length) == 'yes';
+              else if(type == 'string')
+    self._properties[prop].value = data.slice(word.length);
+              else if(type == 'pos')
+    self._properties[prop].value = parseInt(data.slice(word.length));
+              else if(type == 'time')
+    self._properties[prop].value = parseInt(data.slice(word.length));
+            }
+          if(on_finish) {
+            on_finish(self._properties[prop].value);
+          }
+        }));
   this.flush();
 };
 
-mplayer.prototype._wait_response = function(prop) {
-  this._waiting_queue.push(prop);
+mplayer.prototype._set_property = function(prop, value, on_finish) {
+  // TODO more secured
+  if(this._properties[prop] == undefined)
+    return;
+
+  var self = this;
+  this._in_fifo.push(new request(
+        'pausing_keep_force set_property ' + prop + ' ' + value,
+        null,
+        null,
+        function() {
+          // self._properties[prop].value = value;
+          if(on_finish) {
+            on_finish();
+          }
+        }));
+  this.flush();
+  this.listen();
 };
 
-mplayer.prototype.update_all = function() {
-  for(var j in this._properties) {
-    this._properties[j].get();
+mplayer.prototype.quit = function(code, on_finish) {
+  if(code == undefined)
+    code = 0;
+  this._in_fifo.push(new request('quit', null, null, on_finish));
+};
+
+mplayer.prototype.loadfile = function(filename, append, on_finish) {
+  this._in_fifo.push(new request(
+        'loadfile "' + filename + '" ' + append,
+        'Starting playback...',
+        'Failed to open ' + filename + '.',
+        on_finish));
+};
+
+mplayer.prototype.force_pause = function(on_finish) {
+  if(!this._properties['pause'].value) {
+    this._in_fifo.push(new request('pause', null, null, on_finish));
   }
 };
 
-mplayer.prototype.add_property = function(name,
-        type, min, max,
-        get, set,
-        default_value) {
-          var prop = new mplayer_property(this,
-              name,
-              type, min, max,
-              get, set,
-              default_value);
-          this._properties.push(prop);
-          return prop;
-        };
-
-mplayer.prototype.waiting = function(prop) {
-  if(prop == undefined)
-    return this._waiting_queue.length > 0;
-
-  return this._waiting_queue.contains(prop);
-};
-
-mplayer.prototype.loadfile = function(file, append) {
-  this._send({input: 'loadfile "' + file + '" ' + append,
-    waiting: {stdout: 'Starting playback...',
-      stderr: 'Failed to open ' + file + '.'
-    }});
-};
-
-mplayer.prototype.force_pause = function() {
-  if(!this._pause) {
-    this._send('pause');
-    this._pause = true;
+mplayer.prototype.force_unpause = function(on_finish) {
+  if(this._properties['pause'].value) {
+    this._in_fifo.push(new request('pause', null, null, on_finish));
   }
 };
 
-mplayer.prototype.force_unpause = function() {
-  if(this._pause) {
-    this._send('pause');
-    this._pause = false;
-  }
+mplayer.prototype.song_over = function() {
+  return (!isNaN(this._properties.time_pos.value)
+      && !isNaN(this._properties.length.value)
+      && this._properties.time_pos.value >= this._properties.length.value)
+    || this._properties.filename.value == undefined;
+};
+
+mplayer.prototype._get_filename = function(on_finish) {
+  this._get_property('filename', on_finish);
+};
+
+mplayer.prototype._get_volume = function(on_finish) {
+  this._get_property('volume', on_finish);
+};
+
+mplayer.prototype._get_time_pos = function(on_finish) {
+  this._get_property('time_pos', on_finish);
+};
+
+mplayer.prototype._get_length = function(on_finish) {
+  this._get_property('length', on_finish);
+};
+
+mplayer.prototype._get_pause = function(on_finish) {
+  this._get_property('pause', on_finish);
+};
+
+mplayer.prototype.get_filename = function() {
+  return this._properties.filename.value;
+};
+
+mplayer.prototype.get_volume = function() {
+  return this._properties.volume.value;
+};
+
+mplayer.prototype.get_time_pos = function() {
+  return this._properties.time_pos.value;
+};
+
+mplayer.prototype.get_length = function() {
+  return this._properties.length.value;
+};
+
+mplayer.prototype.get_pause = function() {
+  return this._properties.pause.value;
+};
+
+mplayer.prototype.set_time_pos = function(on_finish) {
+  this._set_property('time_pos', on_finish);
+};
+
+mplayer.prototype.set_volume = function(on_finish) {
+  this._set_property('volume', on_finish);
 };
 
 // vim: ft=javascript et sw=2 sts=2
