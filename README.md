@@ -3,7 +3,7 @@ IntoSpectrum
 
 Server-side media player with a web front-end, written in NodeJS.
 
-The interface is based on [Bootstrap 2.3.2][] and [Bootstrap JQuery UI][].
+The interface is mainly based on [Bootstrap 3][].
 
 
 Note that IntoSpectrum doesn't create the library for you,
@@ -44,8 +44,7 @@ to correspond to one of our favorite pokemon.
 [peewee]: https://github.com/coleifer/peewee
 [Node.js]: http://nodejs.org
 [Mplayer]: http://mplayerhq.hu
-[Bootstrap 2.3.2]: https://github.com/twbs/bootstrap/tree/v2.3.2
-[Bootstrap JQuery UI]: https://github.com/addyosmani/jquery-ui-bootstrap
+[Bootstrap 3]: http://getbootstrap.com
 [Spectrum image]: ../../blob/master/static/img/spectrum.jpg?raw=true
 [Jean-Marie Comets]: https://github.com/jmcomets
 [Pierre Turpin]: https://github.com/TurpIF
