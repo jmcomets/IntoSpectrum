@@ -2,15 +2,7 @@ var Song = require('../models').Song;
 
 // Home page
 exports.index = function(req, res) {
-  res.render('index.html');
-};
-
-// Tests pages
-exports.test_pause = function(req, res) {
-  res.render('../tests/pause.html');
-};
-exports.test_play = function(req, res) {
-  res.render('../tests/play.html');
+  res.render('index');
 };
 
 // Library

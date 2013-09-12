@@ -32,7 +32,7 @@ exports.views = {
   'options': {
     'layout': false
   }, 'cache': false,
-  'engine': require('ejs').renderFile
+  'engine': 'jade'
 };
 
 // vim: ft=javascript et sw=2 sts=2

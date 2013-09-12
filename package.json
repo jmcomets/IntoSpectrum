@@ -11,6 +11,6 @@
     "sequelize": "2.0.0-beta.0",
     "mysql": "2.0.0-alpha9",
     "bower": "*",
-    "ejs": "*"
+    "jade": "*"
   }
 }

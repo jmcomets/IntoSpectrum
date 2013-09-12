@@ -15,7 +15,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', settings.views.path);
 app.set('view options', settings.views.options);
 app.set('view cache', settings.views.cache);
-app.engine('html', settings.views.engine);
+app.set('view engine', settings.views.engine);
 
 // Static files
 var staticFilesDir = path.join(__dirname, 'static'),
@@ -43,8 +43,6 @@ var network = require('./network');
 // Routes
 var routes = network.routes;
 app.get('/', routes.index);
-app.get('/test_pause', routes.test_pause);
-app.get('/test_play', routes.test_play);
 app.get('/library/?(:cursor)?', routes.library);
 
 // Start server
