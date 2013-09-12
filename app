@@ -37,8 +37,11 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// Network
+var network = require('./network');
+
 // Routes
-var routes = require('./routes');
+var routes = network.routes;
 app.get('/', routes.index);
 app.get('/test_pause', routes.test_pause);
 app.get('/test_play', routes.test_play);
@@ -48,8 +51,6 @@ app.get('/library/?(:cursor)?', routes.library);
 var http = require('http');
 var server = http.createServer(app);
 
-// Network
-var network = require('./network');
 // ...player
 var listener = new network.player.listener(server);
 
