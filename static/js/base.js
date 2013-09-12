@@ -160,6 +160,8 @@ $(window).load(function() {
 
     // Set the volume
     volumeSlider.slider('value', this.state.volume);
+  }).bind('disconnected', function() {
+    stopAdvancingProgress();
   });
 
   // Explicitly connect the player
