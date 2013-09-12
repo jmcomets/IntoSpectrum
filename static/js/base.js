@@ -98,14 +98,16 @@ $(window).load(function() {
         e.stopPropagation();
         e.preventDefault();
         fn(that._dropdown.attr('data-song-id'));
-        that.$.removeClass('open');
+        that.close();
       };
     }, 'open': function(x, y) {
+      var that = this;
       this._dropdown.dropdown('toggle');
       this.$.css('position', 'absolute');
       if (x != undefined && y != undefined) {
         this.$.css({ 'top': y, 'left': x });
       }
+      $(window).one('click', function() { that.close(); });
     }, 'close': function() {
       this.$.removeClass('open');
     }, 'setSongId': function(songId) {
@@ -306,6 +308,8 @@ $(window).load(function() {
     // Loading finished
     loadProgress.finish();
   });
+
+  // Shortcuts
 });
 
 // vim: ft=javascript et sw=2 sts=2
