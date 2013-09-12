@@ -4,11 +4,7 @@ $(window).load(function() {
 
   // Volume control -> slider
   var volumeSlider = $('#volume-progress').slider({
-    'animate': true,
     'range': 'min',
-    'orientation': 'horizontal',
-    'min': 0,
-    'max': 100,
     'slide': function(ev, ui) {
       player.setVolume(ui.value);
     }
@@ -132,13 +128,7 @@ $(window).load(function() {
     updateProgress(percentage);
   }).bind('info', function() {
     // Play/pause button
-    if (this.state.playing) {
-      pauseButton.find('.glyphicon-play').hide();
-      pauseButton.find('.glyphicon-pause').show();
-    } else {
-      pauseButton.find('.glyphicon-play').show();
-      pauseButton.find('.glyphicon-pause').hide();
-    }
+    setPauseButtonState(this.state.playing);
 
     // Clear all active rows
     $('#library').children().removeClass('info');
