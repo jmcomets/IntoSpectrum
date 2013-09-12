@@ -41,3 +41,8 @@
     text-decoration: none;
     text-align center;
 }
+
+#library-loading {
+    position: fixed;
+    bottom: 10px;
+}
