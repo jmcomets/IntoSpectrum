@@ -4,7 +4,7 @@ $(window).load(function() {
 
   // Volume control -> slider
   var volumeSlider = $('#volume-progress').slider({
-    'animate': 'fast',
+    'animate': true,
     'range': 'min',
     'orientation': 'horizontal',
     'min': 0,
@@ -23,7 +23,7 @@ $(window).load(function() {
   $('#previous-control').on('click', function() { player.playPrevious(); });
 
   // Track progress control
-  var playProgress = $('#play-progress').tooltip();
+  var playProgress = $('#play-progress');
   playProgress.parents().first().on('click', function(e) {
     var ratio = (e.pageX - $(this).position().left) / $(this).width(),
       maxTime = parseInt(playProgress.attr('data-max-time'));
@@ -65,11 +65,11 @@ $(window).load(function() {
   // Pause button refactoring
   var setPauseButtonState = function(playing) {
     if (playing) {
-      pauseButton.find('.icon-play').show();
-      pauseButton.find('.icon-pause').hide();
+      pauseButton.find('.glyphicon-play').show();
+      pauseButton.find('.glyphicon-pause').hide();
     } else {
-      pauseButton.find('.icon-pause').hide();
-      pauseButton.find('.icon-play').show();
+      pauseButton.find('.glyphicon-pause').hide();
+      pauseButton.find('.glyphicon-play').show();
     }
   };
 
@@ -82,8 +82,8 @@ $(window).load(function() {
   };
 
   // Progress bar refactoring
-  var advanceIntervalId = -1;
-  var startAdvancingProgress = function(updatesPerSec) {
+  var advanceIntervalId = -1, updatesPerSec = 2;
+  var startAdvancingProgress = function() {
     if (advanceIntervalId != -1) { clearInterval(advanceIntervalId); }
     advanceIntervalId = setInterval(function() {
       var percentage = parseFloat(playProgress.attr('data-percentage')) || 0,
@@ -133,11 +133,11 @@ $(window).load(function() {
   }).bind('info', function() {
     // Play/pause button
     if (this.state.playing) {
-      pauseButton.find('.icon-play').hide();
-      pauseButton.find('.icon-pause').show();
+      pauseButton.find('.glyphicon-play').hide();
+      pauseButton.find('.glyphicon-pause').show();
     } else {
-      pauseButton.find('.icon-play').show();
-      pauseButton.find('.icon-pause').hide();
+      pauseButton.find('.glyphicon-play').show();
+      pauseButton.find('.glyphicon-pause').hide();
     }
 
     // Clear all active rows
@@ -148,6 +148,7 @@ $(window).load(function() {
 
     // Update the play count
     if (this.state.playing) {
+      startAdvancingProgress();
       var songRow = $('#song-id-' + this.state.id + '');
 
       // Set as "active" row
@@ -155,7 +156,7 @@ $(window).load(function() {
     }
 
     // Play progress section
-    updateProgress(percentage);
+    updateProgress(100 * this.state.time / this.state.time_max);
 
     // Set the volume
     volumeSlider.slider('value', this.state.volume);

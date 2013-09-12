@@ -14,10 +14,9 @@
         <script type="text/javascript" src="/bower_components/jquery/jquery.min.js"></script>
         <script type="text/javascript" src="/bower_components/jquery-ui/ui/minified/jquery-ui.min.js"></script>
         <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/bower_components/jquery-ui-bootstrap/jquery.ui.theme.css"></script>
-        <script type="text/javascript" src="/bower_components/jquery-ui-bootstrap/jquery.ui.theme.font-awesome.css"></script>
         <link type="text/css" rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css" media="screen">
         <link type="text/css" rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css" media="screen">
+        <link type="text/css" rel="stylesheet" href="/bower_components/jqueryuibootstrap/css/custom-theme/jquery-ui-1.10.3.custom.css" media="screen">
 
         <!--CSS-->
         <link type="text/css" rel="stylesheet" href="/css/base.css" media="screen">
@@ -42,21 +41,21 @@
             </div>
             <div class="navbar-collapse collapse">
                 <div class="nav navbar-text progress col-md-8" >
-                    <div id="play-progress" class="bar" rel="tooltip" data-placement="bottom" title="No song currently playing" style="width:0%"></div>
+                    <div id="play-progress" class="progress-bar" role="progressbar" style="width:0%"></div>
                 </div>
-                <form class="navbar-form form-inline">
+                <form class="navbar-form form-inline" action="#">
                     <div class="btn-group">
-                        <button id="previous-control" class="btn btn-default">
+                        <button id="previous-control" type="button" class="btn btn-default">
                             <span class="icon-step-backward"></span>
                         </button>
-                        <button id="pause-control" class="btn btn-default">
+                        <button id="pause-control" type="button" class="btn btn-default">
                             <span class="glyphicon glyphicon-play"></span>
                             <span class="glyphicon glyphicon-pause" style="display:none;"></span>
                         </button>
-                        <button id="stop-control" class="btn btn-default">
+                        <button id="stop-control" type="button" class="btn btn-default">
                             <span class="glyphicon glyphicon-stop"></span>
                         </button>
-                        <button id="next-control" class="btn btn-default">
+                        <button id="next-control" type="button" class="btn btn-default">
                             <span class="icon-step-forward"></span>
                         </button>
                     </div>
