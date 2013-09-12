@@ -32,26 +32,41 @@ $(window).load(function() {
   pauseButton.on('click', function() { player.togglePause(); });
 
   // Right-click context menu for songs
-  var songContextMenu = $('#song-context-menu'),
-      songContextMenuDropdown = songContextMenu.children().first(),
-      songAction = function(fn) {
-        return function(e) {
-          e.stopPropagation();
-          e.preventDefault();
-          fn(songContextMenuDropdown.attr('data-song-id'));
-          songContextMenu.removeClass('open');
-        };
+  var songContextMenu = {
+    'init': function() {
+      this.$ = $('#song-context-menu');
+      this.dropdown = this.$.children().first();
+      return this;
+    }, 'setSongId': function(songId) {
+      this.dropdown.attr('data-song-id', songId);
+    }, 'action': function(fn) {
+      var that = this;
+      return function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        fn(that.dropdown.attr('data-song-id'));
+        that.$.removeClass('open');
       };
+    }, 'open': function(x, y) {
+      this.dropdown.dropdown('toggle');
+      this.$.css('position', 'absolute');
+      if (x != undefined && y != undefined) {
+        this.$.css({ 'top': y, 'left': x });
+      }
+    }, 'close': function() {
+      this.$.removeClass('open');
+    }
+  }.init();
   // ...play song
-  $('#song-action-play').on('click', songAction(function(songId) {
+  $('#song-action-play').on('click', songContextMenu.action(function(songId) {
     player.play(songId);
   }));
   // ...play song next
-  $('#song-action-next').on('click', songAction(function(songId) {
+  $('#song-action-next').on('click', songContextMenu.action(function(songId) {
     player.addAsNext(songId);
   }));
   // ...add song to play queue
-  $('#song-action-queue').on('click', songAction(function(songId) {
+  $('#song-action-queue').on('click', songContextMenu.action(function(songId) {
     player.addToPlayQueue(songId);
   }));
 
@@ -169,8 +184,6 @@ $(window).load(function() {
   };
 
   // Load songs
-  var loadContainer = $('#library-loading'),
-    loadCurrent = $('#library-loading-current');
   loadSongs(function(data) {
     // Append songs to the #library
     var library = $('#library');
@@ -194,34 +207,28 @@ $(window).load(function() {
       row.on('click', function() {
         var id = $(this).attr('id').substring(idPrefix.length);
         player.play(id);
-        songContextMenu.removeClass('open');
+        songContextMenu.close();
       }).on('contextmenu', function(e) {
         // Disable context menu
         e.preventDefault();
 
         // Song selected
         var songId = $(this).attr('id').substring(idPrefix.length);
-        songContextMenuDropdown.attr('data-song-id', songId);
+        songContextMenu.setSongId(songId);
 
         // Toggle dropdown and move to cursor position
-        songContextMenuDropdown.dropdown('toggle');
-        songContextMenu.css({
-          'position': 'absolute',
-          'top': e.pageY,
-          'left': e.pageX
-        });
+        songContextMenu.open(e.pageX, e.pageY);
       });
-
-      // Update the modal's "current" loading
-      var songTitle = song.title || song.path;
-      loadCurrent.text('Loaded song "' + songTitle + '"');
 
       // Add to the library container
       library.append(row);
+
+      // Update load progress
+      //updateLoadProgress();
     });
   }, function() {
     // Loading finished
-    loadContainer.hide();
+    $('#library-loading').hide();
   });
 });
 
