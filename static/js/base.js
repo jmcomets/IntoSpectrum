@@ -50,12 +50,37 @@ $(window).load(function() {
   $('#previous-control').on('click', function() { player.playPrevious(); });
 
   // Track progress control
-  var playProgress = $('#play-progress');
-  playProgress.parents().first().on('click', function(e) {
-    var ratio = (e.pageX - $(this).position().left) / $(this).width(),
-      maxTime = parseInt(playProgress.attr('data-max-time'));
-    if (maxTime) {
-      player.setTime(maxTime * ratio);
+  var playProgress = $init('#play-progress', {
+    'init': function() {
+      var that = this;
+      this._maxTime = undefined;
+      this._percentage = 0;
+
+      // Event hook
+      this.$.parents().first().on('click', function(e) {
+        var ratio = (e.pageX - $(this).position().left) / $(this).width();
+        if (that._maxTime) { player.setTime(that._maxTime * ratio); }
+      });
+    }, 'autoUpdate': function(enabled) {
+      if (enabled == true || enabled == undefined) {
+        var that = this, updatesPerSec = 2;
+        if (this._autoId != -1) { clearInterval(this._autoId); }
+        this._autoId = setInterval(function() {
+          that.setPercentage(that._percentage + 100 / (that._maxTime * updatesPerSec));
+        }, 1000 / updatesPerSec);
+      } else if (this._autoId != -1) {
+        clearInterval(this._autoId);
+        this._autoId = -1;
+      }
+    }, 'setPercentage': function(percentage) {
+      percentage = parseFloat(percentage);
+      if (percentage != undefined) {
+        this._percentage = percentage;
+        this.$.css('width', this._percentage + '%');
+      }
+    }, 'setMaxTime': function(maxTime) {
+      maxTime = parseFloat(maxTime);
+      if (maxTime != undefined) { this._maxTime = maxTime; }
     }
   });
 
@@ -101,26 +126,6 @@ $(window).load(function() {
     }
   };
 
-  // Progress bar refactoring
-  var advanceIntervalId = -1, updatesPerSec = 2;
-  var startAdvancingProgress = function() {
-    if (advanceIntervalId != -1) { clearInterval(advanceIntervalId); }
-    advanceIntervalId = setInterval(function() {
-      var percentage = parseFloat(playProgress.attr('data-percentage')) || 0,
-        percentageInc = 100 / parseFloat(playProgress.attr('data-max-time'));
-      percentage += percentageInc / updatesPerSec;
-      updateProgress(percentage);
-    }, 1000 / updatesPerSec);
-  }, stopAdvancingProgress = function() {
-    if (advanceIntervalId != -1) {
-      clearInterval(advanceIntervalId);
-      advanceIntervalId = -1;
-    }
-  }, updateProgress = function(percentage) {
-    playProgress.attr('data-percentage', percentage);
-    playProgress.css('width', percentage + '%');
-  };
-
   // Player event hooks
   var percentage = 0;
   player.bind('play', function() {
@@ -130,26 +135,26 @@ $(window).load(function() {
     setActiveRow(this.state.id);
 
     // Change play progress max time
-    playProgress.attr('data-max-time', this.state.time_max);
+    playProgress.setMaxTime(this.state.time_max);
 
     // Advance progress bar automatically
-    var updatesPerSec = 1;
+    playProgress.autoUpdate();
   }).bind('stop', function() {
     pauseButton.setPlaying(false);
-    stopAdvancingProgress();
-    updateProgress(0);
+    playProgress.autoUpdate(false);
+    playProgress.setPercentage(0);
     setActiveRow();
   }).bind('unpause', function() {
     pauseButton.setPlaying(true);
-    startAdvancingProgress();
+    playProgress.autoUpdate();
   }).bind('pause', function() {
     pauseButton.setPlaying(false);
-    stopAdvancingProgress();
+    playProgress.autoUpdate(false);
   }).bind('volume', function() {
     volumeControl.setVolume(this.state.volume);
   }).bind('time', function() {
     percentage = 100 * this.state.time / this.state.time_max;
-    updateProgress(percentage);
+    playProgress.setPercentage(percentage);
   }).bind('info', function() {
     // Play/pause button
     pauseButton.setPlaying(this.state.playing);
@@ -158,11 +163,11 @@ $(window).load(function() {
     $('#library').children().removeClass('info');
 
     // Set the player's max-time attribute
-    playProgress.attr('data-max-time', this.state.time_max);
+    playProgress.setMaxTime(this.state.time_max);
 
     // Update the play count
     if (this.state.playing) {
-      startAdvancingProgress();
+      playProgress.autoUpdate();
       var songRow = $('#song-id-' + this.state.id + '');
 
       // Set as "active" row
@@ -170,12 +175,12 @@ $(window).load(function() {
     }
 
     // Play progress section
-    updateProgress(100 * this.state.time / this.state.time_max);
+    playProgress.setPercentage(100 * this.state.time / this.state.time_max);
 
     // Set the volume
     volumeControl.setVolume(this.state.volume);
   }).bind('disconnected', function() {
-    stopAdvancingProgress();
+    playProgress.autoUpdate(false);
   });
 
   // Explicitly connect the player
