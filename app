@@ -15,12 +15,13 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', settings.views.path);
 app.set('view options', settings.views.options);
 app.set('view cache', settings.views.cache);
-app.engine('html', settings.views.engine);
+app.set('view engine', settings.views.engine);
 
 // Static files
 var staticFilesDir = path.join(__dirname, 'static'),
     staticMiddleware = express.static(staticFilesDir);
 app.use(staticMiddleware);
+app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
 
 // Favicon
 app.use(express.favicon(path.join(staticFilesDir, 'img/favicon.ico')));
@@ -36,19 +37,18 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// Network
+var network = require('./network');
+
 // Routes
-var routes = require('./routes');
+var routes = network.routes;
 app.get('/', routes.index);
-app.get('/test_pause', routes.test_pause);
-app.get('/test_play', routes.test_play);
 app.get('/library/?(:cursor)?', routes.library);
 
 // Start server
 var http = require('http');
 var server = http.createServer(app);
 
-// Network
-var network = require('./network');
 // ...player
 var listener = new network.player.listener(server);
 

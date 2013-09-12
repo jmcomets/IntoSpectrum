@@ -2,10 +2,6 @@
     margin-top: 50px;
 }
 
-.nav.progress {
-    margin: 10px;
-}
-
 #volume-progress {
     margin: 15px;
 }
@@ -44,4 +40,9 @@
     color: #333;
     text-decoration: none;
     text-align center;
+}
+
+#library-loading {
+    position: fixed;
+    bottom: 10px;
 }
