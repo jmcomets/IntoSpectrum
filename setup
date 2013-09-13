@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Watchdog
+ echo 'Installing watchdog'
+ virtualenv venv && cd $_ && source ./bin/activate && pip install peewee mutagen MySQL-python && deactivate && cd .. && (echo 'create database into_spectrum' | mysql -u root)
+
+ # Node app
+ npm install
