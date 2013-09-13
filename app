@@ -9,18 +9,15 @@ var express = require('express'),
 var app = express();
 
 // Debug/release guards
-var debug = function(fn) {
-  if (app.get('env') == 'development') {
-    fn();
-  }
-}, release = function(fn) {
-  if (app.get('env') != 'development') {
-    fn();
-  }
+var inDevelopment = (app.get('env') == 'development'),
+    debugOnly = function(fn) {
+  if (inDevelopment) { fn(); }
+}, releaseOnly = function(fn) {
+  if (!inDevelopment) { fn(); }
 };
 
 // Error handler in debug mode
-debug(function() {
+debugOnly(function() {
   app.use(express.errorHandler());
 });
 
@@ -34,15 +31,12 @@ app.set('view cache', settings.views.cache);
 app.set('view engine', settings.views.engine);
 
 // Static files
-var staticFilesDir = path.join(__dirname, 'static'),
-    staticMiddleware = express.static(staticFilesDir);
-app.use(staticMiddleware);
+app.use(express.static(path.join(__dirname, 'public')));
 // ...static files via bower
-var bowerComponentsDir = path.join(__dirname, 'bower_components');
-app.use('/components', express.static(bowerComponentsDir));
+app.use('/components', express.static(path.join(__dirname, 'bower_components')));
 
 // Favicon
-app.use(express.favicon(path.join(staticFilesDir, 'img/favicon.ico')));
+app.use(express.favicon(path.join(__dirname, 'static/img/favicon.ico')));
 
 // Other configuration options
 app.use(express.logger('dev'));
@@ -67,7 +61,7 @@ var listener = new network.player.listener(server);
 
 // Startup
 var startup = function() {
-  debug(function() {
+  debugOnly(function() {
     var address = server.address();
     console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
       address.address, address.port);
@@ -76,7 +70,7 @@ var startup = function() {
 
 // Shutdown
 var shutdown = function() {
-  debug(function() {
+  debugOnly(function() {
     console.log('Server shutting down');
   });
   listener.quit();
@@ -89,7 +83,7 @@ var shutdown = function() {
 server.listen(app.get('port'), startup);
 process.on('SIGINT', shutdown);
 // ...only in debug mode
-debug(function() {
+debugOnly(function() {
   process.on('uncaughtException', function(err) {
     console.log('Uncaught exception: ' + err);
     shutdown();

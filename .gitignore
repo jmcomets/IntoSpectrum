@@ -12,3 +12,6 @@ venv/*
 
 # Build directory
 build/*
+
+# Release static files
+public/*
