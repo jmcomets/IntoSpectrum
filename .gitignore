@@ -15,3 +15,6 @@ build/*
 
 # Release static files
 public/*
+
+# NPM debug log
+**/.npm-debug.log

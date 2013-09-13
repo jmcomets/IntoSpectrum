@@ -2,13 +2,13 @@ $(window).load(function() {
   // Inplace objects: define with a dictionary,
   // constructor is the (optional) init method
   var init = function(obj) {
-    if (obj.init != undefined) { obj.init(); }
+    if (obj.init !== undefined) { obj.init(); }
     return obj;
   };
   // ...same with JQuery objects, passing a selector to the $ function
   // and setting the "$" member as a reference to its return value
   var $init = function(selector, obj) {
-    if (obj == undefined) { obj = {}; }
+    if (obj === undefined) { obj = {}; }
     obj.$ = $(selector);
     return init(obj);
   };
@@ -37,8 +37,7 @@ $(window).load(function() {
       this._playIcon = this.$.find('.glyphicon-play');
       this._pauseIcon = this.$.find('.glyphicon-pause');
     }, 'setPlaying': function(playing) {
-      console.log('setPlaying: ' + playing);
-      if (playing == true || playing == undefined) {
+      if (playing === true || playing === undefined) {
         this._playIcon.hide();
         this._pauseIcon.show();
       } else {
@@ -66,7 +65,7 @@ $(window).load(function() {
         if (that._maxTime) { player.setTime(that._maxTime * ratio); }
       });
     }, 'autoUpdate': function(enabled) {
-      if (enabled == true || enabled == undefined) {
+      if (enabled === true || enabled === undefined) {
         var that = this, updatesPerSec = 2;
         if (this._autoId != -1) { clearInterval(this._autoId); }
         this._autoId = setInterval(function() {
@@ -78,13 +77,13 @@ $(window).load(function() {
       }
     }, 'setPercentage': function(percentage) {
       percentage = parseFloat(percentage);
-      if (percentage != undefined) {
+      if (percentage !== undefined) {
         this._percentage = percentage;
         this.$.css('width', this._percentage + '%');
       }
     }, 'setMaxTime': function(maxTime) {
       maxTime = parseFloat(maxTime);
-      if (maxTime != undefined) { this._maxTime = maxTime; }
+      if (maxTime !== undefined) { this._maxTime = maxTime; }
     }
   });
 
@@ -105,7 +104,7 @@ $(window).load(function() {
       var that = this;
       this._dropdown.dropdown('toggle');
       this.$.css('position', 'absolute');
-      if (x != undefined && y != undefined) {
+      if (x !== undefined && y !== undefined) {
         this.$.css({ 'top': y, 'left': x });
       }
       $(window).one('click', function() { that.close(); });
@@ -138,7 +137,7 @@ $(window).load(function() {
         'backdrop': 'static'
       });
     }, 'setVisible': function(visible) {
-      if (visible == true || visible == undefined) {
+      if (visible === true || visible === undefined) {
         this.$.modal('show');
       } else {
         this.$.modal('hide');
@@ -153,7 +152,7 @@ $(window).load(function() {
   var activateRow = function(songId) {
     var emphasisClass = 'warning';
     $('#library .' + emphasisClass).removeClass(emphasisClass);
-    if (songId != undefined) { $('#' + songIdPrefix + songId).addClass(emphasisClass); }
+    if (songId !== undefined) { $('#' + songIdPrefix + songId).addClass(emphasisClass); }
   };
 
   // Player event hooks
@@ -242,8 +241,8 @@ $(window).load(function() {
     }, 'step': function() {
       this._index += 1;
     }, 'setCount': function(count) {
-      count = parseInt(count);
-      if (count != undefined) { this._count = count; }
+      count = parseInt(count, 10);
+      if (count !== undefined) { this._count = count; }
     }, 'finish': function() {
       this.$.fadeOut();
     }
@@ -254,7 +253,7 @@ $(window).load(function() {
 
   // Load songs protocol (data handler, current cursor, end handler)
   var loadSongs = function(fn, end, c) {
-    var cursor = parseInt(c) || 1;
+    var cursor = parseInt(c, 10) || 1;
     $.getJSON('/library/' + cursor, function(data) {
       fn(data);
       if (data.next) {
@@ -268,9 +267,9 @@ $(window).load(function() {
     // Append songs to the #library
     var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var missing = 'N/A', html = ''
-        +  '<td>'  +  (song.artist    ||  missing)  +  '</td>'
-        +  '<td>'  +  (song.album     ||  missing)  +  '</td>';
+      var missing = 'N/A', html = '' +
+        '<td>'   +  (song.artist  ||  missing)     +
+        '</td>'  +  '<td>'        +   (song.album  ||  missing)  +  '</td>';
 
       // Title is either given or file basename without extension
       var title = (song.title) ? song.title : function(str) {
