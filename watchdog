@@ -11,6 +11,7 @@ def _getLogger(name):
     """
     import logging
     logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
     logger_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     formatter = logging.Formatter(logger_format)
     ch = logging.StreamHandler()
@@ -146,13 +147,13 @@ class Song(peewee.Model):
     Song model, generated with pwiz.py utility.
     TODO: generate this model programmatically when starting the watchdog
     """
-    album = peewee.CharField(null=True)
-    artist = peewee.CharField(null=True)
-    duration = peewee.IntegerField(null=True)
-    path = peewee.CharField(null=True)
-    play_count = peewee.IntegerField(default=0, db_column='playCount')
+    path = peewee.CharField()
     title = peewee.CharField(null=True)
+    artist = peewee.CharField(null=True)
+    album = peewee.CharField(null=True)
     year = peewee.IntegerField(null=True)
+    duration = peewee.IntegerField(null=True)
+    play_count = peewee.IntegerField(default=0, db_column='playCount')
 
     class Meta:
         database = database

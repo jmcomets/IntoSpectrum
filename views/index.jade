@@ -6,26 +6,25 @@ html
     meta(name='author', content='Jean-Marie Comets, Pierre Turpin')
     meta(name='description', content='IntoSpectrum, a web-exposed server audio player')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    // Socket.IO
+    //- Socket.IO
     script(type='text/javascript', src='/socket.io/socket.io.js')
-    // Bower
+    //- Bower
     script(type='text/javascript', src='/components/jquery/jquery.min.js')
-    script(type='text/javascript', src='/components/jquery.hotkeys/jquery.hotkeys.js')
     script(type='text/javascript', src='/components/jquery-ui/ui/minified/jquery-ui.min.js')
     script(type='text/javascript', src='/components/bootstrap/dist/js/bootstrap.min.js')
     link(type='text/css', rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.min.css', media='screen')
     link(type='text/css', rel='stylesheet', href='/components/font-awesome/css/font-awesome.min.css', media='screen')
     link(type='text/css', rel='stylesheet', href='/components/jquery-ui/themes/base/minified/jquery-ui.min.css', media='screen')
-    // CSS
+    //- CSS
     link(type='text/css', rel='stylesheet', href='/css/base.css', media='screen')
-    // JavaScript
+    //- JavaScript
     script(type='text/javascript', src='/js/microevent.min.js')
     script(type='text/javascript', src='/js/clientplayer.js')
     script(type='text/javascript', src='/js/base.js')
   body
-    // Toolbar
+    //- Toolbar
     nav.navbar.navbar-default.navbar-fixed-top
-      // Player
+      //- Player
       div.navbar-header
         a.navbar-brand(href='#') IntoSpectrum
         button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
@@ -49,16 +48,16 @@ html
               span.icon-step-forward
         div.col-md-1
           div#volume-progress.slider
-    // Content
+    //- Content
     div#wrap.container
-      // Loading
+      //- Loading
       div#library-loading.col-md-12.alert.alert-dismissable
         a.close(href='#', data-dismiss='alert', aria-hidden='true') ×
         div.progress.progress-striped.active
           div.progress-bar(role='progressbar')
         em#library-loading-current
       div.row
-        // Left Panel
+        //- Left Panel
         div.col-md-3.tabbable
           ul.nav.nav-tabs
             li.active
@@ -80,10 +79,10 @@ html
               form.navbar-form(role='search')
                 input.form-control(type='text', role='search', placeholder='Search on Youtube')
         div.col-md-9
-          // Songs
+          //- Songs
           table.table.table-hover.table-condensed
             tbody#library
-    // Right-click menu for songs
+    //- Right-click menu for songs
     div#song-context-menu.dropdown
       ul.dropdown-menu(role='menu')
         li
@@ -98,7 +97,7 @@ html
           a#song-action-queue.disabled(href='#')
             i.icon-plus
             | Add to play queue
-    // Modal for disconnected state
+    //- Modal for disconnected state
     div#disconnected-modal.modal.fade
       div.modal-dialog
         div.modal-content
