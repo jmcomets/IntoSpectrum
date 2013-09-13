@@ -43,7 +43,7 @@ ClientPlayer.prototype.connect = function(url) {
 
   socket.on('connect', function() {
     clearInterval(intervalID);
-    that.trigger('connected'); console.log('triggered: connected');
+    that.trigger('connected');
     this
       .on('info', function(info) { that._handleInfo(info); })
       .on('response', function(response) { that._handleResponse(response); })
@@ -52,14 +52,14 @@ ClientPlayer.prototype.connect = function(url) {
   }).on('disconnect', function() {
     tryReconnect(5);
     that._socket = undefined;
-    that.trigger('disconnected'); console.log('triggered: disconnected');
+    that.trigger('disconnected');
   });
 };
 
 // Info -> regular update (no specific event)
 ClientPlayer.prototype._handleInfo = function(info) {
   this.state = info;
-  this.trigger('info'); console.log('triggered: info');
+  this.trigger('info');
 };
 
 // Response -> immediate response (specific event)
@@ -70,7 +70,7 @@ ClientPlayer.prototype._handleResponse = function(response) {
 
   // Play/pause/unpause/stop
   if (oldState.playing != response.playing) {
-    if (oldState.playing) { // stop/pause
+    if (!response.playing) { // stop/pause
       if (oldState.time === 0) { // stop
         this.trigger('stop'); console.log('triggered: stop');
       } else { // pause

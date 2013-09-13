@@ -37,7 +37,7 @@ $(window).load(function() {
       this._playIcon = this.$.find('.glyphicon-play');
       this._pauseIcon = this.$.find('.glyphicon-pause');
     }, 'setPlaying': function(playing) {
-      if (playing === true || playing === undefined) {
+      if (playing || playing === undefined) {
         this._playIcon.hide();
         this._pauseIcon.show();
       } else {
@@ -65,7 +65,7 @@ $(window).load(function() {
         if (that._maxTime) { player.setTime(that._maxTime * ratio); }
       });
     }, 'autoUpdate': function(enabled) {
-      if (enabled === true || enabled === undefined) {
+      if (enabled || enabled === undefined) {
         var that = this, updatesPerSec = 2;
         if (this._autoId != -1) { clearInterval(this._autoId); }
         this._autoId = setInterval(function() {
@@ -121,13 +121,6 @@ $(window).load(function() {
   // ...add song to play queue
   $('#song-action-queue').click(songMenu.action(function(songId) { player.addToPlayQueue(songId); }));
 
-  // Panel interface
-  var playlistTab = $init('#tab-playlist', {
-    'init': function() {
-      this.$.children().first().sortable();
-    }
-  });
-
   // Connection modal (showing when client is disconnected)
   var connectionModal = $init('#disconnected-modal', {
     'init': function() {
@@ -137,7 +130,7 @@ $(window).load(function() {
         'backdrop': 'static'
       });
     }, 'setVisible': function(visible) {
-      if (visible === true || visible === undefined) {
+      if (visible || visible === undefined) {
         this.$.modal('show');
       } else {
         this.$.modal('hide');
@@ -237,7 +230,21 @@ $(window).load(function() {
       this._text = this.$.find('#library-loading-current');
     }, 'update': function() {
       this._text.text('Loaded ' + this._index + '/' + this._count + ' songs');
-      this._bar.css('width', (100 * this._index / this._count) + '%');
+      // Remove old CSS class for load state
+      this._bar.removeClass(function(index, css) {
+        return (css.match (/\progress-bar-\S+/g) || []).join(' ');
+      });
+      var percentage = 100 * this._index / this._count;
+      if (percentage >= 100) {
+        this._bar.addClass('progress-bar-success');
+      } else if (percentage < 34) {
+        this._bar.addClass('progress-bar-danger');
+      } else if (percentage < 67) {
+        this._bar.addClass('progress-bar-warning');
+      } else {
+        this._bar.addClass('progress-bar-info');
+      }
+      this._bar.css('width', percentage + '%');
     }, 'step': function() {
       this._index += 1;
     }, 'setCount': function(count) {

@@ -16,27 +16,17 @@
     user-select: none;
 }
 
-.tabs-left .nav-tabs > li > a {
-    min-width: 18px;
-}
-
-#tab-playlist li {
+#tab-playlist .row {
     font-size: 12px;
-    cursor: move;
 }
 
-#tab-playlist li.ui-sortable-helper {
-    background-color: #fff;
-}
-
-
-#tab-playlist li div:first-child {
+#tab-playlist .row div:first-child {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-#tab-playlist li a {
+#tab-playlist .row a {
     color: #333;
     text-decoration: none;
     text-align center;
@@ -44,5 +34,9 @@
 
 #library-loading {
     position: fixed;
-    bottom: 10px;
+    bottom: 0;
+    margin: 10px;
+    background-color: #fff;
+    z-index: 1;
+    border: 1px solid #ddd;
 }

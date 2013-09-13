@@ -6,20 +6,23 @@ html
     meta(name='author', content='Jean-Marie Comets, Pierre Turpin')
     meta(name='description', content='IntoSpectrum, a web-exposed server audio player')
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
     //- Socket.IO
     script(type='text/javascript', src='/socket.io/socket.io.js')
-    //- Bower
+
+    //- Bower components
     script(type='text/javascript', src='/components/jquery/jquery.min.js')
     script(type='text/javascript', src='/components/jquery-ui/ui/minified/jquery-ui.min.js')
     script(type='text/javascript', src='/components/bootstrap/dist/js/bootstrap.min.js')
     link(type='text/css', rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.min.css', media='screen')
     link(type='text/css', rel='stylesheet', href='/components/font-awesome/css/font-awesome.min.css', media='screen')
     link(type='text/css', rel='stylesheet', href='/components/jquery-ui/themes/base/minified/jquery-ui.min.css', media='screen')
+
     //- CSS
     link(type='text/css', rel='stylesheet', href='/css/main.css', media='screen')
+
     //- JavaScript
     script(type='text/javascript', src='/js/main.js')
-
   body
     //- Toolbar
     nav.navbar.navbar-default.navbar-fixed-top
@@ -48,11 +51,13 @@ html
         div.col-md-1
           div#volume-progress.slider
     //- Content
-    div#wrap.container
+    div#wrap
       //- Loading
-      div#library-loading.col-md-12.alert.alert-dismissable
-        a.close(href='#', data-dismiss='alert', aria-hidden='true') ×
-        div.progress.progress-striped.active
+      div#library-loading.col-md-6.alert.alert-dismissable
+        a.close(href='#', data-dismiss='alert', aria-hidden='true') &times;
+        h4
+          | Library loading...
+        div.progress
           div.progress-bar(role='progressbar')
         em#library-loading-current
       div.row
@@ -67,13 +72,24 @@ html
                 i.icon-youtube
           div.tab-content
             div#tab-playlist.tab-pane.active
-              ul.unstyled
-                li
-                  div.col-md-10 Never gonna give you up
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-play
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-remove
+              div.row
+                div.col-md-10 Never gonna give you up
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-play
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-remove
+              div.row
+                div.col-md-10 Never gonna let you down
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-play
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-remove
+              div.row
+                div.col-md-10 Never gonna run around and desert you
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-play
+                a.col-md-1(href='#')
+                  span.glyphicon.glyphicon-remove
             div#tab-youtube.tab-pane
               form.navbar-form(role='search')
                 input.form-control(type='text', role='search', placeholder='Search on Youtube')
@@ -106,4 +122,4 @@ html
           div.modal-body
             p
               | You've been disconnected...
-//- vim: ft=jade et sw=4 sts=4
+//- vim: ft=jade et sw=2 sts=2
