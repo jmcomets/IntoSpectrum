@@ -41,7 +41,6 @@ ClientPlayer.prototype.connect = function(url) {
   // Try to reconnect immediately (applied after 2 seconds, unless failure)
   tryReconnect(2);
 
-  var that = this;
   socket.on('connect', function() {
     clearInterval(intervalID);
     that.trigger('connected'); console.log('triggered: connected');
@@ -72,13 +71,13 @@ ClientPlayer.prototype._handleResponse = function(response) {
   // Play/pause/unpause/stop
   if (oldState.playing != response.playing) {
     if (oldState.playing) { // stop/pause
-      if (oldState.time == 0) { // stop
+      if (oldState.time === 0) { // stop
         this.trigger('stop'); console.log('triggered: stop');
       } else { // pause
         this.trigger('pause'); console.log('triggered: pause');
       }
     } else { // play/unpause
-      if (oldState.id != response.id || response.time == 0) { // play
+      if (oldState.id != response.id || response.time === 0) { // play
         this.trigger('play'); console.log('triggered: play');
       } else { // unpause
         this.trigger('unpause'); console.log('triggered: unpause');

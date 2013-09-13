@@ -1,13 +1,18 @@
 module.exports = function(grunt) {
+  var jsFiles = ['static/js/microevent.js', 'static/js/clientplayer.js', 'static/js/interface.js'];
   grunt.initConfig({
     'pkg': grunt.file.readJSON('package.json'),
-    'concat': {
+    'jshint': {
+      'files': jsFiles,
+      'options': {
+        'globals': {
+          'jQuery': true,
+          'console': true
+        }
+      }
+    }, 'concat': {
       'js': {
-        'src': [
-          'static/js/microevent.js',
-          'static/js/clientplayer.js',
-          'static/js/interface.js'
-        ], 'dest': 'build/concat.js'
+        'src': jsFiles, 'dest': 'build/concat.js'
       }, 'css': {
         'src': ['static/css/*.css'],
         'dest': 'build/concat.css'
@@ -32,10 +37,11 @@ module.exports = function(grunt) {
   // Load plugins
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat', 'uglify', 'cssmin']);
+  grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'cssmin']);
 };
 
 // vim: ft=javascript et sw=2 sts=2

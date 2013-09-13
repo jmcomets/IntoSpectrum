@@ -16,6 +16,7 @@
     "grunt-cli": "~0.1.9",
     "grunt-contrib-concat": "*",
     "grunt-contrib-cssmin": "*",
+    "grunt-contrib-jshint": "*",
     "grunt-contrib-uglify": "*"
   }
 }
