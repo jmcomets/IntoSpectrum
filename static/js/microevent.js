@@ -14,6 +14,7 @@ MicroEvent.prototype = {
     this._events = this._events || {};
     this._events[evt] = this._events[evt] || [];
     this._events[evt].push(fct);
+    return this;
   }, 'unbind': function(evt, fct) {
     this._events = this._events || {};
     if (evt in this._events === false) { return; }

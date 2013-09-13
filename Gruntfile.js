@@ -2,9 +2,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     'pkg': grunt.file.readJSON('package.json'),
     'concat': {
-      'options': {
-        'banner': '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      }, 'js': {
+      'js': {
         'src': [
           'static/js/microevent.js',
           'static/js/clientplayer.js',
