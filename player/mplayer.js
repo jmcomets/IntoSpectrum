@@ -130,7 +130,7 @@ mplayer.prototype.start = function() {
     }, this._proc_waiting_time);
 
     this._process.stdout.on('data', function(data) {
-        // console.log('STDOUT: ' + data);
+        console.log('STDOUT: ' + data);
         var lines = (new String(data)).split('\n');
         for(var i = 0 ; i < lines.length ; i++) {
             self._out_fifo.push(lines[i]);
@@ -139,7 +139,7 @@ mplayer.prototype.start = function() {
         self.flush();
     });
     this._process.stderr.on('data', function(data) {
-        // console.log('STDERR: ' + data);
+        console.log('STDERR: ' + data);
         var lines = (new String(data)).split('\n');
         for(var i = 0 ; i < lines.length ; i++) {
             self._err_fifo.push(lines[i]);

@@ -139,17 +139,21 @@ player.prototype._play = function(song, from_history) {
     var volume = this._mplayer.get_volume();
     if(this._current_song.youtube != undefined) {
       youtube.get_link(this._current_song.youtube, function(url) {
-        self._mplayer.loadfile(url, 0);
+        self._mplayer.loadfile(url, 0, function() {
+          self._mplayer.set_volume(volume);
+        });
       }, function(err) {
         console.log('Youtube error: ' + err);
       });
     }
     else {
-      this._mplayer.loadfile(this._current_song.fullPath(), 0);
+      this._mplayer.loadfile(this._current_song.fullPath(), 0, function() {
+        self._mplayer.set_volume(volume);
+      });
       this._current_song.playCount += 1;
       this._current_song.save();
     }
-    this._mplayer.set_volume(volume);
+    // this._mplayer.set_volume(volume);
   }
 };
 
