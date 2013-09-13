@@ -8,6 +8,22 @@ var express = require('express'),
 // Application instance
 var app = express();
 
+// Debug/release guards
+var debug = function(fn) {
+  if (app.get('env') == 'development') {
+    fn();
+  }
+}, release = function(fn) {
+  if (app.get('env') != 'development') {
+    fn();
+  }
+};
+
+// Error handler in debug mode
+debug(function() {
+  app.use(express.errorHandler());
+});
+
 // All environments
 app.set('port', process.env.PORT || 3000);
 
@@ -21,7 +37,9 @@ app.set('view engine', settings.views.engine);
 var staticFilesDir = path.join(__dirname, 'static'),
     staticMiddleware = express.static(staticFilesDir);
 app.use(staticMiddleware);
-app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
+// ...static files via bower
+var bowerComponentsDir = path.join(__dirname, 'bower_components');
+app.use('/components', express.static(bowerComponentsDir));
 
 // Favicon
 app.use(express.favicon(path.join(staticFilesDir, 'img/favicon.ico')));
@@ -31,11 +49,6 @@ app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
-
-// Development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
 
 // Network
 var network = require('./network');
@@ -53,29 +66,34 @@ var server = http.createServer(app);
 var listener = new network.player.listener(server);
 
 // Startup
-server.listen(app.get('port'), function() {
-  var address = server.address();
-  console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
-    address.address, address.port);
-});
+var startup = function() {
+  debug(function() {
+    var address = server.address();
+    console.log('Server started at http://%s:%s\nPress Ctrl-C to stop',
+      address.address, address.port);
+  });
+};
 
 // Shutdown
 var shutdown = function() {
-  console.log('Server shutting down');
+  debug(function() {
+    console.log('Server shutting down');
+  });
   listener.quit();
   server.close();
   listener.kill(); // Just in case
   process.exit();
 };
 
+// Configure startup/shutdown
+server.listen(app.get('port'), startup);
 process.on('SIGINT', shutdown);
-// process.on('exit', shutdown);
-
-// Only in debug mode
-// process.on('uncaughtException', function(err) {
-//   console.log('Exception :' + err);
-//   shutdown();
-// });
-
+// ...only in debug mode
+debug(function() {
+  process.on('uncaughtException', function(err) {
+    console.log('Uncaught exception: ' + err);
+    shutdown();
+  });
+});
 
 // vim: ft=javascript et sw=2 sts=2
