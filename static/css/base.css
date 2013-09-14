@@ -1,5 +1,5 @@
 #wrap {
-    margin-top: 50px;
+    margin-top: 70px;
 }
 
 #volume-progress {
@@ -16,17 +16,17 @@
     user-select: none;
 }
 
-#tab-playlist .row {
-    font-size: 12px;
+#tab-playlist .nav > li {
+    padding: 10px 0;
 }
 
-#tab-playlist .row div:first-child {
+#tab-playlist .nav > li div:first-child {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-#tab-playlist .row a {
+#tab-playlist .nav > li a {
     color: #333;
     text-decoration: none;
     text-align center;

@@ -48,7 +48,9 @@ html
               span.glyphicon.glyphicon-stop
             button#next-control.btn.btn-default(type='button')
               span.icon-step-forward
-        div.col-md-1
+            button#random-control.btn.btn-default(type='button')
+              span.glyphicon.glyphicon-random
+        div.col-md-1(style='display:none')
           div#volume-progress.slider
     //- Content
     div#wrap
@@ -72,24 +74,28 @@ html
                 i.icon-youtube
           div.tab-content
             div#tab-playlist.tab-pane.active
-              div.row
-                div.col-md-10 Never gonna give you up
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-play
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-remove
-              div.row
-                div.col-md-10 Never gonna let you down
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-play
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-remove
-              div.row
-                div.col-md-10 Never gonna run around and desert you
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-play
-                a.col-md-1(href='#')
-                  span.glyphicon.glyphicon-remove
+              ul.nav
+                li
+                  div.col-md-9
+                    | Never gonna give you up
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-play
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-remove
+                li
+                  div.col-md-9
+                    | Never gonna let you down
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-play
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-remove
+                li
+                  div.col-md-9
+                    | Never gonna run around and desert you
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-play
+                  a.col-md-1(href='#')
+                    span.glyphicon.glyphicon-remove
             div#tab-youtube.tab-pane
               form.navbar-form(role='search')
                 input.form-control(type='text', role='search', placeholder='Search on Youtube')
