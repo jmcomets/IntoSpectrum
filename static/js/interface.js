@@ -47,6 +47,45 @@ $(window).load(function() {
     }
   });
 
+  // Search on Youtube
+  var youtubeSearch = $init('#search-youtube', {
+    'init': function() {
+      var that = this;
+      this.$.on('change', function() { that.search(encodeURI('https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + $(this).val())); });
+    }, 'search': function(url) {
+      //console.log(url);
+      $.getJSON(url, function(data) {
+        $.each(data.feed.entry, function(_, entry) {
+          // Get appropriate (formatted) data
+          var title = entry.title.$t,
+            url = entry.link[0].href,
+            time = function(inputTime) {
+            var totalSeconds = inputTime.seconds,
+              time = {
+                'seconds': Math.floor(totalSeconds % 60),
+                'hours': Math.floor(totalSeconds / 3600),
+                'minutes': Math.floor(totalSeconds / 60) % 60
+              }, repr = '';
+            $.each(time, function(key, value) {
+              if (value < 10) { time[key] = '0' + value; }
+            });
+            if (totalSeconds >= 3600) {
+              repr += time.hours + ':' + time.minutes + ':' + time.seconds;
+            } else if (totalSeconds >= 60) {
+              repr += time.minutes + ':' + time.seconds;
+            } else {
+              repr += time.seconds;
+            }
+            return repr;
+          } (entry.media$group.yt$duration);
+
+          // Append to search results
+          // TODO
+        });
+      });
+    }
+  });
+
   // Other controls
   $('#stop-control').on('click', function() { player.stop(); });
   $('#next-control').on('click', function() { player.playNext(); });
@@ -120,6 +159,8 @@ $(window).load(function() {
   $('#song-action-next').click(songMenu.action(function(songId) { player.addAsNext(songId); }));
   // ...add song to play queue
   $('#song-action-queue').click(songMenu.action(function(songId) { player.addToPlayQueue(songId); }));
+  // ...random mode
+  // TODO
 
   // Connection modal (showing when client is disconnected)
   var connectionModal = $init('#disconnected-modal', {
@@ -274,7 +315,7 @@ $(window).load(function() {
     // Append songs to the #library
     var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var missing = 'N/A', html = '' +
+      var missing = 'Unknown', html = '' +
         '<td>'   +  (song.artist  ||  missing)     +
         '</td>'  +  '<td>'        +   (song.album  ||  missing)  +  '</td>';
 

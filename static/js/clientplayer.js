@@ -153,4 +153,10 @@ ClientPlayer.prototype.addToPlayQueue = function(songId) {
   this._socket.emit('add_to_playlist', songId, -1);
 };
 
+// Ask the server to play a youtube video
+ClientPlayer.prototype.playYoutube = function(url) {
+  this.checkSocketConnection();
+  this._socket.emit('play_youtube', encodeURI(url));
+};
+
 // vim: ft=javascript et sw=2 sts=2
