@@ -60,7 +60,13 @@ var listener = exports.listener = function(server) {
 
   // Timer
   var delay = 5000;
-  var timer = setInterval(function() { self.send_info(); }, delay);
+  // var timer = setInterval(function() { self.send_info(); }, delay);
+  var timer = function() {
+    self.send_info('info', function() {;
+      setTimeout(timer, delay);
+    });
+  };
+  timer();
 };
 
 listener.prototype.kill = function(signal) {
@@ -71,7 +77,7 @@ listener.prototype.quit = function(code) {
   this._player.quit(code);
 };
 
-listener.prototype.send_info = function(name) {
+listener.prototype.send_info = function(name, callback) {
   if(name == undefined)
     name = 'info';
 
@@ -80,7 +86,10 @@ listener.prototype.send_info = function(name) {
     self._io.emit(name, info);
 
     if(self._player.song_over())
-    self._player.play_next();
+      self._player.play_next();
+
+    if(callback)
+      callback();
   });
 };
 
