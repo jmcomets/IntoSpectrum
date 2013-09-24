@@ -51,11 +51,12 @@ $(window).load(function() {
   var youtubeSearch = $init('#search-youtube', {
     'init': function() {
       var that = this;
+      this.searchResults = $('#youtube-search-results');
       this.$.on('change', function() { that.search(encodeURI('https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + $(this).val())); });
     }, 'search': function(url) {
+      var that = this;
       $.getJSON(url, function(data) {
-        var searchResults = $('#youtube-search-results');
-        searchResults.html('');
+        that.searchResults.html('');
         $.each(data.feed.entry, function(_, entry) {
           // Get appropriate (formatted) data
           var title = entry.title.$t,
@@ -81,7 +82,7 @@ $(window).load(function() {
           } (entry.media$group.yt$duration), thumb = entry.media$group.media$thumbnail[0].url;
 
           // Append to search results
-          var html = ''
+          var result = $(''
             + '<div class="media">'
             +   '<img class="pull-left media-object img-thumbnail" src="' + thumb + '" '
             +   '<div class="media-body">'
@@ -89,8 +90,10 @@ $(window).load(function() {
             +     '<em class="pull-right text-right">' + time + '</em>'
             +   '</div>'
             + '</div>'
-          ;
-          searchResults.append(html);
+          ).on('click', function() {
+            player.playYoutube(url);
+          });
+          that.searchResults.append(result);
         });
       });
     }
