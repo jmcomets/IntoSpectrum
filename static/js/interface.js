@@ -54,6 +54,8 @@ $(window).load(function() {
       this.$.on('change', function() { that.search(encodeURI('https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + $(this).val())); });
     }, 'search': function(url) {
       $.getJSON(url, function(data) {
+        var searchResults = $('#youtube-search-results');
+        searchResults.html('');
         $.each(data.feed.entry, function(_, entry) {
           // Get appropriate (formatted) data
           var title = entry.title.$t,
@@ -79,7 +81,16 @@ $(window).load(function() {
           } (entry.media$group.yt$duration), thumb = entry.media$group.media$thumbnail[0].url;
 
           // Append to search results
-          // TODO
+          var html = ''
+            + '<div class="media">'
+            +   '<img class="pull-left media-object img-thumbnail" src="' + thumb + '" '
+            +   '<div class="media-body">'
+            +     '<h4 class="media-heading">' + title + '</h4>'
+            +     '<em class="pull-right text-right">' + time + '</em>'
+            +   '</div>'
+            + '</div>'
+          ;
+          searchResults.append(html);
         });
       });
     }

@@ -16,6 +16,15 @@
     user-select: none;
 }
 
+#library-loading {
+    position: fixed;
+    bottom: 0;
+    margin: 10px;
+    background-color: #fff;
+    z-index: 1;
+    border: 1px solid #ddd;
+}
+
 #tab-playlist .nav > li {
     padding: 10px 0;
 }
@@ -32,11 +41,27 @@
     text-align center;
 }
 
-#library-loading {
-    position: fixed;
-    bottom: 0;
+#tab-youtube .media {
+    padding: 5px;
     margin: 10px;
-    background-color: #fff;
-    z-index: 1;
-    border: 1px solid #ddd;
+    height: 100px;
+}
+
+#tab-youtube .media:hover {
+    cursor: pointer;
+    background-color: #ddd;
+}
+
+#tab-youtube .media:active {
+    background-color: #aaa;
+}
+
+#tab-youtube .media img {
+    height: 90px;
+}
+
+#tab-youtube .media-heading {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

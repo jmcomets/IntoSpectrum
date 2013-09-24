@@ -64,9 +64,9 @@ html
         div.progress
           div.progress-bar(role='progressbar')
         em#library-loading-current
-      div.row
-        //- Left Panel
-        div.col-md-3.tabbable
+      //- Left Panel
+      div.col-md-3
+        div.col-md-3.tabbable(data-spy='affix')
           ul.nav.nav-tabs
             li
               a(href='#tab-playlist', data-toggle='tab')
@@ -101,21 +101,11 @@ html
             div#tab-youtube.tab-pane.active
               form.navbar-form(role='search', action='#')
                 input#search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
-              div
-                div.media
-                  a.pull-left(href='#')
-                    img.media-object.img-thumbnail(src='https://i.ytimg.com/vi/iNNlTvqjGgY/0.jpg', style='width:100px')
-                  div.media-body
-                    h4.media-heading
-                      | Pfudor
-                    p.media-content
-                      | Lorem ipsum dolor sit amet
-                    em
-                      | 42:42
-        div.col-md-9
-          //- Songs
-          table.table.table-hover.table-condensed
-            tbody#library
+              div#youtube-search-results
+      //- Songs
+      div.col-md-9
+        table.table.table-hover.table-condensed
+          tbody#library
     //- Right-click menu for songs
     div#song-context-menu.dropdown
       ul.dropdown-menu(role='menu')
