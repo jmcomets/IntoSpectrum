@@ -2,9 +2,14 @@
     margin-top: 70px;
 }
 
+/* Volume */
+
 #volume-progress {
+    margin: 20px 0;
     padding: 0;
 }
+
+/* Library */
 
 #library tr {
     cursor: pointer;
@@ -25,26 +30,27 @@
     border: 1px solid #ddd;
 }
 
-#tab-playlist .nav > li {
-    padding: 10px 0;
-}
+/* Playlist tab */
 
-#tab-playlist .nav > li div:first-child {
+#tab-playlist .list-group > li div:first-child {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-#tab-playlist .nav > li a {
+#tab-playlist .list-group > li a {
     color: #333;
     text-decoration: none;
     text-align center;
 }
 
+/* Youtube tab */
+
 #tab-youtube .media {
     padding: 5px;
     margin: 10px;
     height: 100px;
+    position: relative;
 }
 
 #tab-youtube .media:hover {
@@ -53,15 +59,16 @@
 }
 
 #tab-youtube .media:active {
-    background-color: #aaa;
+    background-color: #eee;
 }
 
 #tab-youtube .media img {
     height: 90px;
 }
 
-#tab-youtube .media-heading {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+#tab-youtube .media em {
+    position: absolute;
+    bottom: 0;
+    margin: 7px;
+    right: 0;
 }

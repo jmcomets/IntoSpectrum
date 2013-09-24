@@ -37,9 +37,9 @@ html
           span.icon-bar
           span.icon-bar
       div.navbar-collapse.collapse
-        div.nav.navbar-text.progress.col-md-8
+        div.nav.navbar-text.progress.col-md-7
           div#play-progress.progress-bar(role='progressbar')
-        form.navbar-form.form-inline(action='#')
+        form.navbar-form.form-inline.col-md-1(action='#')
           div.btn-group
             button#previous-control.btn.btn-default(type='button')
               span.icon-step-backward
@@ -52,7 +52,7 @@ html
               span.icon-step-forward
             button#random-control.btn.btn-default(type='button')
               span.glyphicon.glyphicon-random
-        div.col-md-1(style='display:none')
+        div.col-md-1
           div#volume-progress.slider
     //- Content
     div#wrap
@@ -66,39 +66,45 @@ html
         em#library-loading-current
       //- Left Panel
       div.col-md-3
-        div.col-md-3.tabbable(data-spy='affix')
+        div.col-md-3.tabbable(data-spy='affix', role='complementary')
           ul.nav.nav-tabs
-            li
+            li.active
               a(href='#tab-playlist', data-toggle='tab')
                 i.icon-list
-            li.active
+            li
               a(href='#tab-youtube', data-toggle='tab')
                 i.icon-youtube
           div.tab-content
-            div#tab-playlist.tab-pane
-              ul.nav
-                li
-                  div.col-md-9
+            div#tab-playlist.tab-pane.active
+              ul.list-group
+                li.list-group-item.row
+                  div.col-md-8
                     | Never gonna give you up
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-play
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-remove
-                li
-                  div.col-md-9
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-play
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-remove
+                li.list-group-item.row
+                  div.col-md-8
                     | Never gonna let you down
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-play
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-remove
-                li
-                  div.col-md-9
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-play
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-remove
+                li.list-group-item.row
+                  div.col-md-8
                     | Never gonna run around and desert you
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-play
-                  a.col-md-1(href='#')
-                    span.glyphicon.glyphicon-remove
-            div#tab-youtube.tab-pane.active
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-play
+                  div.col-md-2
+                    a(href='#')
+                      span.glyphicon.glyphicon-remove
+            div#tab-youtube.tab-pane
               form.navbar-form(role='search', action='#')
                 input#search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
               div#youtube-search-results
@@ -111,16 +117,13 @@ html
       ul.dropdown-menu(role='menu')
         li
           a#song-action-play.disabled(href='#')
-            i.icon-play
-            | Play
+            i.icon-play Play
         li
           a#song-action-next.disabled(href='#')
-            i.icon-arrow-right
-            | Play next
+            i.icon-arrow-right Play next
         li
           a#song-action-queue.disabled(href='#')
-            i.icon-plus
-            | Add to play queue
+            i.icon-plus Add to play queue
     //- Modal for disconnected state
     div#disconnected-modal.modal.fade
       div.modal-dialog

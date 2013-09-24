@@ -59,7 +59,14 @@ $(window).load(function() {
         that.searchResults.html('');
         $.each(data.feed.entry, function(_, entry) {
           // Get appropriate (formatted) data
-          var title = entry.title.$t,
+          var title = function(title) {
+            var maxLength = 30;
+            if (title.length > maxLength) {
+              return title.substring(0, maxLength) + '...';
+            } else {
+              return title;
+            }
+          } (entry.title.$t),
             url = entry.link[0].href,
             time = function(inputTime) {
             var totalSeconds = inputTime.seconds,
@@ -87,7 +94,7 @@ $(window).load(function() {
             +   '<img class="pull-left media-object img-thumbnail" src="' + thumb + '" '
             +   '<div class="media-body">'
             +     '<h4 class="media-heading">' + title + '</h4>'
-            +     '<em class="pull-right text-right">' + time + '</em>'
+            +     '<em class="text-right">' + time + '</em>'
             +   '</div>'
             + '</div>'
           ).on('click', function() {
