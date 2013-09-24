@@ -1,6 +1,6 @@
 var spawn = require('child_process').spawn;
 
-var request = function(input, out_waiting, err_waiting, on_finish) {
+var request = function(input, out_waiting, err_waiting, on_finish, timeout) {
     this._input = input;
     this._out_waiting = out_waiting;
     this._err_waiting = err_waiting;
@@ -9,6 +9,12 @@ var request = function(input, out_waiting, err_waiting, on_finish) {
 
     this._checked_out = false;
     this._checked_err = false;
+
+    var base_timeout = 30000;
+    this._timeout = timeout;
+    if(!this._timeout)
+      this._timeout = 30000;
+    this._begin_time = new Date().getTime();
 };
 
 request.prototype.ask = function() {
@@ -16,58 +22,94 @@ request.prototype.ask = function() {
 };
 
 request.prototype.checked = function() {
-    return this._checked_out || this._checked_err
-      || (this._out_waiting === null && this._err_waiting == null);
+  return this._checked_out || this._checked_err
+    || (this._out_waiting === null && this._err_waiting == null);
+};
+
+request.prototype.timeout = function() {
+  return new Date().getTime() - this._begin_time > this._timeout;
 };
 
 request.prototype.check_out = function(data) {
-    if(this._checked_out)
-        return this._checked_out;
+  if(this._checked_out)
+    return this._checked_out;
 
-    var re = false;
-    if(this._out_waiting === null) {
-        re = true;
-        if(this._err_waiting !== null)
-            re = false;
+  var re = false;
+  if(this._out_waiting === null) {
+    re = true;
+    if(this._err_waiting !== null)
+      re = false;
+  }
+  else if(this._out_waiting == undefined)
+    re = false;
+  else {
+    var check_word = function(word) {
+      if(data.length >= word.length
+          && data.slice(0, word.length) == word)
+        return true;
+      return false;
+    };
+
+    if(Array.isArray(this._out_waiting)) {
+      for(var i = 0 ; i < this._out_waiting.length ; i++) {
+        var word = this._out_waiting[i];
+        re = check_word(word);
+        if(re)
+          break;
+      }
     }
-    else if(this._out_waiting == undefined)
-        re = false;
     else {
-        var word = this._out_waiting;
-        if(data.length >= word.length
-            && data.slice(0, word.length) == word)
-            re = true;
+      re = check_word(this._out_waiting);
     }
+  }
 
-    if(re == true && this._on_finish != undefined)
-        this._on_finish(data);
-    this._checked_out = re;
-    return re;
+  if(re == true && this._on_finish != undefined) {
+    this._on_finish(data);
+    this._on_finish = undefined;
+  }
+  this._checked_out = re;
+  return re;
 };
 
 request.prototype.check_err = function(data) {
-    if(this._checked_err)
-        return this._checked_err;
+  if(this._checked_err)
+    return this._checked_err;
 
-    var re = false;
-    if(this._err_waiting === null) {
-        re = true;
-        if(this._out_waiting !== null)
-            re = false;
+  var re = false;
+  if(this._err_waiting === null) {
+    re = true;
+    if(this._out_waiting !== null)
+      re = false;
+  }
+  else if(this._err_waiting == undefined)
+    re = false;
+  else {
+    var check_word = function(word) {
+      if(data.length >= word.length
+          && data.slice(0, word.length) == word)
+        return true;
+      return false;
+    };
+
+    if(Array.isArray(this._err_waiting)) {
+      for(var i = 0 ; i < this._err_waiting.length ; i++) {
+        var word = this._err_waiting[i];
+        re = check_word(word);
+        if(re)
+          break;
+      }
     }
-    else if(this._err_waiting == undefined)
-        re = false;
     else {
-        var word = this._err_waiting;
-        if(data.length >= word.length
-            && data.slice(0, word.length) == word)
-            re = true;
+      re = check_word(this._err_waiting);
     }
+  }
 
-    if(re == true && this._on_finish != undefined)
-        this._on_finish(data);
-    this._checked_err = re;
-    return re;
+  if(re == true && this._on_finish != undefined) {
+    this._on_finish(data);
+    this._on_finish = undefined;
+  }
+  this._checked_err = re;
+  return re;
 };
 
 var mplayer = exports.mplayer = function() {
@@ -209,6 +251,14 @@ mplayer.prototype.listen = function() {
 
     if(this._request.checked())
         this._request = null;
+    else if(this._request.timeout()) {
+      this._in_fifo.unshift(new request(this._request._input,
+            this._request._out_waiting,
+            this._request._err_waiting,
+            this._request._on_finish,
+            this._request._timeout));
+      this._request = null;
+    }
 
     // Flush both output fifo
     for(; this._out_fifo.length ; this._out_fifo.shift());
@@ -254,7 +304,8 @@ mplayer.prototype._get_property = function(prop, on_finish) {
           if(on_finish) {
             on_finish(self._properties[prop].value);
           }
-        }));
+        },
+        5000));
   this.flush();
 };
 
