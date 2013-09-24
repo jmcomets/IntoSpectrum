@@ -18,43 +18,43 @@ var listener = exports.listener = function(server) {
     });
     socket.on('play', function(id) {
       self._player.play(id);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('play_youtube', function(url) {
       self._player.play_youtube(url);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('add_to_playlist', function(id, pos) {
       self._player.add_to_playlist(id, pos);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('play_next', function() {
       self._player.play_next();
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('play_prev', function() {
       self._player.play_prev();
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('pause', function(id) {
       self._player.pause(id);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('unpause', function(id) {
       self._player.unpause(id);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('stop', function(id) {
       self._player.stop(id);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('volume', function(volume) {
       self._player.volume(volume);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
     socket.on('time', function(id, time) {
       self._player.time(id, time);
-      setTimeout(function() { self.send_info('response'); }, 200);
+      setTimeout(function() { self.send_info('response'); }, 500);
     });
   });
 
