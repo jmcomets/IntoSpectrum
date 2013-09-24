@@ -53,7 +53,6 @@ $(window).load(function() {
       var that = this;
       this.$.on('change', function() { that.search(encodeURI('https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + $(this).val())); });
     }, 'search': function(url) {
-      //console.log(url);
       $.getJSON(url, function(data) {
         $.each(data.feed.entry, function(_, entry) {
           // Get appropriate (formatted) data
@@ -77,7 +76,7 @@ $(window).load(function() {
               repr += time.seconds;
             }
             return repr;
-          } (entry.media$group.yt$duration);
+          } (entry.media$group.yt$duration), thumb = entry.media$group.media$thumbnail[0].url;
 
           // Append to search results
           // TODO

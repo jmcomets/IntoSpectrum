@@ -66,14 +66,14 @@ html
         //- Left Panel
         div.col-md-3.tabbable
           ul.nav.nav-tabs
-            li.active
+            li
               a(href='#tab-playlist', data-toggle='tab')
                 i.icon-list
-            li
+            li.active
               a(href='#tab-youtube', data-toggle='tab')
                 i.icon-youtube
           div.tab-content
-            div#tab-playlist.tab-pane.active
+            div#tab-playlist.tab-pane
               ul.nav
                 li
                   div.col-md-9
@@ -96,9 +96,16 @@ html
                     span.glyphicon.glyphicon-play
                   a.col-md-1(href='#')
                     span.glyphicon.glyphicon-remove
-            div#tab-youtube.tab-pane
-              form.navbar-form(role='search')
-                input.form-control(type='text', role='search', placeholder='Search on Youtube')
+            div#tab-youtube.tab-pane.active
+              form.navbar-form(role='search', action='#')
+                input#search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
+              div
+                div.media
+                  a.pull-left(href='#')
+                    img.media-object.img-thumbnail(src='https://i.ytimg.com/vi/iNNlTvqjGgY/0.jpg', style='width:100px')
+                  div.media-body
+                    h4.media-heading
+                      | Pfudor
         div.col-md-9
           //- Songs
           table.table.table-hover.table-condensed

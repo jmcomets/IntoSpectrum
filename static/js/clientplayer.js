@@ -58,12 +58,14 @@ ClientPlayer.prototype.connect = function(url) {
 
 // Info -> regular update (no specific event)
 ClientPlayer.prototype._handleInfo = function(info) {
+  console.log(info);
   this.state = info;
   this.trigger('info');
 };
 
 // Response -> immediate response (specific event)
 ClientPlayer.prototype._handleResponse = function(response) {
+  console.log(response);
   // Change state for event hooks
   var oldState = this.state;
   this.state = response;
@@ -102,6 +104,7 @@ ClientPlayer.prototype.checkSocketConnection = function() {
 ClientPlayer.prototype.play = function(songId) {
   this.checkSocketConnection();
   this._socket.emit('play', songId);
+  console.log('play');
 };
 
 // Ask the server to either pause or unpause, depending on
@@ -109,54 +112,63 @@ ClientPlayer.prototype.play = function(songId) {
 ClientPlayer.prototype.togglePause = function() {
   this.checkSocketConnection();
   this._socket.emit(this.state.playing ? 'pause' : 'unpause', this.state.id);
+  console.log(this.state.playing ? 'pause' : 'unpause');
 };
 
 // Ask the server to stop the song playing, and reset the current time
 ClientPlayer.prototype.stop = function() {
   this.checkSocketConnection();
   this._socket.emit('stop', this.state.id);
+  console.log('stop');
 };
 
 // Ast the server to play the next song
 ClientPlayer.prototype.playNext = function() {
   this.checkSocketConnection();
   this._socket.emit('play_next');
+  console.log('play_next');
 };
 
 // Ast the server to play the previous song
 ClientPlayer.prototype.playPrevious = function() {
   this.checkSocketConnection();
   this._socket.emit('play_prev');
+  console.log('play_prev');
 };
 
 // Ask the server player to set the volume
 ClientPlayer.prototype.setVolume = function(volume) {
   this.checkSocketConnection();
   this._socket.emit('volume', volume);
+  console.log('volume');
 };
 
 // Ask the server player to set the current time
 ClientPlayer.prototype.setTime = function(time) {
   this.checkSocketConnection();
   this._socket.emit('time', this.state.id, time);
+  console.log('time');
 };
 
 // Ask the server to add a song to play next
 ClientPlayer.prototype.addAsNext = function(songId) {
   this.checkSocketConnection();
   this._socket.emit('add_to_playlist', songId, 0);
+  console.log('add_to_playlist');
 };
 
 // Ask the server to add a song to the play queue
 ClientPlayer.prototype.addToPlayQueue = function(songId) {
   this.checkSocketConnection();
   this._socket.emit('add_to_playlist', songId, -1);
+  console.log('add_to_playlist');
 };
 
 // Ask the server to play a youtube video
 ClientPlayer.prototype.playYoutube = function(url) {
   this.checkSocketConnection();
   this._socket.emit('play_youtube', encodeURI(url));
+  console.log('play_youtube');
 };
 
 // vim: ft=javascript et sw=2 sts=2
