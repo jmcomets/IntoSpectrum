@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "private": true,
   "scripts": {
-    "install": "./node_modules/.bin/bower install && ./node_modules/.bin/grunt",
+    "install": "./node_modules/.bin/bower install",
     "start": "./app"
   }, "dependencies": {
     "express": "~3.3.8",
@@ -11,12 +11,6 @@
     "sequelize": "~2.0.0",
     "mysql": "~2.0.0",
     "jade": "~0.35.0",
-    "bower": "~1.2.6",
-    "grunt": "~0.4.1",
-    "grunt-cli": "~0.1.9",
-    "grunt-contrib-concat": "*",
-    "grunt-contrib-cssmin": "*",
-    "grunt-contrib-jshint": "*",
-    "grunt-contrib-uglify": "*"
+    "bower": "~1.2.6"
   }
 }
