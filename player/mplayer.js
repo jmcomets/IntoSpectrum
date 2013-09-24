@@ -175,7 +175,7 @@ mplayer.prototype.start = function() {
 
     var self = this;
     this._proc_opening = true;
-    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol', '-nolirc']);
+    this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol', '-nolirc', '-vo', 'NULL']);
 
     // Active the communication with the process after a little time
     // TODO find another way to detect if it's on
