@@ -18,43 +18,43 @@ var listener = exports.listener = function(server) {
     });
     socket.on('play', function(id) {
       self._player.play(id);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('play_youtube', function(url) {
       self._player.play_youtube(url);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('add_to_playlist', function(id, pos) {
       self._player.add_to_playlist(id, pos);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('play_next', function() {
       self._player.play_next();
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('play_prev', function() {
       self._player.play_prev();
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('pause', function(id) {
       self._player.pause(id);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('unpause', function(id) {
       self._player.unpause(id);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('stop', function(id) {
       self._player.stop(id);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('volume', function(volume) {
       self._player.volume(volume);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
     socket.on('time', function(id, time) {
       self._player.time(id, time);
-      setTimeout(function() { self.send_info('response'); }, 500);
+      self.send_info('response');
     });
   });
 
@@ -75,11 +75,13 @@ listener.prototype.send_info = function(name) {
   if(name == undefined)
     name = 'info';
 
-  var info = this._player.get_info();
-  this._io.emit(name, info);
+  var self = this;
+  var info = this._player.get_info(function(info) {
+    self._io.emit(name, info);
 
-  if(this._player.song_over())
-    this._player.play_next();
+    if(self._player.song_over())
+    self._player.play_next();
+  });
 };
 
 // vim: ft=javascript et sw=2 sts=2

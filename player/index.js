@@ -35,34 +35,42 @@ player.prototype.song_over = function() {
   //   || this._mplayer.filename.value == undefined;
 }
 
-player.prototype.get_info = function() {
+player.prototype.get_info = function(callback) {
   var self = this;
-  var filename =  this._mplayer.get_filename();
-  var volume =    this._mplayer.get_volume();
-  var length =    this._mplayer.get_length();
-  var time_pos =  this._mplayer.get_time_pos();
-  var pause =     this._mplayer.get_pause();
 
-  var out = {
-    'id': -1,
-    'playing': pause ? 0 : 1,
-    'volume': volume,
-    'time': time_pos,
-    'time_max': length,
-    'playlist': new Array(),
-    'play_count': 0
-  };
+  this._mplayer.update(function() {
+    var filename =  self._mplayer.get_filename();
+    var volume =    self._mplayer.get_volume();
+    var length =    self._mplayer.get_length();
+    var time_pos =  self._mplayer.get_time_pos();
+    var pause =     self._mplayer.get_pause();
 
-  for(var i = 0 ; i < this._playlist.length ; i++) {
-    out['playlist'].push(this._playlist[i].id);
-  }
+    var out = {
+      'id': -1,
+      'playing': pause ? 0 : 1,
+      'volume': volume,
+      'time': time_pos,
+      'time_max': length,
+      'playlist': new Array(),
+      'play_count': 0
+    };
 
-  if (this._current_song != undefined) {
-    out['id'] = this._current_song.id;
-    out['play_count'] = this._current_song.playCount;
-  }
+    for(var i = 0 ; i < self._playlist.length ; i++) {
+      out['playlist'].push(self._playlist[i].id);
+    }
 
-  return out;
+    if (self._current_song != undefined) {
+      out['id'] = self._current_song.id;
+      out['play_count'] = self._current_song.playCount;
+    }
+
+    if(callback != undefined) {
+      callback(out);
+    }
+  });
+
+  // return out;
+
   // this._mplayer.filename.get();
   // this._mplayer.volume.get();
   // this._mplayer.time_pos.get();

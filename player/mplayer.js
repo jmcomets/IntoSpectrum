@@ -109,9 +109,22 @@ var mplayer = exports.mplayer = function() {
         });
       });
     };
-    f();
+    // f();
     setInterval(function() { self.flush(); }, time_to_update);
     setInterval(function() { self.listen(); }, time_to_update);
+};
+
+mplayer.prototype.update = function(callback) {
+  var self = this;
+  self._get_filename(function() {
+    self._get_volume(function() {
+      self._get_length(function() {
+        self._get_time_pos(function() {
+          self._get_pause(callback);
+        });
+      });
+    });
+  });
 };
 
 mplayer.prototype.start = function() {
