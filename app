@@ -31,7 +31,7 @@ app.set('view cache', settings.views.cache);
 app.set('view engine', settings.views.engine);
 
 // Static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'static')));
 // ...static files via bower
 app.use('/components', express.static(path.join(__dirname, 'bower_components')));
 

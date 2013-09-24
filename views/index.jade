@@ -19,10 +19,12 @@ html
     link(type='text/css', rel='stylesheet', href='/components/jquery-ui/themes/base/minified/jquery-ui.min.css', media='screen')
 
     //- CSS
-    link(type='text/css', rel='stylesheet', href='/css/main.css', media='screen')
+    link(type='text/css', rel='stylesheet', href='/css/base.css', media='screen')
 
     //- JavaScript
-    script(type='text/javascript', src='/js/main.js')
+    script(type='text/javascript', src='/js/microevent.js')
+    script(type='text/javascript', src='/js/clientplayer.js')
+    script(type='text/javascript', src='/js/interface.js')
   body
     //- Toolbar
     nav.navbar.navbar-default.navbar-fixed-top
@@ -106,6 +108,10 @@ html
                   div.media-body
                     h4.media-heading
                       | Pfudor
+                    p.media-content
+                      | Lorem ipsum dolor sit amet
+                    em
+                      | 42:42
         div.col-md-9
           //- Songs
           table.table.table-hover.table-condensed
