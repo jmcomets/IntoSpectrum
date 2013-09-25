@@ -1,7 +1,7 @@
 var spawn = require('child_process').spawn;
 
 exports.get_link = function(url, success, error) {
-    var process = spawn('youtube-dl', ['--get-url', '-cookies /tmp/cookie.txt', url]);
+    var process = spawn('youtube-dl', ['--get-url', '-cookies' , '/tmp/cookie.txt', url]);
 
     console.log(url);
 
