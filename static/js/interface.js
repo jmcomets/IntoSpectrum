@@ -48,63 +48,63 @@ $(window).load(function() {
   });
 
   // Search on Youtube
-  var youtubeSearch = $init('#search-youtube', {
-    'init': function() {
+  var youtubeSearch = $init('#youtube-search-results', {
+    'search': function(query) {
+      var url = 'https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + encodeURI(query),
+        that = this;
+      $.getJSON(url, function(data) { that._handleResults(data); });
+    }, '_handleResults': function(data) {
       var that = this;
-      this.searchResults = $('#youtube-search-results');
-      this.$.on('change', function() { that.search(encodeURI('https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + $(this).val())); });
-    }, 'search': function(url) {
-      var that = this;
-      $.getJSON(url, function(data) {
-        that.searchResults.html('');
-        $.each(data.feed.entry, function(_, entry) {
-          // Get appropriate (formatted) data
-          var title = function(title) {
-            var maxLength = 30;
-            if (title.length > maxLength) {
-              return title.substring(0, maxLength) + '...';
-            } else {
-              return title;
-            }
-          } (entry.title.$t),
-            url = entry.link[0].href,
-            time = function(inputTime) {
-            var totalSeconds = inputTime.seconds,
-              time = {
-                'seconds': Math.floor(totalSeconds % 60),
-                'hours': Math.floor(totalSeconds / 3600),
-                'minutes': Math.floor(totalSeconds / 60) % 60
-              }, repr = '';
-            $.each(time, function(key, value) {
-              if (value < 10) { time[key] = '0' + value; }
-            });
-            if (totalSeconds >= 3600) {
-              repr += time.hours + ':' + time.minutes + ':' + time.seconds;
-            } else if (totalSeconds >= 60) {
-              repr += time.minutes + ':' + time.seconds;
-            } else {
-              repr += time.seconds;
-            }
-            return repr;
-          } (entry.media$group.yt$duration), thumb = entry.media$group.media$thumbnail[0].url;
-
-          // Append to search results
-          var result = $(''
-            + '<div class="media">'
-            +   '<img class="pull-left media-object img-thumbnail" src="' + thumb + '" '
-            +   '<div class="media-body">'
-            +     '<h4 class="media-heading">' + title + '</h4>'
-            +     '<em class="text-right">' + time + '</em>'
-            +   '</div>'
-            + '</div>'
-          ).on('click', function() {
-            player.playYoutube(url);
+      this.$.html('');
+      $.each(data.feed.entry, function(_, entry) {
+        // Get appropriate (formatted) data
+        var title = function(title) {
+          var maxLength = 30;
+          if (title.length > maxLength) {
+            return title.substring(0, maxLength) + '...';
+          } else {
+            return title;
+          }
+        } (entry.title.$t), videoUrl = entry.link[0].href,
+          time = function(inputTime) {
+          var totalSeconds = inputTime.seconds,
+            time = {
+              'seconds': Math.floor(totalSeconds % 60),
+              'hours': Math.floor(totalSeconds / 3600),
+              'minutes': Math.floor(totalSeconds / 60) % 60
+            }, repr = '';
+          $.each(time, function(key, value) {
+            if (value < 10) { time[key] = '0' + value; }
           });
-          that.searchResults.append(result);
+          if (totalSeconds >= 3600) {
+            repr += time.hours + ':' + time.minutes + ':' + time.seconds;
+          } else if (totalSeconds >= 60) {
+            repr += time.minutes + ':' + time.seconds;
+          } else {
+            repr += time.seconds;
+          }
+          return repr;
+        } (entry.media$group.yt$duration), thumb = entry.media$group.media$thumbnail[0].url;
+
+        // Append to search results
+        var result = $(''
+          + '<div class="media">'
+          +   '<img class="pull-left media-object img-thumbnail" src="' + thumb + '" '
+          +   '<div class="media-body">'
+          +     '<h4 class="media-heading">' + title + '</h4>'
+          +     '<em class="text-right">' + time + '</em>'
+          +   '</div>'
+          + '</div>'
+        ).on('click', function() {
+          player.playYoutube(videoUrl);
         });
+        that.$.append(result);
       });
     }
   });
+  // ...events in UI
+  $('input.search-youtube').on('change', function() { youtubeSearch.search($(this).val()); });
+  $('a.search-youtube, button.search-youtube').on('click', function() { $(this).closest('input').change(); });
 
   // Other controls
   $('#stop-control').on('click', function() { player.stop(); });

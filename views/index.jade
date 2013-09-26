@@ -106,7 +106,11 @@ html
                       span.glyphicon.glyphicon-remove
             div#tab-youtube.tab-pane
               form.navbar-form(role='search', action='#')
-                input#search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
+                div.input-group
+                  input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
+                  div.input-group-btn
+                    button.btn.btn-default(type='button')
+                      span.glyphicon.glyphicon-search
               div#youtube-search-results
       //- Songs
       div.col-md-9
