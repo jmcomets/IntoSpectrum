@@ -138,19 +138,19 @@ var mplayer = exports.mplayer = function() {
     // Flush, listen and update sometimes
     var self = this;
     var time_to_update = 200;
-    var f = function() {
-      self._get_filename(function() {
-        self._get_volume(function() {
-          self._get_length(function() {
-            self._get_time_pos(function() {
-              self._get_pause(function() {
-                setTimeout(f, time_to_update);
-              });
-            });
-          });
-        });
-      });
-    };
+    // var f = function() {
+    //   self._get_filename(function() {
+    //     self._get_volume(function() {
+    //       self._get_length(function() {
+    //         self._get_time_pos(function() {
+    //           self._get_pause(function() {
+    //             setTimeout(f, time_to_update);
+    //           });
+    //         });
+    //       });
+    //     });
+    //   });
+    // };
     // f();
     setInterval(function() { self.flush(); }, time_to_update);
     setInterval(function() { self.listen(); }, time_to_update);
