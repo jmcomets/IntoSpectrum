@@ -32,16 +32,45 @@
 
 /* Playlist tab */
 
-#tab-playlist .list-group > li div:first-child {
+#tab-playlist li {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#tab-playlist li div:first-child {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-#tab-playlist .list-group > li a {
+#tab-playlist li a {
     color: #333;
     text-decoration: none;
     text-align center;
+}
+
+#tab-playlist li a:hover {
+    color: #428bca;
+}
+
+#tab-playlist .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#tab-playlist .list-group-item:first-child {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+#tab-playlist .list-group-item:hover {
+    background-color: #fafafa;
+    cursor: move;
 }
 
 /* Youtube tab */

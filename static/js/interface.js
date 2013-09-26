@@ -47,6 +47,13 @@ $(window).load(function() {
     }
   });
 
+  // Playlist
+  var playlist = $init('#playlist', {
+    'init': function () {
+      this.$.sortable();
+    }
+  });
+
   // Search on Youtube
   var youtubeSearch = $init('#youtube-search-results', {
     'search': function(query) {
