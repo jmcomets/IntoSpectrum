@@ -47,10 +47,34 @@ $(window).load(function() {
     }
   });
 
+  // Prefix for identifying songs
+  var songIdPrefix = 'song-id-';
+
   // Playlist
   var playlist = $init('#playlist', {
     'init': function () {
-      this.$.sortable();
+      this.$.sortable({
+        'start': function(evt, ui) {
+          $(this).attr('data-prev-index', ui.item.index());
+        }, 'update': function(evt, ui) {
+          var oldIndex = $(this).attr('data-prev-index'), newIndex = ui.item.index();
+          player.moveInPlaylist(oldIndex, newIndex);
+        }
+      });
+    }, '_makeElement': function(songId) {
+      return $(''
+        + '<li class="list-group-item row">'
+        + '<div class="col-md-9">'
+        + $('#' + songIdPrefix + songId).children().first().text()
+        + '</div>'
+        + '<div class="col-md-1"><a href="#"><span class="glyphicon glyphicon-play"></span></a></div>'
+        + '<div class="col-md-1"><a href="#"><span class="glyphicon glyphicon-remove"></span></a></div>'
+        + '</li>'
+      );
+    }, 'addAsNext': function(songId) {
+      this.$.prepend(this._makeElement(songId));
+    }, 'addToPlayQueue': function(songId) {
+      this.$.append(this._makeElement(songId));
     }
   });
 
@@ -183,9 +207,15 @@ $(window).load(function() {
   // ...play song
   $('#song-action-play').click(songMenu.action(function(songId) { player.play(songId); }));
   // ...play song next
-  $('#song-action-next').click(songMenu.action(function(songId) { player.addAsNext(songId); }));
+  $('#song-action-next').click(songMenu.action(function(songId) {
+    playlist.addAsNext(songId);
+    player.addAsNext(songId);
+  }));
   // ...add song to play queue
-  $('#song-action-queue').click(songMenu.action(function(songId) { player.addToPlayQueue(songId); }));
+  $('#song-action-queue').click(songMenu.action(function(songId) {
+    playlist.addToPlayQueue(songId);
+    player.addToPlayQueue(songId);
+  }));
   // ...random mode
   // TODO
 
@@ -205,9 +235,6 @@ $(window).load(function() {
       }
     }
   });
-
-  // Prefix for identifying songs
-  var songIdPrefix = 'song-id-';
 
   // Active row refactoring
   var activateRow = function(songId) {

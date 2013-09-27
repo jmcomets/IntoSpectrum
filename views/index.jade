@@ -77,35 +77,8 @@ html
           div.tab-content
             div#tab-playlist.tab-pane.active
               ul#playlist.list-group
-                li.list-group-item.row
-                  div.col-md-9
-                    | Never gonna give you up
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-play
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-remove
-                li.list-group-item.row
-                  div.col-md-9
-                    | Never gonna let you down
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-play
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-remove
-                li.list-group-item.row
-                  div.col-md-9
-                    | Never gonna run around and desert you
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-play
-                  div.col-md-1
-                    a(href='#')
-                      span.glyphicon.glyphicon-remove
             div#tab-youtube.tab-pane
-              form.navbar-form(role='search', action='#')
+              form.navbar-form(role='search', onsubmit='return false;')
                 div.input-group
                   input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
                   div.input-group-btn
