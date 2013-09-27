@@ -47,8 +47,67 @@ $(window).load(function() {
     }
   });
 
-  // Prefix for identifying songs
-  var songIdPrefix = 'song-id-';
+  // Library widget
+  var songLibrary = $init('#library', {
+    'init': function() {
+      this.songIdPrefix = 'song-id-';
+
+      // Shortcut to go to current
+      var that = this;
+      $(document).on('keypress', function(e) {
+        if (String.fromCharCode(e.charCode || e.keyCode) == 'M')
+        {
+          var currentRow = that.$.find('tr.warning');
+          if (currentRow) {
+            var topOffset = currentRow.offset().top - $(window).height() / 2;
+            $('html, body').animate({ 'scrollTop': topOffset }, 1000);
+          }
+        }
+      }); // TODO clean this up
+    }, 'getSongById': function(songId) {
+      return this.$.find('#' + this.songIdPrefix + songId);
+    }, 'addSong': function(song) {
+      var missing = 'Unknown', html = '' +
+        '<td>'   +  (song.artist  ||  missing)     +
+        '</td>'  +  '<td>'        +   (song.album  ||  missing)  +  '</td>';
+
+      // Title is either given or file basename without extension
+      var title = (song.title) ? song.title : function(str) {
+        str = str.substring(str.lastIndexOf('/') + 1, str.length);
+        return str.substring(0, str.lastIndexOf('.'));
+      } (song.path);
+      html = '<td>' + title + '</td>' + html;
+
+      // Create the DOM element
+      var row = $('<tr id="' + this.songIdPrefix + song.id + '"></tr>');
+      row.html(html);
+
+      // Hook events
+      var that = this;
+      row.on('click', function() {
+        var id = $(this).attr('id').substring(that.songIdPrefix.length);
+        player.play(id);
+        songMenu.close();
+      }).on('contextmenu', function(e) {
+        // Disable context menu
+        e.preventDefault();
+
+        // Song selected
+        var songId = $(this).attr('id').substring(that.songIdPrefix.length);
+        songMenu.setSongId(songId);
+
+        // Toggle dropdown and move to cursor position
+        songMenu.open(e.pageX, e.pageY);
+      });
+
+      // Add to the library container
+      this.$.append(row);
+    }, 'activateSong': function(songId) {
+      var emphasisClass = 'warning';
+      this.$.find('.' + emphasisClass).removeClass(emphasisClass);
+      if (songId !== undefined) { this.getSongById(songId).addClass(emphasisClass); }
+    }
+  });
 
   // Playlist
   var playlist = $init('#playlist', {
@@ -65,7 +124,7 @@ $(window).load(function() {
       return $(''
         + '<li class="list-group-item row">'
         + '<div class="col-md-9">'
-        + $('#' + songIdPrefix + songId).children().first().text()
+        + songLibrary.getSongById(songId).children().first().text()
         + '</div>'
         + '<div class="col-md-1"><a href="#"><span class="glyphicon glyphicon-play"></span></a></div>'
         + '<div class="col-md-1"><a href="#"><span class="glyphicon glyphicon-remove"></span></a></div>'
@@ -242,13 +301,6 @@ $(window).load(function() {
     }
   });
 
-  // Active row refactoring
-  var activateRow = function(songId) {
-    var emphasisClass = 'warning';
-    $('#library .' + emphasisClass).removeClass(emphasisClass);
-    if (songId !== undefined) { $('#' + songIdPrefix + songId).addClass(emphasisClass); }
-  };
-
   // Player event hooks
   var percentage = 0;
   player.bind('play', function() {
@@ -256,7 +308,7 @@ $(window).load(function() {
     pauseButton.setPlaying();
 
       // Set the current active row
-    activateRow(this.state.id);
+    songLibrary.activateSong(this.state.id);
 
     // Set the player's new max-time, start/continue updating the progress
     playProgress.setMaxTime(this.state.time_max);
@@ -270,7 +322,7 @@ $(window).load(function() {
     playProgress.setPercentage(0);
 
     // Deactivate all rows
-    activateRow();
+    songLibrary.activateSong();
   }).bind('unpause', function() {
     // Switch the pause button
     pauseButton.setPlaying();
@@ -300,10 +352,10 @@ $(window).load(function() {
       playProgress.autoUpdate();
 
       // Set the current active row
-      activateRow(this.state.id);
+      songLibrary.activateSong(this.state.id);
     } else {
       // Clear all active rows
-      activateRow();
+      songLibrary.activateSong();
     }
 
     // Update the play progress' percentage
@@ -372,43 +424,9 @@ $(window).load(function() {
 
   // Load songs
   loadSongs(function(data) {
-    // Append songs to the #library
-    var library = $('#library');
     $.each(data.songs, function(_, song) {
-      var missing = 'Unknown', html = '' +
-        '<td>'   +  (song.artist  ||  missing)     +
-        '</td>'  +  '<td>'        +   (song.album  ||  missing)  +  '</td>';
-
-      // Title is either given or file basename without extension
-      var title = (song.title) ? song.title : function(str) {
-        str = str.substring(str.lastIndexOf('/') + 1, str.length);
-        return str.substring(0, str.lastIndexOf('.'));
-      } (song.path);
-      html = '<td>' + title + '</td>' + html;
-
-      // Create the DOM element
-      var row = $('<tr id="' + songIdPrefix + song.id + '"></tr>');
-      row.html(html);
-
-      // Hook events
-      row.on('click', function() {
-        var id = $(this).attr('id').substring(songIdPrefix.length);
-        player.play(id);
-        songMenu.close();
-      }).on('contextmenu', function(e) {
-        // Disable context menu
-        e.preventDefault();
-
-        // Song selected
-        var songId = $(this).attr('id').substring(songIdPrefix.length);
-        songMenu.setSongId(songId);
-
-        // Toggle dropdown and move to cursor position
-        songMenu.open(e.pageX, e.pageY);
-      });
-
-      // Add to the library container
-      library.append(row);
+      // Append song to the library
+      songLibrary.addSong(song);
 
       // Update load progress
       loadProgress.setCount(data.count);
@@ -419,18 +437,6 @@ $(window).load(function() {
     // Loading finished
     loadProgress.finish();
   });
-
-  // Shortcut to go to current
-  $(document).on('keypress', function(e) {
-    if (String.fromCharCode(e.charCode || e.keyCode) == 'M')
-    {
-      var currentRow = $('#library tr.warning');
-      if (currentRow) {
-        var topOffset = currentRow.offset().top - $(window).height() / 2;
-        $('html, body').animate({ 'scrollTop': topOffset }, 1000);
-      }
-    }
-  }); // TODO clean this up
 });
 
 // vim: ft=javascript et sw=2 sts=2
