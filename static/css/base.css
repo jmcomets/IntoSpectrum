@@ -101,3 +101,7 @@
     margin: 7px;
     right: 0;
 }
+
+#youtube-loading {
+    display: none;
+}

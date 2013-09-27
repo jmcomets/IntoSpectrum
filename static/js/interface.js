@@ -80,10 +80,16 @@ $(window).load(function() {
 
   // Search on Youtube
   var youtubeSearch = $init('#youtube-search-results', {
-    'search': function(query) {
+    'init': function() {
+      this.loader = $('#youtube-loading');
+    }, 'search': function(query) {
       var url = 'https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + encodeURI(query),
         that = this;
-      $.getJSON(url, function(data) { that._handleResults(data); });
+      that.loader.show();
+      $.getJSON(url, function(data) {
+        that.loader.hide();
+        that._handleResults(data);
+      });
     }, '_handleResults': function(data) {
       var that = this;
       this.$.html('');
