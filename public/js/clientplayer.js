@@ -155,5 +155,3 @@ ClientPlayer.prototype.playYoutube = function(url) {
   this.checkSocketConnection();
   this._socket.emit('play_youtube', encodeURI(url));
 };
-
-// vim: ft=javascript et sw=2 sts=2

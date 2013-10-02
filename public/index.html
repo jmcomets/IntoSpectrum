@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html>
-  <head>
+  <head ng-app="IntoSpectrum">
     <title>Library | IntoSpectrum</title>
     <meta charset="utf-8">
     <meta name="author" content="Jean-Marie Comets, Pierre Turpin">
     <meta name="description" content="IntoSpectrum, a web-exposed server audio player">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="/components/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="/components/jquery-ui/ui/minified/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="/components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!--Vendor CSS-->
     <link type="text/css" rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.min.css" media="screen">
     <link type="text/css" rel="stylesheet" href="/components/font-awesome/css/font-awesome.min.css" media="screen">
     <link type="text/css" rel="stylesheet" href="/components/jquery-ui/themes/base/minified/jquery-ui.min.css" media="screen">
+
+    <!--App CSS-->
     <link type="text/css" rel="stylesheet" href="/css/base.css" media="screen">
-    <script type="text/javascript" src="/js/microevent.js"></script>
-    <script type="text/javascript" src="/js/clientplayer.js"></script>
-    <script type="text/javascript" src="/js/interface.js"></script>
   </head>
   <body>
+    <!--Player-->
     <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="navbar-header"><a href="#" class="navbar-brand">IntoSpectrum</a>
-        <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+      <div class="navbar-header">
+        <a href="#" class="navbar-brand">IntoSpectrum</a>
+        <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
       </div>
       <div class="navbar-collapse collapse">
         <div class="nav navbar-text progress col-md-7">
@@ -29,11 +33,22 @@
         </div>
         <form action="#" class="navbar-form form-inline col-md-1">
           <div class="btn-group">
-            <button id="previous-control" type="button" class="btn btn-default"><span class="icon-step-backward"></span></button>
-            <button id="pause-control" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play"></span><span style="display: none;" class="glyphicon glyphicon-pause"></span></button>
-            <button id="stop-control" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop"></span></button>
-            <button id="next-control" type="button" class="btn btn-default"><span class="icon-step-forward"></span></button>
-            <button id="random-control" type="button" class="btn btn-default"><span class="glyphicon glyphicon-random"></span></button>
+            <button id="previous-control" type="button" class="btn btn-default">
+              <span class="icon-step-backward"></span>
+            </button>
+            <button id="pause-control" type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-play"></span>
+              <span style="display: none;" class="glyphicon glyphicon-pause"></span>
+            </button>
+            <button id="stop-control" type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-stop"></span>
+            </button>
+            <button id="next-control" type="button" class="btn btn-default">
+              <span class="icon-step-forward"></span>
+            </button>
+            <button id="random-control" type="button" class="btn btn-default">
+              <span class="glyphicon glyphicon-random"></span>
+            </button>
           </div>
         </form>
         <div class="col-md-1">
@@ -41,14 +56,10 @@
         </div>
       </div>
     </nav>
-    <div id="wrap">
-      <div id="library-loading" class="col-md-6 alert alert-dismissable">
-        <a href="#" data-dismiss="alert" aria-hidden="true" class="close">&times;</a>
-        <h4>Library loading...</h4>
-        <div class="progress">
-          <div role="progressbar" class="progress-bar"></div>
-        </div><em id="library-loading-current"></em>
-      </div>
+    <div class="navbar-fixed-push"></div>
+
+    <!--Sidebar-->
+    <div ng-controller="SidebarCtrl">
       <div class="col-md-3">
         <div data-spy="affix" role="complementary" class="col-md-3 tabbable">
           <ul class="nav nav-tabs">
@@ -64,7 +75,9 @@
                 <div class="input-group">
                   <input type="text" role="search" placeholder="Search on Youtube" class="search-youtube form-control">
                   <div class="input-group-btn">
-                    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                    <button type="button" class="btn btn-default">
+                      <span class="glyphicon glyphicon-search"></span>
+                    </button>
                   </div>
                 </div>
               </form>
@@ -81,19 +94,33 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!--Library-->
+    <div ng-controller="LibraryCtrl">
+      <div ng-show="loading" id="library-loading" class="col-md-6 alert alert-dismissable">
+        <a href="#" data-dismiss="alert" aria-hidden="true" class="close">&times;</a>
+        <h4>Library loading...</h4>
+        <div class="progress">
+          <div role="progressbar" class="progress-bar"></div>
+        </div>
+        <em id="library-loading-current"></em>
+      </div>
       <div class="col-md-9">
         <table class="table table-hover table-condensed">
           <tbody id="library"></tbody>
         </table>
       </div>
+      <div id="song-context-menu" class="dropdown">
+        <ul role="menu" class="dropdown-menu">
+          <li><a id="song-action-play" href="#" class="disabled"><i class="icon-play">Play</i></a></li>
+          <li><a id="song-action-next" href="#" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
+          <li><a id="song-action-queue" href="#" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
+        </ul>
+      </div>
     </div>
-    <div id="song-context-menu" class="dropdown">
-      <ul role="menu" class="dropdown-menu">
-        <li><a id="song-action-play" href="#" class="disabled"><i class="icon-play">Play</i></a></li>
-        <li><a id="song-action-next" href="#" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
-        <li><a id="song-action-queue" href="#" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
-      </ul>
-    </div>
+
+    <!--Disconnected notice-->
     <div id="disconnected-modal" class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -106,5 +133,20 @@
         </div>
       </div>
     </div>
+
+    <!--Vendor JS-->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/components/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/components/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/components/angular/angular.min.js"></script>
+
+    <!--App JS-->
+    <script type="text/javascript" src="/js/microevent.js"></script>
+    <script type="text/javascript" src="/js/clientplayer.js"></script>
+    <!--<script type="text/javascript" src="/js/main.js"></script>-->
+    <!--<script type="text/javascript" src="/js/library.js"></script>-->
+    <!--<script type="text/javascript" src="/js/sidebar.js"></script>-->
+    <script type="text/javascript" src="/js/interface.js"></script>
   </body>
 </html>

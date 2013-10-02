@@ -1,6 +1,5 @@
-#wrap {
-    margin-top: 70px;
-}
+/* Fix for the fixed navbar's float */
+.navbar-fixed-push { height: 70px; }
 
 /* Volume */
 

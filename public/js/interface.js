@@ -438,5 +438,3 @@ $(window).load(function() {
     loadProgress.finish();
   });
 });
-
-// vim: ft=javascript et sw=2 sts=2
