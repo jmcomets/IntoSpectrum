@@ -98,11 +98,11 @@
 
     <!--Library-->
     <div ng-controller="LibraryCtrl" ng-init="init()">
-      <div ng-show="loading" id="library-loading" class="col-md-6 alert alert-dismissable">
+      <div ng-show="loader.running" id="library-loading" class="col-md-6 alert alert-dismissable">
         <a href="#" data-dismiss="alert" aria-hidden="true" class="close">&times;</a>
         <h4>Library loading...</h4>
         <div class="progress">
-          <div role="progressbar" class="progress-bar"></div>
+          <div ng-style="{ width: loader.percentage + '%' }" role="progressbar" class="progress-bar"></div>
         </div>
       </div>
       <div class="col-md-9">
