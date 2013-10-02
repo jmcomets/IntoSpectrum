@@ -37,7 +37,7 @@ except ImportError:
     sys.exit(1)
 
 # Settings
-root = os.path.dirname(os.path.abspath(__file__))
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def get_settings(name):
     """
     Helper returning the settings for the given name, searching for

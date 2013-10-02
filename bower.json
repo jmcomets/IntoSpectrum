@@ -13,14 +13,13 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "bower_components"
   ],
   "dependencies": {
     "jquery": "~1.9.1",
     "jquery-ui": "~1.10.3",
     "font-awesome": "~3.2.1",
-    "bootstrap": "~3.0.0"
+    "bootstrap": "~3.0.0",
+    "angularjs": "~1.1.0"
   }
 }
