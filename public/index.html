@@ -104,7 +104,6 @@
         <div class="progress">
           <div role="progressbar" class="progress-bar"></div>
         </div>
-        <em id="library-loading-current"></em>
       </div>
       <div class="col-md-9">
         <table class="table table-hover table-condensed">
@@ -117,18 +116,17 @@
           </tbody>
         </table>
       </div>
-      <div ng-show="menu.visible" ng-style="{top: menu.top, left: menu.left}"
-        id="song-context-menu" class="dropdown" style="position:absolute">
+      <div ng-show="menu.visible" ng-style="{top: menu.top, left: menu.left}" class="dropdown" style="position:absolute">
         <ul role="menu" class="dropdown-menu">
-          <li><a ng-click="menu.play()" id="song-action-play" href="#" class="disabled"><i class="icon-play">Play</i></a></li>
-          <li><a ng-click="menu.pushNext()" id="song-action-next" href="#" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
-          <li><a ng-click="menu.pushQueue()" id="song-action-queue" href="#" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
+          <li><a href="#play" ng-click="menu.play()" class="disabled"><i class="icon-play">Play</i></a></li>
+          <li><a href="#push-as-next" ng-click="menu.pushNext()" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
+          <li><a href="#push-to-queue" ng-click="menu.pushQueue()" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
         </ul>
       </div>
     </div>
 
     <!--Disconnected notice-->
-    <div id="disconnected-modal" class="modal fade">
+    <div class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
