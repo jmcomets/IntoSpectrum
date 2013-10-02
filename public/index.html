@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html>
-  <head ng-app="IntoSpectrum">
+<html ng-app="IntoSpectrum">
+  <head>
     <title>Library | IntoSpectrum</title>
     <meta charset="utf-8">
     <meta name="author" content="Jean-Marie Comets, Pierre Turpin">
@@ -97,7 +97,7 @@
     </div>
 
     <!--Library-->
-    <div ng-controller="LibraryCtrl">
+    <div ng-controller="LibraryCtrl" ng-init="init()">
       <div ng-show="loading" id="library-loading" class="col-md-6 alert alert-dismissable">
         <a href="#" data-dismiss="alert" aria-hidden="true" class="close">&times;</a>
         <h4>Library loading...</h4>
@@ -108,7 +108,13 @@
       </div>
       <div class="col-md-9">
         <table class="table table-hover table-condensed">
-          <tbody id="library"></tbody>
+          <tbody id="library">
+            <tr ng-repeat="song in songs">
+              <td>{{song.title}}</td>
+              <td>{{song.artist || "Unknown"}}</td>
+              <td>{{(song.album) || "Unknown"}}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
       <div id="song-context-menu" class="dropdown">
@@ -144,9 +150,9 @@
     <!--App JS-->
     <script type="text/javascript" src="/js/microevent.js"></script>
     <script type="text/javascript" src="/js/clientplayer.js"></script>
-    <!--<script type="text/javascript" src="/js/main.js"></script>-->
-    <!--<script type="text/javascript" src="/js/library.js"></script>-->
-    <!--<script type="text/javascript" src="/js/sidebar.js"></script>-->
-    <script type="text/javascript" src="/js/interface.js"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/library.js"></script>
+    <script type="text/javascript" src="/js/sidebar.js"></script>
+    <!--<script type="text/javascript" src="/js/interface.js"></script>-->
   </body>
 </html>
