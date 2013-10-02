@@ -33,4 +33,34 @@ function LibraryCtrl($scope, $http) {
       //$scope.$apply();
     });
   };
+
+  // Play a song
+  $scope.play = function(song) {
+    player.play(song.id);
+  };
+
+  // Right click
+  $scope.menu = {
+    'song': {},
+    'visible': false,
+    'top': 0, 'left': 0,
+    'open': function(evt, song) {
+      this.song = song;
+      this.visible = true;
+      this.top = evt.pageY;
+      this.left = evt.pageX;
+    }, 'close': function() {
+      this.visible = false;
+      this.song = {};
+    }, 'play': function() {
+      player.play(this.song.id);
+      this.close();
+    }, 'pushQueue': function() {
+      player.addToPlayQueue(this.song.id);
+      this.close();
+    }, 'pushNext': function() {
+      player.addAsNext(this.song.id);
+      this.close();
+    }
+  };
 }

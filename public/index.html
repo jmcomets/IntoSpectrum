@@ -109,7 +109,7 @@
       <div class="col-md-9">
         <table class="table table-hover table-condensed">
           <tbody id="library">
-            <tr ng-repeat="song in songs">
+            <tr ng-click="play(song)" ng-right-click="menu.open($event, song)" ng-repeat="song in songs">
               <td>{{song.title}}</td>
               <td>{{song.artist || "Unknown"}}</td>
               <td>{{(song.album) || "Unknown"}}</td>
@@ -117,11 +117,12 @@
           </tbody>
         </table>
       </div>
-      <div id="song-context-menu" class="dropdown">
+      <div ng-show="menu.visible" ng-style="{top: menu.top, left: menu.left}"
+        id="song-context-menu" class="dropdown" style="position:absolute">
         <ul role="menu" class="dropdown-menu">
-          <li><a id="song-action-play" href="#" class="disabled"><i class="icon-play">Play</i></a></li>
-          <li><a id="song-action-next" href="#" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
-          <li><a id="song-action-queue" href="#" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
+          <li><a ng-click="menu.play()" id="song-action-play" href="#" class="disabled"><i class="icon-play">Play</i></a></li>
+          <li><a ng-click="menu.pushNext()" id="song-action-next" href="#" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
+          <li><a ng-click="menu.pushQueue()" id="song-action-queue" href="#" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
         </ul>
       </div>
     </div>
@@ -149,7 +150,7 @@
 
     <!--App JS-->
     <script type="text/javascript" src="/js/microevent.js"></script>
-    <script type="text/javascript" src="/js/clientplayer.js"></script>
+    <script type="text/javascript" src="/js/player.js"></script>
     <script type="text/javascript" src="/js/main.js"></script>
     <script type="text/javascript" src="/js/library.js"></script>
     <script type="text/javascript" src="/js/sidebar.js"></script>

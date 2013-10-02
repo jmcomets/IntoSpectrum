@@ -102,5 +102,7 @@ player = {
     this._socket.emit('play_youtube', encodeURI(url));
   }
 };
-// make ClientPlayer an event emitter
-MicroEvent.mixin(ClientPlayer);
+// make player an event emitter
+MicroEvent.mixin(player);
+// connect socket
+player.connect('/player');
