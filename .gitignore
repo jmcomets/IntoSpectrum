@@ -1,8 +1,8 @@
 # Node modules
 node_modules/*
 
-# Bower modules
-bower_components/*
+# Bower components
+public/components/*
 
 # Media directory
 media/*
@@ -12,9 +12,6 @@ venv/*
 
 # Build directory
 build/*
-
-# Release static files
-public/*
 
 # NPM debug log
 **/.npm-debug.log

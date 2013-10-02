@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "install": "./node_modules/.bin/bower install",
-    "start": "./app"
+    "start": "node src/app.js"
   }, "dependencies": {
     "express": "~3.3.8",
     "socket.io": "~0.9.16",

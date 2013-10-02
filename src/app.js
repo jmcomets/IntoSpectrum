@@ -26,9 +26,8 @@ app.set('port', process.env.PORT || 3000);
 
 // Static files
 var staticFilesDir = path.join(__dirname, '..', 'public');
+console.log(staticFilesDir);
 app.use(express.static(staticFilesDir));
-// ...static files via bower
-app.use('/components', express.static(path.join(__dirname, 'bower_components')));
 
 // Favicon
 var iconFile = path.join(staticFilesDir, 'img', 'favicon.ico');
