@@ -1,10 +1,5 @@
 var Song = require('../models').Song;
 
-// Home page
-exports.index = function(req, res) {
-  res.render('index');
-};
-
 // Library
 exports.library = function(req, res) {
   var cursor = (parseInt(req.params.cursor) || 1) - 1,

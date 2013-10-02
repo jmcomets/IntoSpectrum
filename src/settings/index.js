@@ -1,7 +1,7 @@
 var path = require('path'),
     db = require('./database.json'),
     media = require('./media.json'),
-    root = path.join(__dirname, '..');
+    root = path.join(__dirname, '..', '..');
 
 // Database
 var Sequelize = exports.Sequelize = require('sequelize');
@@ -24,15 +24,5 @@ exports.player = {
 
 // Watchdog
 exports.watchdog = require('./watchdog.json');
-
-// Views
-exports.views = {
-  'extension': 'html',
-  'path': path.join(root, 'views'),
-  'options': {
-    'layout': false
-  }, 'cache': false,
-  'engine': 'jade'
-};
 
 // vim: ft=javascript et sw=2 sts=2

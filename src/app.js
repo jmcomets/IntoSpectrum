@@ -24,19 +24,15 @@ debugOnly(function() {
 // All environments
 app.set('port', process.env.PORT || 3000);
 
-// Views
-app.set('views', settings.views.path);
-app.set('view options', settings.views.options);
-app.set('view cache', settings.views.cache);
-app.set('view engine', settings.views.engine);
-
 // Static files
-app.use(express.static(path.join(__dirname, 'static')));
+var staticFilesDir = path.join(__dirname, '..', 'public');
+app.use(express.static(staticFilesDir));
 // ...static files via bower
 app.use('/components', express.static(path.join(__dirname, 'bower_components')));
 
 // Favicon
-app.use(express.favicon(path.join(__dirname, 'static/img/favicon.ico')));
+var iconFile = path.join(staticFilesDir, 'img', 'favicon.ico');
+app.use(express.favicon(iconFile));
 
 // Other configuration options
 app.use(express.logger('dev'));
@@ -49,13 +45,16 @@ var network = require('./network');
 
 // Routes
 var routes = network.routes;
-app.get('/', routes.index);
+// ...home page -> static HTML page
+app.get('/', function(req, res) {
+  res.sendFile(path.join(staticFilesDir, 'index.html'));
+});
+// ...library loading
 app.get('/library/?(:cursor)?', routes.library);
 
 // Start server
 var http = require('http');
 var server = http.createServer(app);
-
 // ...player
 var listener = new network.player.listener(server);
 
