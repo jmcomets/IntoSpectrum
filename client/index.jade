@@ -58,14 +58,12 @@ head
         div.tab-content
           //- Playlist
           div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
-            h3(ng-show='!playlist.length')
-              div.text-center
-                | Empty playlist
-              div.col-md-1
-              small
-                | Hint:
-                | Ctrl-click a song adds it to the playlist
+            h4(ng-show='!playlist.length')
+              p.text-center
+                | Playlist is empty
             ul#playlist.list-group
+              li.list-group-item(ng-repeat='song in playlist')
+                | {{song.title}}
           //- Youtube
           div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
             form.navbar-form(role='search', ng-submit='search()')
@@ -111,3 +109,5 @@ head
 
     //- App JS
     script(type='text/javascript', src='/js/main.js')
+    script(type='text/javascript')
+      $(window).load(function() { $('#volume-progress').slider(); });
