@@ -10,7 +10,6 @@
     "socket.io": "~0.9.16",
     "sequelize": "~2.0.0",
     "mysql": "~2.0.0",
-    "jade": "~0.35.0",
     "bower": "~1.2.6",
     "grunt": "*",
     "grunt-cli": "*",
