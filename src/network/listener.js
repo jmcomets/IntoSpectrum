@@ -1,7 +1,7 @@
 var SocketIO = require('socket.io'),
     Player = require('../player');
 
-var listener = exports.listener = function(server) {
+var listener = module.exports = function(server) {
   var self = this;
 
   // To pause the first music

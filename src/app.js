@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Module base dependencies
 var express = require('express'),
     path = require('path')
@@ -44,10 +42,6 @@ var network = require('./network');
 
 // Routes
 var routes = network.routes;
-// ...home page -> static HTML page
-app.get('/', function(req, res) {
-  res.sendFile(path.join(staticFilesDir, 'index.html'));
-});
 // ...library loading
 app.get('/library/?(:cursor)?', routes.library);
 
@@ -55,7 +49,7 @@ app.get('/library/?(:cursor)?', routes.library);
 var http = require('http');
 var server = http.createServer(app);
 // ...player
-var listener = new network.player.listener(server);
+var listener = new network.Listener(server);
 
 // Startup
 var startup = function() {

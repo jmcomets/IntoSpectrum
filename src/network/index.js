@@ -2,4 +2,4 @@
 exports.routes = require('./routes');
 
 // Player networking
-exports.player = require('./player');
+exports.Listener = require('./listener');
