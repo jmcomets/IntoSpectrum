@@ -27,7 +27,7 @@ head
       //- Player
       div.navbar-collapse.collapse(ng-controller='PlayerCtrl')
         div.nav.navbar-text.progress.col-md-7
-          #play-progress.progress-bar(role='progressbar')
+          div#play-progress.progress-bar(role='progressbar')
         form.navbar-form.form-inline.col-md-1
           div.btn-group
             button.btn.btn-default(ng-click='previous()', type='button')
@@ -42,47 +42,50 @@ head
             button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
               span.glyphicon.glyphicon-random
         div.col-md-1
-          #volume-progress.slider
+          div#volume-progress.slider
     div.navbar-fixed-push
 
     //- Sidebar
-    div(ng-controller='SidebarCtrl')
-      div.col-md-3
-        div.col-md-3.tabbable(data-spy='affix', role='complementary')
-          ul.nav.nav-tabs
-            li.active
-              a(href='#tab-playlist', data-toggle='tab')
-                i.icon-list
-            li
-              a(href='#tab-youtube', data-toggle='tab')
-                i.icon-youtube
-          div.tab-content
-            #tab-playlist.tab-pane.active
-              ul#playlist.list-group
-            #tab-youtube.tab-pane
-              form.navbar-form(role='search', onsubmit='return false;')
-                div.input-group
-                  input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
-                  div.input-group-btn
-                    button.btn.btn-default(type='button')
-                      span.glyphicon.glyphicon-search
-              #youtube-search-results
-                #youtube-loading
-                  div.col-md-2
-                  div.col-md-2
-                    img(src='/img/loader.gif')
-                  div.col-md-2
-                    h4 Searching...
+    div.col-md-3
+      div.col-md-3.tabbable(data-spy='affix', role='complementary')
+        ul.nav.nav-tabs
+          li.active
+            a(href='#tab-playlist', data-toggle='tab')
+              i.icon-list
+          li
+            a(href='#tab-youtube', data-toggle='tab')
+              i.icon-youtube
+        div.tab-content
+          //- Playlist
+          div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
+            h3(ng-show='!playlist.length')
+              div.text-center
+                | Empty playlist
+              div.col-md-1
+              small
+                | Hint:
+                | Ctrl-click a song adds it to the playlist
+            ul#playlist.list-group
+          //- Youtube
+          div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
+            form.navbar-form(role='search', ng-submit='search()')
+              div.input-group
+                input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
+                div.input-group-btn
+                  button.btn.btn-default(type='button')
+                    span.glyphicon.glyphicon-search
+            div#youtube-search-results
+              div#youtube-loading
+                div.col-md-2
+                div.col-md-2
+                  img(src='/img/loader.gif')
+                div.col-md-2
+                  h4 Searching...
 
     //- Library
     div(ng-controller='LibraryCtrl', ng-init='init()')
-      #library-loading.col-md-6.alert.alert-dismissable(ng-show='loader.running')
-        a.close(href='#', data-dismiss='alert', aria-hidden='true') &times;
-        h4 Library loading...
-        div.progress
-          div.progress-bar(ng-style='{ width: loader.percentage + "%" }', role='progressbar')
       div.col-md-9
-        table.table.table-hover.table-condensed
+        table#library.table.table-hover.table-condensed(ng-hide='loading')
           thead
             tr
               th
@@ -91,11 +94,13 @@ head
                 a(href='#', ng-click='predicate = "artist"; reverse = !reverse') Artist
               th
                 a(href='#', ng-click='predicate = "album"; reverse = !reverse') Album
-          tbody#library
+          tbody
             tr(ng-click='play(song)', ng-class='{ warning: song.id == currentSongId }', ng-repeat='song in songs | orderBy:predicate:reverse')
               td {{ song.title }}
               td {{ song.artist }}
               td {{ song.album }}
+        div.text-center(ng-show='loading')
+          img(src='/img/loader.gif')
 
     //- Vendor JS
     script(type='text/javascript', src='/socket.io/socket.io.js')

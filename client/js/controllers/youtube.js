@@ -1,0 +1,2 @@
+function YoutubeCtrl($scope) {
+}

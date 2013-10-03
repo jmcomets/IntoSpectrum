@@ -4,16 +4,14 @@ function LibraryCtrl($scope, $player, $library) {
 
   // List of song models
   $scope.songs = [];
-  // ...current playing song
-  $scope.currentSong = {};
-  // ...song sorting
-  $scope.songSort = '';
+  // ...current playing song (database id)
+  $scope.currentSongId = -1;
 
   // Library initialization
   $scope.init = function() {
     $library.getSongs().then(function(songs) {
-      $scope.songs = songs;
       $scope.loading = false;
+      $scope.songs = songs;
     });
   };
 

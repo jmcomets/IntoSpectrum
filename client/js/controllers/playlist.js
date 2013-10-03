@@ -1,0 +1,2 @@
+function PlaylistCtrl($scope, $player) {
+}
