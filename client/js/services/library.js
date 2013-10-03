@@ -1,4 +1,4 @@
-app.service('libraryService', function($rootScope, $http) {
+app.service('$library', function($rootScope, $http) {
   return {
     getSongs: function(step, end) {
       var loadSongs = function(c) {

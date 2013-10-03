@@ -1,21 +1,21 @@
-function PlayerCtrl($scope) {
+function PlayerCtrl($scope, $player) {
   $scope.random = true;
   $scope.playing = false;
   $scope.volume = 0;
 
   $scope.next = function() {
     if ($scope.playing == false) { $scope.playing = true; }
-    player.playNext();
+    $player.playNext();
   };
 
   $scope.previous = function() {
     if ($scope.playing == false) { $scope.playing = true; }
-    player.playPrevious();
+    $player.playPrevious();
   };
 
   $scope.togglePause = function() {
     $scope.playing = 1 - $scope.playing;
-    player.togglePause();
+    $player.togglePause();
   };
 
   $scope.toggleRandom = function() {
@@ -23,7 +23,7 @@ function PlayerCtrl($scope) {
     // TODO actually change the random mode
   };
 
-  player.bind('info', function(state) {
+  $player.bind('info', function(state) {
     $scope.volume = this.state.volume;
     $scope.playing = this.state.playing;
     //$scope.random = this.state.random;

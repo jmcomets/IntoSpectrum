@@ -1,4 +1,4 @@
-function LibraryCtrl($scope, libraryService) {
+function LibraryCtrl($scope, $player, $library) {
   // Loading state
   $scope.loading = true
 
@@ -11,7 +11,7 @@ function LibraryCtrl($scope, libraryService) {
 
   // Library initialization
   $scope.init = function() {
-    libraryService.getSongs(function(songs) {
+    $library.getSongs(function(songs) {
       $scope.songs = $scope.songs.concat(songs);
     }, function() {
       $scope.loading = false;
@@ -20,12 +20,12 @@ function LibraryCtrl($scope, libraryService) {
 
   // Play a song
   $scope.play = function(song) {
-    player.play(song.id);
+    $player.play(song.id);
     $scope.currentSongId = song.id;
   };
 
   // Updating
-  player.bind('info', function() {
+  $player.bind('info', function() {
     var state = this.state;
     $scope.$safeApply(function() {
       $scope.currentSongId = state.id;
