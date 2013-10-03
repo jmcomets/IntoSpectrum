@@ -7,7 +7,7 @@
     "Pierre Turpin <pierre.turpin@gmail.com>"
   ],
   "description": "IntoSpectrum, a server-side audio player exposed via a web interface",
-  "main": "node app.js",
+  "main": "node server/app.js",
   "license": "MIT",
   "private": true,
   "ignore": [

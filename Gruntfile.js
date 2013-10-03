@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   var files = {
-    js: ['src/static/js/**/*.js'],
-    css: ['src/static/css/**/*.css'],
+    js: ['client/js/**/*.js'],
+    css: ['client/css/**/*.css'],
   };
 
   grunt.initConfig({
