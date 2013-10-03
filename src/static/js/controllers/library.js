@@ -43,7 +43,9 @@ function LibraryCtrl($scope, $http) {
 
   // Updating
   player.bind('info', function() {
-    $scope.currentSongId = this.state.id;
-    $scope.$digest();
+    var state = this.state;
+    $scope.safeApply(function() {
+      $scope.currentSongId = state.id;
+    });
   });
 }
