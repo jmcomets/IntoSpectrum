@@ -1,15 +1,17 @@
-app.service('$library', function($rootScope, $http) {
+app.service('$library', function($rootScope, $http, $q) {
   return {
-    getSongs: function(step, end) {
-      var loadSongs = function(c) {
+    getSongs: function() {
+      var deferred = $q.defer(),
+        songs = [], loadSongs = function(c) {
         var cursor = parseInt(c, 10) || 1;
         $http.get('/library/' + cursor).success(function(data) {
-          step(data.songs);
+          songs = songs.concat(data.songs);
           if (data.next) { loadSongs(cursor + 1); }
-          else { end(); }
+          else { $rootScope.$safeApply(function() { deferred.resolve(songs); }); }
         });
       };
       loadSongs();
+      return deferred.promise;
     }
   };
 });

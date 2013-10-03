@@ -11,9 +11,8 @@ function LibraryCtrl($scope, $player, $library) {
 
   // Library initialization
   $scope.init = function() {
-    $library.getSongs(function(songs) {
-      $scope.songs = $scope.songs.concat(songs);
-    }, function() {
+    $library.getSongs().then(function(songs) {
+      $scope.songs = songs;
       $scope.loading = false;
     });
   };
