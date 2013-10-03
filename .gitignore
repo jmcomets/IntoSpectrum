@@ -1,12 +1,8 @@
 # Node modules
 node_modules/*
 
-# Bower components
-public/components/*
-
-# Concatenated css/js
-public/css/main.css
-public/js/main.js
+# Public directory
+public/*
 
 # Media directory
 media/*

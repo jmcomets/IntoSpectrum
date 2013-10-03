@@ -1,40 +1,81 @@
+var path = require('path');
+
 module.exports = function(grunt) {
+  // Directories
+  var dirs = {
+    client: 'client',
+    public: 'public',
+  };
+  // ...files
   var files = {
-    js: ['client/js/**/*.js'],
-    css: ['client/css/**/*.css'],
+    img: {
+      src: path.join(dirs.client, 'img'),
+      dist: path.join(dirs.public, 'img')
+    }, js: {
+      all: [path.join(dirs.client, 'js', '**/*.js')],
+      dist: path.join(dirs.public, 'js', 'main.js')
+    }, css: {
+      all: [path.join(dirs.client, 'css', '**/*.css')],
+      dist: path.join(dirs.public, 'css', 'main.css')
+    },
+    jade: { index: path.join(dirs.client, 'index.jade') },
+    html: { index: path.join(dirs.public, 'index.html') }
   };
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    concat: {
+    pkg: grunt.file.readJSON(path.join(__dirname, 'package.json')),
+    clean: [dirs.public],
+    copy: {
+      img: {
+        expand: true,
+        cwd: files.img.src,
+        src: '**',
+        dest: files.img.dist,
+        flatten: true,
+      }
+    }, concat: {
       options: {
         separator: ';'
       }, dist: {
-        src: files.js,
-        dest: 'public/js/main.js'
+        src: files.js.all,
+        dest: files.js.dist
       }
     }, cssmin: {
-      minify: {
-        src: files.css,
-        dest: 'public/css/main.css'
+      dist: {
+        src: files.css.all,
+        dest: files.css.dist
+      }
+    }, jade: {
+      compile: {
+        files: function() {
+          var ret = {};
+          ret[files.html.index] = files.jade.index;
+          return ret;
+        }()
       }
     }, watch: {
       js: {
-        files: files.js,
+        files: files.js.all,
         tasks: ['concat'],
         interrupt: true
       }, css: {
-        files: files.css,
+        files: files.css.all,
         tasks: ['cssmin'],
         interrupt: true
+      }, jade: {
+        files: [files.jade.index],
+        tasks: ['jade']
       }
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-jade');
 
-  grunt.registerTask('default', ['concat', 'cssmin']);
+  grunt.registerTask('default', ['copy', 'concat', 'cssmin', 'jade']);
 
   // Development only
   grunt.loadNpmTasks('grunt-contrib-watch');

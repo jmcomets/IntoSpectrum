@@ -13,9 +13,12 @@
     "bower": "~1.2.6",
     "grunt": "*",
     "grunt-cli": "*",
+    "grunt-contrib-copy": "*",
     "grunt-contrib-concat": "*",
-    "grunt-contrib-cssmin": "*"
+    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-jade": "*"
   }, "devDependencies": {
+    "grunt-contrib-clean": "*",
     "grunt-contrib-watch": "*"
   }
 }
