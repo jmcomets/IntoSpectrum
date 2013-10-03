@@ -16,7 +16,6 @@
     <link type="text/css" rel="stylesheet" href="/css/base.css" media="screen">
   </head>
   <body>
-    <!--Player-->
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="navbar-header">
         <a href="#" class="navbar-brand">IntoSpectrum</a>
@@ -27,26 +26,28 @@
           <span class="icon-bar"></span>
         </button>
       </div>
-      <div class="navbar-collapse collapse">
+
+      <!--Player-->
+      <div ng-controller="PlayerCtrl" class="navbar-collapse collapse">
         <div class="nav navbar-text progress col-md-7">
           <div id="play-progress" role="progressbar" class="progress-bar"></div>
         </div>
-        <form action="#" class="navbar-form form-inline col-md-1">
+        <form class="navbar-form form-inline col-md-1">
           <div class="btn-group">
-            <button id="previous-control" type="button" class="btn btn-default">
+            <button ng-click="previous()" type="button" class="btn btn-default">
               <span class="icon-step-backward"></span>
             </button>
-            <button id="pause-control" type="button" class="btn btn-default">
-              <span class="glyphicon glyphicon-play"></span>
-              <span style="display: none;" class="glyphicon glyphicon-pause"></span>
+            <button ng-click="togglePause()" type="button" class="btn btn-default">
+              <span ng-hide="playing" class="glyphicon glyphicon-play"></span>
+              <span ng-show="playing" class="glyphicon glyphicon-pause"></span>
             </button>
-            <button id="stop-control" type="button" class="btn btn-default">
+            <button ng-click="stop()" type="button" class="btn btn-default">
               <span class="glyphicon glyphicon-stop"></span>
             </button>
-            <button id="next-control" type="button" class="btn btn-default">
+            <button ng-click="next()" type="button" class="btn btn-default">
               <span class="icon-step-forward"></span>
             </button>
-            <button id="random-control" type="button" class="btn btn-default">
+            <button ng-click="toggleRandom()" ng-class="{ active: random }" type="button" class="btn btn-default">
               <span class="glyphicon glyphicon-random"></span>
             </button>
           </div>
@@ -125,7 +126,7 @@
       </div>
     </div>
 
-    <!--Disconnected notice-->
+    <!--Connection-->
     <div class="modal fade">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -150,8 +151,9 @@
     <script type="text/javascript" src="/js/microevent.js"></script>
     <script type="text/javascript" src="/js/player.js"></script>
     <script type="text/javascript" src="/js/main.js"></script>
-    <script type="text/javascript" src="/js/library.js"></script>
-    <script type="text/javascript" src="/js/sidebar.js"></script>
+    <script type="text/javascript" src="/js/controllers/player.js"></script>
+    <script type="text/javascript" src="/js/controllers/library.js"></script>
+    <script type="text/javascript" src="/js/controllers/sidebar.js"></script>
     <!--<script type="text/javascript" src="/js/interface.js"></script>-->
   </body>
 </html>
