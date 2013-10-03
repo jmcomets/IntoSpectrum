@@ -7,6 +7,10 @@ function LibraryCtrl($scope, $http) {
 
   // List of song models
   $scope.songs = [];
+  // ...current playing song
+  $scope.currentSong = {};
+  // ...song sorting
+  $scope.songSort = '';
 
   // Library initialization
   $scope.init = function() {
@@ -34,30 +38,12 @@ function LibraryCtrl($scope, $http) {
   // Play a song
   $scope.play = function(song) {
     player.play(song.id);
+    $scope.currentSongId = song.id;
   };
 
-  // Right click
-  $scope.menu = {
-    song: {},
-    visible: false,
-    top: 0, left: 0,
-    open: function(evt, song) {
-      this.song = song;
-      this.visible = true;
-      this.top = evt.pageY;
-      this.left = evt.pageX;
-    }, close: function() {
-      this.visible = false;
-      this.song = {};
-    }, play: function() {
-      player.play(this.song.id);
-      this.close();
-    }, pushQueue: function() {
-      player.addToPlayQueue(this.song.id);
-      this.close();
-    }, pushNext: function() {
-      player.addAsNext(this.song.id);
-      this.close();
-    }
-  };
+  // Updating
+  player.bind('info', function() {
+    $scope.currentSongId = this.state.id;
+    $scope.$digest();
+  });
 }

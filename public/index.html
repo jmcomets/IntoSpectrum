@@ -108,35 +108,22 @@
       </div>
       <div class="col-md-9">
         <table class="table table-hover table-condensed">
+          <thead>
+            <tr>
+              <th><a href="#" ng-click="songSort = 'title'; reverse = !reverse">Title</a></th>
+              <th><a href="#" ng-click="songSort = 'artist'; reverse = !reverse">Artist</a></th>
+              <th><a href="#" ng-click="songSort = 'album'; reverse = !reverse">Album</a></th>
+            </tr>
+          </thead>
           <tbody id="library">
-            <tr ng-click="play(song)" ng-right-click="menu.open($event, song)" ng-repeat="song in songs">
+            <tr ng-click="play(song)" ng-class="{ warning: song.id == currentSongId }"
+              ng-repeat="song in songs | orderBy:songSort:reverse">
               <td>{{song.title}}</td>
               <td>{{song.artist || "Unknown"}}</td>
               <td>{{(song.album) || "Unknown"}}</td>
             </tr>
           </tbody>
         </table>
-      </div>
-      <div ng-show="menu.visible" ng-style="{top: menu.top, left: menu.left}" class="dropdown" style="position:absolute">
-        <ul role="menu" class="dropdown-menu">
-          <li><a href="#play" ng-click="menu.play()" class="disabled"><i class="icon-play">Play</i></a></li>
-          <li><a href="#push-as-next" ng-click="menu.pushNext()" class="disabled"><i class="icon-arrow-right">Play next</i></a></li>
-          <li><a href="#push-to-queue" ng-click="menu.pushQueue()" class="disabled"><i class="icon-plus">Add to play queue</i></a></li>
-        </ul>
-      </div>
-    </div>
-
-    <!--Connection-->
-    <div class="modal fade">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Disconnected !</h4>
-          </div>
-          <div class="modal-body">
-            <p>You've been disconnected...</p>
-          </div>
-        </div>
       </div>
     </div>
 
