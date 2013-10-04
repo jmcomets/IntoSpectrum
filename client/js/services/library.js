@@ -1,4 +1,4 @@
-app.service('$library', function($rootScope, $http, $q) {
+angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $q) {
   return {
     getSongs: function(c) {
       var cursor = parseInt(c) || 0, deferred = $q.defer();

@@ -25,6 +25,12 @@ function PlayerCtrl($scope, $player) {
     // TODO actually change the random mode
   };
 
+  $scope.setVolume = function(volume) {
+    if (volume === undefined) { volume = $scope.volume; }
+    else { $scope.volume = volume; }
+    $player.setVolume(volume);
+  }
+
   // Auto-update logic
   $scope.$watch('playing', function() {
     if (this.id) { clearInterval(this.id); };

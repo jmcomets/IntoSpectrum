@@ -36,14 +36,12 @@ module.exports = function(grunt) {
         dest: files.img.dist,
         flatten: true,
       }
-    }, concat_in_order: {
-      dist: {
-        options: {
-        }, files: (function() {
-          var ret = {};
-          ret[files.js.build] = files.js.all;
-          return ret;
-        })()
+    }, concat: {
+      options: {
+        separator: ';'
+      }, dist: {
+        src: files.js.all,
+        dest: files.js.build
       }
     }, uglify: {
       options: {
@@ -76,7 +74,7 @@ module.exports = function(grunt) {
     }, watch: {
       js: {
         files: files.js.all,
-        tasks: ['concat_in_order', 'uglify'],
+        tasks: ['concat', 'uglify'],
         interrupt: true
       }, less: {
         files: files.less.all,
@@ -92,11 +90,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-concat-in-order');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-jade');
 
-  grunt.registerTask('default', ['copy', 'concat_in_order', 'uglify', 'less', 'jade']);
+  grunt.registerTask('default', ['copy', 'concat', 'uglify', 'less', 'jade']);
 
   // Development only
   grunt.loadNpmTasks('grunt-contrib-watch');

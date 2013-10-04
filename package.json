@@ -15,7 +15,7 @@
     "grunt-cli": "*",
     "grunt-contrib-copy": "*",
     "grunt-contrib-clean": "*",
-    "grunt-concat-in-order": "*",
+    "grunt-contrib-concat": "*",
     "grunt-contrib-uglify": "*",
     "grunt-contrib-less": "*",
     "grunt-contrib-jade": "*"

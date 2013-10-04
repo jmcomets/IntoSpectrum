@@ -46,7 +46,8 @@ head
                 button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
                   i.icon-random
           div.col-md-3
-            div.slider
+            div.slider(ng-model='volume', slider, slider-orientation='horizontal',
+                  slider-slide='setVolume(volume)', slider-min='0', slider-max='100')
     div.navbar-fixed-push
 
     //- Sidebar
@@ -126,5 +127,3 @@ head
 
     //- App JS
     script(type='text/javascript', src='/js/main.js')
-    script(type='text/javascript')
-      $(window).load(function() { $('.slider').slider(); });

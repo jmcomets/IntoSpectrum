@@ -1,4 +1,4 @@
-app.factory('$player', function ($rootScope, $q) {
+angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
   // Exposed player service
   var player = {
     state: {},
