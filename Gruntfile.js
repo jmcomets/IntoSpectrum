@@ -16,8 +16,9 @@ module.exports = function(grunt) {
       all: [path.join(dirs.client, 'js', '**/*.js')],
       build: path.join(dirs.build, 'js', 'main.js'),
       dist: path.join(dirs.public, 'js', 'main.js')
-    }, css: {
-      all: [path.join(dirs.client, 'css', '**/*.css')],
+    }, less: {
+      all: [path.join(dirs.client, 'less', '**/*.less')],
+      src: [path.join(dirs.client, 'less', 'main.less')],
       dist: path.join(dirs.public, 'css', 'main.css')
     },
     jade: { index: path.join(dirs.client, 'index.jade') },
@@ -54,10 +55,15 @@ module.exports = function(grunt) {
           return ret;
         })()
       }
-    }, cssmin: {
+    }, less: {
       dist: {
-        src: files.css.all,
-        dest: files.css.dist
+        options: {
+          yuicompress: true
+        }, files: (function() {
+          var ret = {};
+          ret[files.less.dist] = files.less.src;
+          return ret;
+        })()
       }
     }, jade: {
       dist: {
@@ -72,9 +78,9 @@ module.exports = function(grunt) {
         files: files.js.all,
         tasks: ['concat_in_order', 'uglify'],
         interrupt: true
-      }, css: {
-        files: files.css.all,
-        tasks: ['cssmin'],
+      }, less: {
+        files: files.less.all,
+        tasks: ['less'],
         interrupt: true
       }, jade: {
         files: [files.jade.index],
@@ -87,10 +93,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-concat-in-order');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-jade');
 
-  grunt.registerTask('default', ['copy', 'concat_in_order', 'uglify', 'cssmin', 'jade']);
+  grunt.registerTask('default', ['copy', 'concat_in_order', 'uglify', 'less', 'jade']);
 
   // Development only
   grunt.loadNpmTasks('grunt-contrib-watch');

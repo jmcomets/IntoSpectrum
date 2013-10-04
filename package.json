@@ -17,7 +17,7 @@
     "grunt-contrib-clean": "*",
     "grunt-concat-in-order": "*",
     "grunt-contrib-uglify": "*",
-    "grunt-contrib-cssmin": "*",
+    "grunt-contrib-less": "*",
     "grunt-contrib-jade": "*"
   }, "devDependencies": {
     "grunt-contrib-watch": "*"

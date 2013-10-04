@@ -4,19 +4,12 @@ function LibraryCtrl($scope, $player, $library) {
   // ...current playing song (database id)
   $scope.currentSongId = -1;
 
-  // Loading
-  $scope.load = function() {
-    $scope.loading = true
-    $library.getSongs().then(function(songs) {
-      $scope.loading = false;
-      $scope.songs = songs;
-    });
-  };
-
   // Pagination
   $scope.paginate = function() {
+    $scope.loading = true;
     $library.getSongs($scope.songs.length).then(function(songs) {
       $scope.songs = $scope.songs.concat(songs);
+      $scope.loading = false;
     });
   };
 
