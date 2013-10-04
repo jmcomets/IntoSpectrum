@@ -1,4 +1,4 @@
-function LibraryCtrl($scope, $player, $library) {
+function MainCtrl($scope, $player, $library) {
   // List of song models
   $scope.songs = [];
   // ...current playing song (database id)

@@ -14,7 +14,7 @@ head
 
     //- App CSS
     link(type='text/css', rel='stylesheet', href='/css/main.css', media='screen')
-  body
+  body(ng-controller='MainCtrl')
     nav.navbar.navbar-default.navbar-fixed-top
       div.navbar-header
         a.navbar-brand(href='/') IntoSpectrum
@@ -24,30 +24,37 @@ head
           i.icon-bar
           i.icon-bar
           i.icon-bar
+      div.navbar-collapse.collapse
 
-      //- Player
-      div.navbar-collapse.collapse(ng-controller='PlayerCtrl')
-        div.nav.nav-progress.col-md-6
-          div.navbar-text.progress
-            div#play-progress.progress-bar(ng-style='{ width: 100*time/maxTime + "%" }')
-        div.nav.nav-controls.col-md-4
-          div.col-md-7
+        //- Player
+        div(ng-controller='PlayerCtrl')
+          div.nav.nav-progress.col-md-6
+            div.navbar-text.progress
+              div#play-progress.progress-bar(ng-style='{ width: 100*time/maxTime + "%" }')
+          div.nav.nav-controls.col-md-4
+            div.col-md-7
+              form.navbar-form.form-inline
+                div.btn-group
+                  button.btn.btn-default(ng-click='previous()', type='button')
+                    i.icon-step-backward
+                  button.btn.btn-default(ng-click='togglePause()', type='button')
+                    i.icon-play(ng-hide='playing')
+                    i.icon-pause(ng-show='playing')
+                  button.btn.btn-default(ng-click='next()', type='button')
+                    i.icon-step-forward
+                  button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
+                    i.icon-random
+            div.col-md-3
+              div.slider(ng-model='volume', slider, slider-orientation='horizontal',
+                    slider-slide='setVolume(volume)', slider-min='0', slider-max='100')
+          div.nav.col-md-2
             form.navbar-form.form-inline
-              div.btn-group
-                button.btn.btn-default(ng-click='previous()', type='button')
-                  i.icon-step-backward
-                button.btn.btn-default(ng-click='togglePause()', type='button')
-                  i.icon-play(ng-hide='playing')
-                  i.icon-pause(ng-show='playing')
-                button.btn.btn-default(ng-click='stop()', type='button')
-                  i.icon-stop
-                button.btn.btn-default(ng-click='next()', type='button')
-                  i.icon-step-forward
-                button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
-                  i.icon-random
-          div.col-md-3
-            div.slider(ng-model='volume', slider, slider-orientation='horizontal',
-                  slider-slide='setVolume(volume)', slider-min='0', slider-max='100')
+              div.input-group
+                input.form-control(type='text', placeholder='Search')
+                div.input-group-btn
+                  button.btn.btn-default(type='button')
+                    span.icon-search
+
     div.navbar-fixed-push
 
     //- Sidebar
@@ -78,12 +85,12 @@ head
                     i.icon-remove
           //- Youtube
           div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
-            form.navbar-form(ng-submit='search()')
+            form(ng-submit='search()')
               div.input-group
                 input.youtube-search.form-control(type='text', placeholder='Search on Youtube')
                 div.input-group-btn
                   button.btn.btn-default(type='button')
-                    span.glyphicon.glyphicon-search
+                    i.icon-search
             div.youtube-results
               div.youtube-loading
                 div.col-md-2
@@ -98,25 +105,24 @@ head
           | &nbsp;
           | sidebar
 
-    //- Library
-    div(ng-controller='LibraryCtrl')
-      div.col-md-12
-        table.song-library.table.table-condensed
-          thead
-            tr
-              th
-                a(href='#/sort-by/title', ng-click='predicate = "title"; reverse = !reverse') Title
-              th
-                a(href='#/sort-by/artist', ng-click='predicate = "artist"; reverse = !reverse') Artist
-              th
-                a(href='#/sort-by/album', ng-click='predicate = "album"; reverse = !reverse') Album
-          tbody(infinite-scroll='paginate()')
-            tr.song-item(ng-click='play(song)',
-                ng-class='{ active: song.id == currentSongId }',
-                ng-repeat='song in songs | orderBy:predicate:reverse')
-              td {{ song.title }}
-              td {{ song.artist }}
-              td {{ song.album }}
+    //- Songs
+    div.col-md-12
+      table.song-library.table.table-condensed
+        thead
+          tr
+            th
+              a(href='#/sort-by/title', ng-click='predicate = "title"; reverse = !reverse') Title
+            th
+              a(href='#/sort-by/artist', ng-click='predicate = "artist"; reverse = !reverse') Artist
+            th
+              a(href='#/sort-by/album', ng-click='predicate = "album"; reverse = !reverse') Album
+        tbody(infinite-scroll='paginate()')
+          tr.song-item(ng-click='play(song)',
+              ng-class='{ active: song.id == currentSongId }',
+              ng-repeat='song in songs | orderBy:predicate:reverse')
+            td {{ song.title }}
+            td {{ song.artist }}
+            td {{ song.album }}
 
     //- Vendor JS
     script(type='text/javascript', src='/socket.io/socket.io.js')
