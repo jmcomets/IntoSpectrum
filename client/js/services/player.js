@@ -43,17 +43,17 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
       }
     });
   })({
-    load:           function() { this._socket.emit('get_info'); },
+    load:           function() { this._socket.emit('getInfo'); },
     stop:           function() { this._socket.emit('stop', this.state.id); },
-    next:           function() { this._socket.emit('play_next'); },
-    previous:       function() { this._socket.emit('play_prev'); },
+    next:           function() { this._socket.emit('playNext'); },
+    previous:       function() { this._socket.emit('playPrev'); },
     togglePause:    function() { this._socket.emit(this.state.playing ? 'pause' : 'unpause', this.state.id); },
-    youtube:        function(url) { this._socket.emit('play_youtube', encodeURI(url)); },
+    youtube:        function(url) { this._socket.emit('playYoutube', encodeURI(url)); },
     setTime:        function(time) { this._socket.emit('time', this.state.id, time); },
     setVolume:      function(volume) { this._socket.emit('volume', volume); },
     play:           function(songId) { this._socket.emit('play', songId); },
-    addAsNext:      function(songId) { this._socket.emit('add_to_playlist', songId, 0); },
-    addToPlaylist:  function(songId) { this._socket.emit('add_to_playlist', songId, -1); },
+    addAsNext:      function(songId) { this._socket.emit('addToPlaylist', songId, 0); },
+    addToPlaylist:  function(songId) { this._socket.emit('addToPlaylist', songId, -1); },
     moveInPlaylist: function(from, to) { this._socket.emit('move', from, to); }
   });
 

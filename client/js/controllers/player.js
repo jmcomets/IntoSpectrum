@@ -51,7 +51,7 @@ function PlayerCtrl($scope, $player) {
     //$scope.random = this.state.random;
     $scope.volume = parseFloat(this.state.volume);
     $scope.time = parseFloat(this.state.time);
-    $scope.maxTime = parseFloat(this.state.time_max);
+    $scope.maxTime = parseFloat(this.state.timeMax);
   };
 
   $player.bind('info', handleStateChange);

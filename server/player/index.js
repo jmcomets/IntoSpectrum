@@ -12,12 +12,19 @@ var Player = module.exports = function() {
 
   // Playlist
   this._playlist = [];
-  this._playlist_size = 200;
+  this._playlistSize = 200;
 
   // History
   this._history = [];
-  this._history_size = 100;
+  this._historySize = 100;
 };
+
+Player.prototype._log = function() {
+  var args = [].slice.call(arguments, 0);
+  args.unshift('[Player]');
+  console.log.apply(console, args);
+};
+
 
 Player.prototype.kill = function(signal) {
   this._mplayer.kill(signal);
@@ -28,7 +35,7 @@ Player.prototype.quit = function(code) {
 };
 
 Player.prototype.songIsOver = function() {
-  return this._mplayer.song_over();
+  return this._mplayer.songOver();
   // return (!isNaN(this._mplayer.timePos.value)
   //   && !isNaN(this._mplayer.length.value)
   //   && this._mplayer.timePos.value >= this._mplayer.length.value)
@@ -51,9 +58,9 @@ Player.prototype.info = function(callback) {
       'playing': pause ? 0 : 1,
       'volume': volume,
       'time': timePos,
-      'time_max': length,
+      'timeMax': length,
       'playlist': [],
-      'play_count': 0
+      'playCount': 0
     };
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
@@ -62,7 +69,7 @@ Player.prototype.info = function(callback) {
 
     if (self._currentSong != undefined) {
       out['id'] = self._currentSong.id;
-      out['play_count'] = self._currentSong.playCount;
+      out['playCount'] = self._currentSong.playCount;
     }
 
     if (callback != undefined) {
@@ -87,21 +94,22 @@ Player.prototype.addToPlaylist = function(id, pos) {
   }
 }
 
-Player.prototype._play = function(song, from_history) {
+Player.prototype._play = function(song, fromHistory) {
+  this._log('play', song, fromHistory);
   if (song == undefined) { return; }
 
-  if (from_history == undefined) {
-    from_history = false;
+  if (fromHistory == undefined) {
+    fromHistory = false;
   }
 
-  if (from_history) {
+  if (fromHistory) {
     this._playlist.unshift(this._currentSong);
-    if (this._playlist.length > this._playlist_size) {
+    if (this._playlist.length > this._playlistSize) {
       this._playlist.pop();
     }
   } else {
     this._history.push(this._currentSong);
-    if (this._history.length > this._history_size) {
+    if (this._history.length > this._historySize) {
       this._history.shift();
     }
   }
@@ -111,20 +119,20 @@ Player.prototype._play = function(song, from_history) {
   var self = this, volume = this._mplayer.getVolume();
   if (this._currentSong.youtube != undefined) {
     youtube.play(this._currentSong.youtube, function(url) {
-      self._mplayer.loadfile(url, 0, function() {
-        self._mplayer.set_volume(volume);
+      self._mplayer.loadFile(url, 0, function() {
+        self._mplayer.setVolume(volume);
       });
     }, function(err) {
       console.log('Youtube error: ', err);
     });
   } else {
-    this._mplayer.loadfile(this._currentSong.fullPath(), 0, function() {
-      self._mplayer.set_volume(volume);
+    this._mplayer.loadFile(this._currentSong.fullPath(), 0, function() {
+      self._mplayer.setVolume(volume);
     });
     this._currentSong.playCount += 1;
     this._currentSong.save();
   }
-  // this._mplayer.set_volume(volume);
+  // this._mplayer.setVolume(volume);
 };
 
 Player.prototype.playRandom = function() {
@@ -179,7 +187,7 @@ Player.prototype.pause = function(id) {
   if (!isNaN(id)
       && this._currentSong != undefined
       && this._currentSong.id == id) {
-        this._mplayer.force_pause();
+        this._mplayer.forcePause();
       }
 }
 
@@ -187,7 +195,7 @@ Player.prototype.unpause = function(id) {
   if (!isNaN(id)
       && this._currentSong != undefined
       && this._currentSong.id == id) {
-        this._mplayer.force_unpause();
+        this._mplayer.forceUnpause();
       }
 }
 
@@ -195,7 +203,7 @@ Player.prototype.stop = function(id) {
   if (!isNaN(id)
       && this._currentSong != undefined
       && this._currentSong.id == id) {
-        this._mplayer.force_pause();
+        this._mplayer.forcePause();
         // this._mplayer.timePos.set(0);
         this._mplayer.setTimePos(0);
       }
@@ -203,11 +211,10 @@ Player.prototype.stop = function(id) {
 
 Player.prototype.volume = function(volume) {
   volume = parseFloat(volume);
-  if (!isNaN(volume)
-      && volume >= 0 && volume <= 100) {
-        // this._mplayer.volume.set(volume);
-        this._mplayer.set_volume(volume);
-      }
+  if (!isNaN(volume) && volume >= 0 && volume <= 100) {
+    // this._mplayer.volume.set(volume);
+    this._mplayer.setVolume(volume);
+  }
 }
 
 Player.prototype.time = function(id, time) {
