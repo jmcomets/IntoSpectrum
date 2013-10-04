@@ -116,7 +116,7 @@ Player.prototype.addToPlaylist = function(id, pos) {
     }
 
     var self = this;
-    Song.find({ id: id }, function(song) {
+    Song.findById(id, function(err, song) {
       if (song) {
         self._playlist.splice(pos, 0, song);
       }
@@ -153,7 +153,7 @@ Player.prototype._play = function(song, from_history) {
           self._mplayer.set_volume(volume);
         });
       }, function(err) {
-        console.log('Youtube error: ' + err);
+        console.log('Youtube error: ', err);
       });
     } else {
       this._mplayer.loadfile(this._currentSong.fullPath(), 0, function() {
@@ -169,13 +169,13 @@ Player.prototype._play = function(song, from_history) {
 Player.prototype.playRandom = function() {
   var self = this;
   Song.count({}, function(n) {
-    Song.find({}, {
-      limit: 1,
-      offset: Math.floor(Math.random() * n)
-    }, function (err, songs) {
-      if (err) { throw new Error(err); }
-      if (songs.length > 0 && songs[0]) { self._play(songs[0], true); }
-    });
+    Song.find()
+      .skip(Math.floor(Math.random() * n))
+      .limit(1)
+      .exec(function (err, songs) {
+        if (err) { throw new Error(err); }
+        if (songs.length > 0 && songs[0]) { self._play(songs[0], true); }
+      });
   });
 }
 

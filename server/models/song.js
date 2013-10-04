@@ -1,17 +1,26 @@
 var path = require('path'),
     settings = require('../settings'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
 
-var Song = exports.Song = mongoose.model('Song', {
+var SongSchema = new Schema({
   path: {
     type: String,
     unique: true
   }, playCount: {
     type: Number,
-    defaultValue: 0
+    default: 0
   },
-  title: { 'type': String }, artist: { 'type': String }, album: { 'type': String }, year: { type: Number },
-  duration: { type: Number }
+  title: String,
+  artist: String,
+  album: String,
+  year: Number,
+  duration: Number
 });
+
+SongSchema.methods.fullPath = function() {
+};
+
+exports.Song = mongoose.model('Song', SongSchema);
 
 // vim: ft=javascript et sw=2 sts=2
