@@ -1,5 +1,5 @@
 // Our main app
-var app = angular.module('IntoSpectrum', []);
+var app = angular.module('IntoSpectrum', ['infinite-scroll']);
 
 // Right click markup -> "ng-right-click"
 app.directive('ngRightClick', function($parse) {

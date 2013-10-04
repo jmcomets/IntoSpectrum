@@ -1,16 +1,16 @@
 app.service('$library', function($rootScope, $http, $q) {
   return {
-    getSongs: function() {
-      var deferred = $q.defer(),
-        songs = [], loadSongs = function(c) {
-        var cursor = parseInt(c, 10) || 1;
-        $http.get('/library/' + cursor).success(function(data) {
-          songs = songs.concat(data.songs);
-          if (data.next) { loadSongs(cursor + 1); }
-          else { $rootScope.$safeApply(function() { deferred.resolve(songs); }); }
-        });
-      };
-      loadSongs();
+    getSongs: function(c) {
+      var cursor = parseInt(c) || 0, deferred = $q.defer();
+      $http.get('/api/songs/' + cursor).success(function(data) {
+         $rootScope.$safeApply(function() {
+           deferred.resolve(data.songs);
+         });
+      }).error(function() {
+         $rootScope.$safeApply(function() {
+          deferred.error();
+         });
+      });
       return deferred.promise;
     }
   };

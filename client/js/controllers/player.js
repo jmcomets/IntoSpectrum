@@ -2,6 +2,8 @@ function PlayerCtrl($scope, $player) {
   $scope.random = true;
   $scope.playing = false;
   $scope.volume = 0;
+  $scope.currentTime = 0;
+  $scope.maxTime = 0;
 
   $scope.next = function() {
     if ($scope.playing == false) { $scope.playing = true; }
@@ -26,6 +28,8 @@ function PlayerCtrl($scope, $player) {
   $player.bind('info', function(state) {
     $scope.volume = this.state.volume;
     $scope.playing = this.state.playing;
+    $scope.currentTime = this.state.time;
+    $scope.maxTime = this.state.time_max;
     //$scope.random = this.state.random;
   });
 }

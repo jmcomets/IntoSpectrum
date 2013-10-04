@@ -1,10 +1,9 @@
 var Song = require('../models').Song;
 
-// Library
-exports.library = function(req, res) {
-  var cursor = (parseInt(req.params.cursor) || 1) - 1,
-      limit = 100,
-      offset = limit*cursor;
+// Songs API
+exports.songs = function(req, res, next) {
+  if (offset < 0) { next(); }
+  var limit = 100, offset = parseInt(req.params.offset);
   Song.count().success(function(count) {
     songs = Song.findAll({
       'offset': offset,

@@ -1,17 +1,22 @@
 function LibraryCtrl($scope, $player, $library) {
-  // Loading state
-  $scope.loading = true
-
   // List of song models
   $scope.songs = [];
   // ...current playing song (database id)
   $scope.currentSongId = -1;
 
-  // Library initialization
-  $scope.init = function() {
+  // Loading
+  $scope.load = function() {
+    $scope.loading = true
     $library.getSongs().then(function(songs) {
       $scope.loading = false;
       $scope.songs = songs;
+    });
+  };
+
+  // Pagination
+  $scope.paginate = function() {
+    $library.getSongs($scope.songs.length).then(function(songs) {
+      $scope.songs = $scope.songs.concat(songs);
     });
   };
 

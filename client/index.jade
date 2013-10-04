@@ -81,7 +81,7 @@ head
                   h4 Searching...
 
     //- Library
-    div(ng-controller='LibraryCtrl', ng-init='init()')
+    div(ng-controller='LibraryCtrl', ng-init='load()')
       div.col-md-9
         table#library.table.table-hover.table-condensed(ng-hide='loading')
           thead
@@ -92,13 +92,12 @@ head
                 a(href='#', ng-click='predicate = "artist"; reverse = !reverse') Artist
               th
                 a(href='#', ng-click='predicate = "album"; reverse = !reverse') Album
-          tbody
-            tr(ng-click='play(song)', ng-class='{ warning: song.id == currentSongId }', ng-repeat='song in songs | orderBy:predicate:reverse')
+          tbody(infinite-scroll='paginate()')
+            tr(ng-click='play(song)', ng-class='{ warning: song.id == currentSongId }',
+               ng-repeat='song in songs | orderBy:predicate:reverse')
               td {{ song.title }}
               td {{ song.artist }}
               td {{ song.album }}
-        div.text-center(ng-show='loading')
-          img(src='/img/loader.gif')
 
     //- Vendor JS
     script(type='text/javascript', src='/socket.io/socket.io.js')

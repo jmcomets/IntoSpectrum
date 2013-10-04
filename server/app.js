@@ -40,10 +40,11 @@ app.use(app.router);
 // Network
 var network = require('./network');
 
-// Routes
-var routes = network.routes;
+// API
+var api = require('./api');
 // ...library loading
-app.get('/library/?(:cursor)?', routes.library);
+app.get('/api/songs', api.songs);
+app.get('/api/songs/(:offset)?/?', api.songs);
 
 // Start server
 var http = require('http');
