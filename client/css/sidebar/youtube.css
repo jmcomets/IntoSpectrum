@@ -1,0 +1,26 @@
+#tab-youtube .media {
+    padding: 5px;
+    margin: 10px;
+    height: 100px;
+    position: relative;
+}
+
+#tab-youtube .media:hover {
+    cursor: pointer;
+    background-color: #ddd;
+}
+
+#tab-youtube .media:active {
+    background-color: #eee;
+}
+
+#tab-youtube .media img {
+    height: 90px;
+}
+
+#tab-youtube .media em {
+    position: absolute;
+    bottom: 0;
+    margin: 7px;
+    right: 0;
+}
