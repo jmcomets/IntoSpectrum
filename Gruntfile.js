@@ -5,6 +5,7 @@ module.exports = function(grunt) {
   var dirs = {
     client: 'client',
     public: 'public',
+    build: 'build'
   };
   // ...files
   var files = {
@@ -13,6 +14,7 @@ module.exports = function(grunt) {
       dist: path.join(dirs.public, 'img')
     }, js: {
       all: [path.join(dirs.client, 'js', '**/*.js')],
+      build: path.join(dirs.build, 'js', 'main.js'),
       dist: path.join(dirs.public, 'js', 'main.js')
     }, css: {
       all: [path.join(dirs.client, 'css', '**/*.css')],
@@ -24,7 +26,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON(path.join(__dirname, 'package.json')),
-    clean: [dirs.public],
+    clean: [dirs.public, dirs.build],
     copy: {
       img: {
         expand: true,
@@ -33,12 +35,24 @@ module.exports = function(grunt) {
         dest: files.img.dist,
         flatten: true,
       }
-    }, concat: {
+    }, concat_in_order: {
+      dist: {
+        options: {
+        }, files: (function() {
+          var ret = {};
+          ret[files.js.build] = files.js.all;
+          return ret;
+        })()
+      }
+    }, uglify: {
       options: {
-        separator: ';'
+        mangle: false
       }, dist: {
-        src: files.js.all,
-        dest: files.js.dist
+        files: (function() {
+          var ret = {};
+          ret[files.js.dist] = files.js.build;
+          return ret;
+        })()
       }
     }, cssmin: {
       dist: {
@@ -46,17 +60,17 @@ module.exports = function(grunt) {
         dest: files.css.dist
       }
     }, jade: {
-      compile: {
-        files: function() {
+      dist: {
+        files: (function() {
           var ret = {};
           ret[files.html.index] = files.jade.index;
           return ret;
-        }()
+        })()
       }
     }, watch: {
       js: {
         files: files.js.all,
-        tasks: ['concat'],
+        tasks: ['concat_in_order', 'uglify'],
         interrupt: true
       }, css: {
         files: files.css.all,
@@ -71,11 +85,12 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-concat-in-order');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jade');
 
-  grunt.registerTask('default', ['copy', 'concat', 'cssmin', 'jade']);
+  grunt.registerTask('default', ['copy', 'concat_in_order', 'uglify', 'cssmin', 'jade']);
 
   // Development only
   grunt.loadNpmTasks('grunt-contrib-watch');

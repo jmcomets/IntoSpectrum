@@ -14,11 +14,12 @@
     "grunt": "*",
     "grunt-cli": "*",
     "grunt-contrib-copy": "*",
-    "grunt-contrib-concat": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-concat-in-order": "*",
+    "grunt-contrib-uglify": "*",
     "grunt-contrib-cssmin": "*",
     "grunt-contrib-jade": "*"
   }, "devDependencies": {
-    "grunt-contrib-clean": "*",
     "grunt-contrib-watch": "*"
   }
 }
