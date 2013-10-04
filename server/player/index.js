@@ -1,33 +1,33 @@
 var Song = require('../models').Song,
-    mplayer = require('./mplayer').mplayer;
+    Mplayer = require('./mplayer').Mplayer;
     youtube = require('./youtube');
 
-var player = module.exports = function() {
+var Player = module.exports = function() {
   // mplayer
-  this._mplayer = new mplayer();
+  this._mplayer = new Mplayer();
   this._mplayer.start();
 
   // Current song
-  this._current_song = undefined;
+  this._currentSong = undefined;
 
   // Playlist
-  this._playlist = new Array();
+  this._playlist = [];
   this._playlist_size = 200;
 
   // History
-  this._history = new Array();
+  this._history = [];
   this._history_size = 100;
 };
 
-player.prototype.kill = function(signal) {
+Player.prototype.kill = function(signal) {
   this._mplayer.kill(signal);
 };
 
-player.prototype.quit = function(code) {
+Player.prototype.quit = function(code) {
   this._mplayer.quit(code);
 };
 
-player.prototype.song_over = function() {
+Player.prototype.songIsOver = function() {
   return this._mplayer.song_over();
   // return (!isNaN(this._mplayer.time_pos.value)
   //   && !isNaN(this._mplayer.length.value)
@@ -35,7 +35,7 @@ player.prototype.song_over = function() {
   //   || this._mplayer.filename.value == undefined;
 }
 
-player.prototype.get_info = function(callback) {
+Player.prototype.info = function(callback) {
   var self = this;
 
   this._mplayer.update(function() {
@@ -51,20 +51,20 @@ player.prototype.get_info = function(callback) {
       'volume': volume,
       'time': time_pos,
       'time_max': length,
-      'playlist': new Array(),
+      'playlist': [],
       'play_count': 0
     };
 
-    for(var i = 0 ; i < self._playlist.length ; i++) {
+    for (var i = 0 ; i < self._playlist.length ; i++) {
       out['playlist'].push(self._playlist[i].id);
     }
 
-    if (self._current_song != undefined) {
-      out['id'] = self._current_song.id;
-      out['play_count'] = self._current_song.playCount;
+    if (self._currentSong != undefined) {
+      out['id'] = self._currentSong.id;
+      out['play_count'] = self._currentSong.playCount;
     }
 
-    if(callback != undefined) {
+    if (callback != undefined) {
       callback(out);
     }
   });
@@ -79,27 +79,27 @@ player.prototype.get_info = function(callback) {
 
   // var self = this;
   // var wait_out = function() {
-  //   if(!self._mplayer.waiting()) {
+  //   if (!self._mplayer.waiting()) {
   //     var out = {
   //       'id': -1,
   //       'playing': self._mplayer.pause.value ? 0 : 1,
   //       'volume': self._mplayer.volume.value,
   //       'time': self._mplayer.time_pos.value,
   //       'time_max': self._mplayer.length.value,
-  //       'playlist': new Array(),
+  //       'playlist': [],
   //       'play_count': 0
   //     };
 
-  //     for(var i = 0 ; i < self._playlist.length ; i++) {
+  //     for (var i = 0 ; i < self._playlist.length ; i++) {
   //       out['playlist'].push(self._playlist[i].id);
   //     }
 
-  //     if (self._current_song != undefined) {
-  //       out['id'] = self._current_song.id;
-  //       out['play_count'] = self._current_song.playCount;
+  //     if (self._currentSong != undefined) {
+  //       out['id'] = self._currentSong.id;
+  //       out['play_count'] = self._currentSong.playCount;
   //     }
 
-  //     if(success) { success(out); }
+  //     if (success) { success(out); }
   //   }
   //   else {
   //     setTimeout(wait_out, 100);
@@ -108,157 +108,152 @@ player.prototype.get_info = function(callback) {
   // wait_out();
 };
 
-player.prototype.add_to_playlist = function(id, pos) {
-  id = parseInt(id);
+Player.prototype.addToPlaylist = function(id, pos) {
   pos = parseInt(pos);
-  if(!isNaN(id) && !isNaN(pos)) {
-    if(pos < 0 || pos > this._playlist.length)
+  if (!isNaN(id) && !isNaN(pos)) {
+    if (pos < 0 || pos > this._playlist.length) {
       pos = this._playlist.length;
+    }
 
     var self = this;
-    Song.find(id).success(function(song) {
-      if(song) {
+    Song.find({ id: id }, function(song) {
+      if (song) {
         self._playlist.splice(pos, 0, song);
       }
     });
   }
 }
 
-player.prototype._play = function(song, from_history) {
-  if(song != undefined) {
+Player.prototype._play = function(song, from_history) {
+  if (song != undefined) {
     var self = this;
 
-    if(from_history == undefined)
+    if (from_history == undefined) {
       from_history = false;
+    }
 
-    if(from_history) {
-      this._playlist.unshift(this._current_song);
-      if(this._playlist.length > this._playlist_size)
+    if (from_history) {
+      this._playlist.unshift(this._currentSong);
+      if (this._playlist.length > this._playlist_size) {
         this._playlist.pop();
-    }
-    else {
-      this._history.push(this._current_song);
-      if(this._history.length > this._history_size)
+      }
+    } else {
+      this._history.push(this._currentSong);
+      if (this._history.length > this._history_size) {
         this._history.shift();
+      }
     }
 
-    this._current_song = song;
+    this._currentSong = song;
 
     var volume = this._mplayer.get_volume();
-    if(this._current_song.youtube != undefined) {
-      youtube.get_link(this._current_song.youtube, function(url) {
+    if (this._currentSong.youtube != undefined) {
+      youtube.play(this._currentSong.youtube, function(url) {
         self._mplayer.loadfile(url, 0, function() {
           self._mplayer.set_volume(volume);
         });
       }, function(err) {
         console.log('Youtube error: ' + err);
       });
-    }
-    else {
-      this._mplayer.loadfile(this._current_song.fullPath(), 0, function() {
+    } else {
+      this._mplayer.loadfile(this._currentSong.fullPath(), 0, function() {
         self._mplayer.set_volume(volume);
       });
-      this._current_song.playCount += 1;
-      this._current_song.save();
+      this._currentSong.playCount += 1;
+      this._currentSong.save();
     }
     // this._mplayer.set_volume(volume);
   }
 };
 
-player.prototype.play_next = function() {
-  if(this._playlist.length > 0) {
-    this._play(this._playlist.shift());
-  }
-  else {
-    var self = this;
-    Song.count().success(function(n) {
-      Song.findAll({offset: Math.floor(Math.random() * n),
-        limit: 1}).success(function (songs) {
-          if(songs.length > 0) { self._play(songs[0]); }
-        });
+Player.prototype.playRandom = function() {
+  var self = this;
+  Song.count({}, function(n) {
+    Song.find({}, {
+      limit: 1,
+      offset: Math.floor(Math.random() * n)
+    }, function (err, songs) {
+      if (err) { throw new Error(err); }
+      if (songs.length > 0 && songs[0]) { self._play(songs[0], true); }
     });
+  });
+}
+
+Player.prototype.playNext = function() {
+  if (this._playlist.length > 0) {
+    this._play(this._playlist.shift());
+  } else {
+    this.playRandom();
   }
 };
 
-player.prototype.play_prev = function() {
-  if(this._history.length > 0) {
+Player.prototype.playPrevious = function() {
+  if (this._history.length > 0) {
     this._play(this._history.pop(), true);
-  }
-  else {
-    var self = this;
-    Song.count().success(function(n) {
-      Song.findAll({offset: Math.floor(Math.random() * n),
-        limit: 1}).success(function (songs) {
-          if(songs.length > 0 && songs[0]) { self._play(songs[0], true); }
-        });
-    });
+  } else {
+    this.playRandom();
   }
 }
 
-player.prototype.play = function(id) {
-  id = parseInt(id);
-  if(!isNaN(id)) {
+Player.prototype.play = function(id) {
+  if (!isNaN(id)) {
     var self = this;
-    Song.find(id).success(function(song) {
-      if(song != undefined) {
+    Song.findById(id, function(song) {
+      if (song != undefined) {
         self._play(song);
       }
     });
   }
 };
 
-player.prototype.play_youtube = function(url) {
-  if(url != undefined) {
-    var song = new Object();
+Player.prototype.play_youtube = function(url) {
+  if (url != undefined) {
+    var song = {};
     song.youtube = url;
     this._play(song);
   }
 };
 
-player.prototype.pause = function(id) {
-  id = parseInt(id);
-  if(!isNaN(id)
-      && this._current_song != undefined
-      && this._current_song.id == id) {
+Player.prototype.pause = function(id) {
+  if (!isNaN(id)
+      && this._currentSong != undefined
+      && this._currentSong.id == id) {
         this._mplayer.force_pause();
       }
 }
 
-player.prototype.unpause = function(id) {
-  id = parseInt(id);
-  if(!isNaN(id)
-      && this._current_song != undefined
-      && this._current_song.id == id) {
+Player.prototype.unpause = function(id) {
+  if (!isNaN(id)
+      && this._currentSong != undefined
+      && this._currentSong.id == id) {
         this._mplayer.force_unpause();
       }
 }
 
-player.prototype.stop = function(id) {
-  id = parseInt(id);
-  if(!isNaN(id)
-      && this._current_song != undefined
-      && this._current_song.id == id) {
+Player.prototype.stop = function(id) {
+  if (!isNaN(id)
+      && this._currentSong != undefined
+      && this._currentSong.id == id) {
         this._mplayer.force_pause();
         // this._mplayer.time_pos.set(0);
         this._mplayer.set_time_pos(0);
       }
 }
 
-player.prototype.volume = function(volume) {
+Player.prototype.volume = function(volume) {
   volume = parseFloat(volume);
-  if(!isNaN(volume)
+  if (!isNaN(volume)
       && volume >= 0 && volume <= 100) {
         // this._mplayer.volume.set(volume);
         this._mplayer.set_volume(volume);
       }
 }
 
-player.prototype.time = function(id, time) {
-  id = parseInt(id);
+Player.prototype.time = function(id, time) {
   time = parseFloat(time);
-  if(!isNaN(id)
-      && this._current_song != undefined
-      && this._current_song.id == id
+  if (!isNaN(id)
+      && this._currentSong != undefined
+      && this._currentSong.id == id
       && !isNaN(time)
       && time > 0) {
         // this._mplayer.time_pos.set(time);

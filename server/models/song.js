@@ -1,38 +1,17 @@
 var path = require('path'),
     settings = require('../settings'),
-    db = settings.db, Sequelize = settings.Sequelize;
+    mongoose = require('mongoose');
 
-var Song = exports.Song = db.define('Song', {
-  'id': {
-    'type': Sequelize.INTEGER,
-  'primaryKey': true,
-  'autoIncrement': true
-  }, 'path': {
-    'type': Sequelize.STRING,
-  'unique': true
-  }, 'title': {
-    'type': Sequelize.STRING
-  }, 'artist': {
-    'type': Sequelize.STRING
-  }, 'album': {
-    'type': Sequelize.STRING
-  }, 'year': {
-    'type': Sequelize.INTEGER
-  }, 'playCount': {
-    'type': Sequelize.INTEGER,
-    'defaultValue': 0
-  }, 'duration': {
-    'type': Sequelize.INTEGER,
-  }
-}, {
-  'tableName': 'songs',
-  'timestamps': false,
-  'instanceMethods': {
-    'fullPath': function() {
-      return path.join(settings.media.root, this.path);
-    }
-  }
+var Song = exports.Song = mongoose.model('Song', {
+  path: {
+    type: String,
+    unique: true
+  }, playCount: {
+    type: Number,
+    defaultValue: 0
+  },
+  title: { 'type': String }, artist: { 'type': String }, album: { 'type': String }, year: { type: Number },
+  duration: { type: Number }
 });
-Song.sync();
 
 // vim: ft=javascript et sw=2 sts=2

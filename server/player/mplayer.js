@@ -112,7 +112,7 @@ request.prototype.check_err = function(data) {
   return re;
 };
 
-var mplayer = exports.mplayer = function() {
+var Mplayer = exports.Mplayer = function() {
     // 3 input/output fifo
     this._in_fifo = new Array();
     this._out_fifo = new Array();
@@ -156,7 +156,7 @@ var mplayer = exports.mplayer = function() {
     setInterval(function() { self.listen(); }, time_to_update);
 };
 
-mplayer.prototype.update = function(callback) {
+Mplayer.prototype.update = function(callback) {
   var self = this;
   self._get_filename(function() {
     self._get_volume(function() {
@@ -169,7 +169,7 @@ mplayer.prototype.update = function(callback) {
   });
 };
 
-mplayer.prototype.start = function() {
+Mplayer.prototype.start = function() {
     if(this._proc_opened || this._proc_opening)
         return;
 
@@ -213,14 +213,14 @@ mplayer.prototype.start = function() {
     });
 };
 
-mplayer.prototype.kill = function(signal) {
+Mplayer.prototype.kill = function(signal) {
     if(signal = undefined)
         signal = 'SIGTERM';
     if(this._process)
         this._process.kill(signal);
 };
 
-mplayer.prototype.flush = function() {
+Mplayer.prototype.flush = function() {
   if(!this._proc_opened)
     return;
 
@@ -231,7 +231,7 @@ mplayer.prototype.flush = function() {
   }
 };
 
-mplayer.prototype.listen = function() {
+Mplayer.prototype.listen = function() {
     if(!this._proc_opened)
         return;
     if(this._request === null)
@@ -265,7 +265,7 @@ mplayer.prototype.listen = function() {
     for(; this._err_fifo.length ; this._err_fifo.shift());
 };
 
-mplayer.prototype._write = function(data) {
+Mplayer.prototype._write = function(data) {
     if(!this._proc_opened)
         return;
 
@@ -273,7 +273,7 @@ mplayer.prototype._write = function(data) {
     this._process.stdin.write(data + '\n');
 };
 
-mplayer.prototype._get_property = function(prop, on_finish) {
+Mplayer.prototype._get_property = function(prop, on_finish) {
   // TODO more secured
   if(this._properties[prop] == undefined)
     return;
@@ -309,7 +309,7 @@ mplayer.prototype._get_property = function(prop, on_finish) {
   this.flush();
 };
 
-mplayer.prototype._set_property = function(prop, value, on_finish) {
+Mplayer.prototype._set_property = function(prop, value, on_finish) {
   // TODO more secured
   if(this._properties[prop] == undefined)
     return;
@@ -329,13 +329,13 @@ mplayer.prototype._set_property = function(prop, value, on_finish) {
   this.listen();
 };
 
-mplayer.prototype.quit = function(code, on_finish) {
+Mplayer.prototype.quit = function(code, on_finish) {
   if(code == undefined)
     code = 0;
   this._in_fifo.push(new request('quit', null, null, on_finish));
 };
 
-mplayer.prototype.loadfile = function(filename, append, on_finish) {
+Mplayer.prototype.loadfile = function(filename, append, on_finish) {
   this._in_fifo.push(new request(
         'loadfile "' + filename + '" ' + append,
         'Starting playback...',
@@ -343,70 +343,70 @@ mplayer.prototype.loadfile = function(filename, append, on_finish) {
         on_finish));
 };
 
-mplayer.prototype.force_pause = function(on_finish) {
+Mplayer.prototype.force_pause = function(on_finish) {
   if(!this._properties['pause'].value) {
     this._in_fifo.push(new request('pause', null, null, on_finish));
   }
 };
 
-mplayer.prototype.force_unpause = function(on_finish) {
+Mplayer.prototype.force_unpause = function(on_finish) {
   if(this._properties['pause'].value) {
     this._in_fifo.push(new request('pause', null, null, on_finish));
   }
 };
 
-mplayer.prototype.song_over = function() {
+Mplayer.prototype.song_over = function() {
   return (!isNaN(this._properties.time_pos.value)
       && !isNaN(this._properties.length.value)
       && this._properties.time_pos.value >= this._properties.length.value)
     || this._properties.filename.value == undefined;
 };
 
-mplayer.prototype._get_filename = function(on_finish) {
+Mplayer.prototype._get_filename = function(on_finish) {
   this._get_property('filename', on_finish);
 };
 
-mplayer.prototype._get_volume = function(on_finish) {
+Mplayer.prototype._get_volume = function(on_finish) {
   this._get_property('volume', on_finish);
 };
 
-mplayer.prototype._get_time_pos = function(on_finish) {
+Mplayer.prototype._get_time_pos = function(on_finish) {
   this._get_property('time_pos', on_finish);
 };
 
-mplayer.prototype._get_length = function(on_finish) {
+Mplayer.prototype._get_length = function(on_finish) {
   this._get_property('length', on_finish);
 };
 
-mplayer.prototype._get_pause = function(on_finish) {
+Mplayer.prototype._get_pause = function(on_finish) {
   this._get_property('pause', on_finish);
 };
 
-mplayer.prototype.get_filename = function() {
+Mplayer.prototype.get_filename = function() {
   return this._properties.filename.value;
 };
 
-mplayer.prototype.get_volume = function() {
+Mplayer.prototype.get_volume = function() {
   return this._properties.volume.value;
 };
 
-mplayer.prototype.get_time_pos = function() {
+Mplayer.prototype.get_time_pos = function() {
   return this._properties.time_pos.value;
 };
 
-mplayer.prototype.get_length = function() {
+Mplayer.prototype.get_length = function() {
   return this._properties.length.value;
 };
 
-mplayer.prototype.get_pause = function() {
+Mplayer.prototype.get_pause = function() {
   return this._properties.pause.value;
 };
 
-mplayer.prototype.set_time_pos = function(on_finish) {
+Mplayer.prototype.set_time_pos = function(on_finish) {
   this._set_property('time_pos', on_finish);
 };
 
-mplayer.prototype.set_volume = function(on_finish) {
+Mplayer.prototype.set_volume = function(on_finish) {
   this._set_property('volume', on_finish);
 };
 

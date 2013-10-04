@@ -4,22 +4,21 @@ var path = require('path'),
     root = path.join(__dirname, '..', '..');
 
 // Database
-var Sequelize = exports.Sequelize = require('sequelize');
-exports.db = new Sequelize(db.name, db.user, db.password, {
-  'dialect': db.engine,
-  'logging': false,
-  'sync': { 'force': true }
+var mongoose = require('mongoose');
+mongoose.connect(db.host, db.name, db.port, {
+  user: db.user,
+  pass: db.password
 });
 
 // Media
 exports.media = {
-  'root': path.join(root, media.path),
-  'extensions': media.extensions
+  root: path.join(root, media.path),
+  extensions: media.extensions
 };
 
 // Player
 exports.player = {
-  'url': '/player'
+  url: '/player'
 };
 
 // Watchdog
