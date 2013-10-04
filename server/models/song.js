@@ -19,6 +19,7 @@ var SongSchema = new Schema({
 });
 
 SongSchema.methods.fullPath = function() {
+  return path.join(settings.media.root, this.path);
 };
 
 exports.Song = mongoose.model('Song', SongSchema);

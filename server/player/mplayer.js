@@ -1,129 +1,126 @@
 var spawn = require('child_process').spawn;
 
-var request = function(input, out_waiting, err_waiting, on_finish, timeout) {
+var Request = function(input, outWaiting, errWaiting, finish, timeout) {
     this._input = input;
-    this._out_waiting = out_waiting;
-    this._err_waiting = err_waiting;
+    this._outWaiting = outWaiting;
+    this._errWaiting = errWaiting;
 
-    this._on_finish = on_finish;
+    this._onFinish = finish;
 
-    this._checked_out = false;
-    this._checked_err = false;
+    this._checkedOut = false;
+    this._checkedErr = false;
 
-    var base_timeout = 30000;
+    var baseTimeout = 30000;
     this._timeout = timeout;
-    if(!this._timeout)
+    if (!this._timeout)
       this._timeout = 30000;
-    this._begin_time = new Date().getTime();
+    this._beginTime = new Date().getTime();
 };
 
-request.prototype.ask = function() {
+Request.prototype.ask = function() {
     return this._input;
 };
 
-request.prototype.checked = function() {
-  return this._checked_out || this._checked_err
-    || (this._out_waiting === null && this._err_waiting == null);
+Request.prototype.checked = function() {
+  return this._checkedOut || this._checkedErr
+    || (this._outWaiting === null && this._errWaiting == null);
 };
 
-request.prototype.timeout = function() {
-  return new Date().getTime() - this._begin_time > this._timeout;
+Request.prototype.timeout = function() {
+  return new Date().getTime() - this._beginTime > this._timeout;
 };
 
-request.prototype.check_out = function(data) {
-  if(this._checked_out)
-    return this._checked_out;
+Request.prototype.checkOut = function(data) {
+  if (this._checkedOut)
+    return this._checkedOut;
 
   var re = false;
-  if(this._out_waiting === null) {
+  if (this._outWaiting === null) {
     re = true;
-    if(this._err_waiting !== null)
-      re = false;
+    if (this._errWaiting !== null) { re = false; }
   }
-  else if(this._out_waiting == undefined)
+  else if (this._outWaiting === undefined)
     re = false;
   else {
-    var check_word = function(word) {
-      if(data.length >= word.length
-          && data.slice(0, word.length) == word)
-        return true;
-      return false;
+    var checkWord = function(word) {
+      return data.length >= word.length
+        && data.slice(0, word.length) == word;
     };
 
-    if(Array.isArray(this._out_waiting)) {
-      for(var i = 0 ; i < this._out_waiting.length ; i++) {
-        var word = this._out_waiting[i];
-        re = check_word(word);
-        if(re)
+    if (typeof this._outWaiting == 'array') {
+      for (var i = 0; i < this._outWaiting.length; i++) {
+        var word = this._outWaiting[i];
+        re = checkWord(word);
+        if (re)
           break;
       }
     }
     else {
-      re = check_word(this._out_waiting);
+      re = checkWord(this._outWaiting);
     }
   }
 
-  if(re == true && this._on_finish != undefined) {
-    this._on_finish(data);
-    this._on_finish = undefined;
+  if (re == true && this._onFinish != undefined) {
+    this._onFinish(data);
+    this._onFinish = undefined;
   }
-  this._checked_out = re;
+  this._checkedOut = re;
   return re;
 };
 
-request.prototype.check_err = function(data) {
-  if(this._checked_err)
-    return this._checked_err;
+Request.prototype.checkErr = function(data) {
+  if (this._checkedErr)
+    return this._checkedErr;
 
   var re = false;
-  if(this._err_waiting === null) {
+  if (this._errWaiting === null) {
     re = true;
-    if(this._out_waiting !== null)
+    if (this._outWaiting !== null)
       re = false;
   }
-  else if(this._err_waiting == undefined)
+  else if (this._errWaiting === undefined)
     re = false;
   else {
-    var check_word = function(word) {
-      if(data.length >= word.length
+    var checkWord = function(word) {
+      if (data.length >= word.length
           && data.slice(0, word.length) == word)
         return true;
       return false;
     };
 
-    if(Array.isArray(this._err_waiting)) {
-      for(var i = 0 ; i < this._err_waiting.length ; i++) {
-        var word = this._err_waiting[i];
-        re = check_word(word);
-        if(re)
+    if (Array.isArray(this._errWaiting)) {
+      for (var i = 0; i < this._errWaiting.length; i++) {
+        var word = this._errWaiting[i];
+        re = checkWord(word);
+        if (re)
           break;
       }
     }
     else {
-      re = check_word(this._err_waiting);
+      re = checkWord(this._errWaiting);
     }
   }
 
-  if(re == true && this._on_finish != undefined) {
-    this._on_finish(data);
-    this._on_finish = undefined;
+  if (re == true && this._onFinish != undefined) {
+    this._onFinish(data);
+    this._onFinish = undefined;
   }
-  this._checked_err = re;
+  this._checkedErr = re;
   return re;
 };
 
 var Mplayer = exports.Mplayer = function() {
     // 3 input/output fifo
-    this._in_fifo = new Array();
-    this._out_fifo = new Array();
-    this._err_fifo = new Array();
+    this._inStack = new Array();
+    this._outStack = new Array();
+    this._errStack = new Array();
 
     // Current request
     this._request = null;
 
     // Subproc of mplayer
-    this._proc_opened = false;
-    this._proc_opening = false;
+    this._procOpened = false;
+    this._procOpening = false;
     this._process = null;
 
     // Load the list of properties
@@ -131,20 +128,20 @@ var Mplayer = exports.Mplayer = function() {
       pause:    {value: undefined,  type: 'flag'},
       filename: {value: undefined,  type: 'string'},
       length:   {value: undefined,  type: 'time'},
-      time_pos: {value: undefined,  type: 'time'},
+      timePos: {value: undefined,  type: 'time'},
       volume:   {value: undefined,  type: 'float'},
     };
 
     // Flush, listen and update sometimes
     var self = this;
-    var time_to_update = 200;
+    var timeToUpdate = 200;
     // var f = function() {
-    //   self._get_filename(function() {
-    //     self._get_volume(function() {
-    //       self._get_length(function() {
-    //         self._get_time_pos(function() {
-    //           self._get_pause(function() {
-    //             setTimeout(f, time_to_update);
+    //   self._getFilename(function() {
+    //     self._getVolume(function() {
+    //       self._getLength(function() {
+    //         self._getTimePos(function() {
+    //           self._getPause(function() {
+    //             setTimeout(f, timeToUpdate);
     //           });
     //         });
     //       });
@@ -152,17 +149,23 @@ var Mplayer = exports.Mplayer = function() {
     //   });
     // };
     // f();
-    setInterval(function() { self.flush(); }, time_to_update);
-    setInterval(function() { self.listen(); }, time_to_update);
+    setInterval(function() { self.flush(); }, timeToUpdate);
+    setInterval(function() { self.listen(); }, timeToUpdate);
+};
+
+Mplayer.prototype._log = function() {
+  var args = [].slice.call(arguments, 0);
+  args.unshift('[Mplayer]');
+  console.log.apply(console, args);
 };
 
 Mplayer.prototype.update = function(callback) {
   var self = this;
-  self._get_filename(function() {
-    self._get_volume(function() {
-      self._get_length(function() {
-        self._get_time_pos(function() {
-          self._get_pause(callback);
+  self._getFilename(function() {
+    self._getVolume(function() {
+      self._getLength(function() {
+        self._getTimePos(function() {
+          self._getPause(callback);
         });
       });
     });
@@ -170,42 +173,42 @@ Mplayer.prototype.update = function(callback) {
 };
 
 Mplayer.prototype.start = function() {
-    if(this._proc_opened || this._proc_opening)
+    if (this._procOpened || this._procOpening)
         return;
 
     var self = this;
-    this._proc_opening = true;
+    this._procOpening = true;
     this._process = spawn('mplayer', ['-slave', '-idle', '-quiet', '-softvol', '-nolirc', '-vo', 'NULL']);
 
     // Active the communication with the process after a little time
     // TODO find another way to detect if it's on
     var timer = setTimeout(function() {
-      self._proc_opened = true;
-      self._proc_opening = false;
-    }, this._proc_waiting_time);
+      self._procOpened = true;
+      self._procOpening = false;
+    }, this._procWaitingTime);
 
     this._process.stdout.on('data', function(data) {
-        console.log('STDOUT: ' + data);
         var lines = (new String(data)).split('\n');
-        for(var i = 0 ; i < lines.length ; i++) {
-            self._out_fifo.push(lines[i]);
+        self._log('STDOUT', lines);
+        for (var i = 0; i < lines.length; i++) {
+            self._outStack.push(lines[i]);
         }
         self.listen();
         self.flush();
     });
     this._process.stderr.on('data', function(data) {
-        console.log('STDERR: ' + data);
         var lines = (new String(data)).split('\n');
-        for(var i = 0 ; i < lines.length ; i++) {
-            self._err_fifo.push(lines[i]);
+        self._log('STDERR', lines);
+        for (var i = 0; i < lines.length; i++) {
+          self._errStack.push(lines[i]);
         }
         self.listen();
         self.flush();
     });
     this._process.on('exit', function(code, signal) {
         clearInterval(timer);
-        self._proc_opened = false;
-        self._proc_opening = false;
+        self._procOpened = false;
+        self._procOpening = false;
         self._process = null;
 
         // Restart mplayer
@@ -214,144 +217,139 @@ Mplayer.prototype.start = function() {
 };
 
 Mplayer.prototype.kill = function(signal) {
-    if(signal = undefined)
+    if (signal = undefined)
         signal = 'SIGTERM';
-    if(this._process)
+    if (this._process)
         this._process.kill(signal);
 };
 
 Mplayer.prototype.flush = function() {
-  if(!this._proc_opened)
+  if (!this._procOpened)
     return;
 
-  while(this._request === null
-    && this._in_fifo.length > 0) {
-    this._request = this._in_fifo.shift();
+  while (this._request === null
+    && this._inStack.length > 0) {
+    this._request = this._inStack.shift();
     this._write(this._request.ask());
   }
 };
 
 Mplayer.prototype.listen = function() {
-    if(!this._proc_opened)
-        return;
-    if(this._request === null)
-        return;
+    if (!this._procOpened || this._request === null) { return; }
 
     // Check output fifo
-    while(this._out_fifo.length > 0) {
-        var out = this._out_fifo.shift();
-        this._request.check_out(out);
+    while (this._outStack.length > 0) {
+      var out = this._outStack.shift();
+      this._request.checkOut(out);
     };
 
     // Check error fifo
-    while(this._err_fifo.length > 0) {
-        var err = this._err_fifo.shift();
-        this._request.check_err(err);
+    while (this._errStack.length > 0) {
+      var err = this._errStack.shift();
+      this._request.checkErr(err);
     };
 
-    if(this._request.checked())
-        this._request = null;
-    else if(this._request.timeout()) {
-      this._in_fifo.unshift(new request(this._request._input,
-            this._request._out_waiting,
-            this._request._err_waiting,
-            this._request._on_finish,
+    if (this._request.checked()) {
+      this._request = null;
+    } else if (this._request.timeout()) {
+      this._inStack.unshift(new Request(this._request._input,
+            this._request._outWaiting,
+            this._request._errWaiting,
+            this._request._onFinish,
             this._request._timeout));
       this._request = null;
     }
 
     // Flush both output fifo
-    for(; this._out_fifo.length ; this._out_fifo.shift());
-    for(; this._err_fifo.length ; this._err_fifo.shift());
+    for (; this._outStack.length; this._outStack.shift());
+    for (; this._errStack.length; this._errStack.shift());
 };
 
 Mplayer.prototype._write = function(data) {
-    if(!this._proc_opened)
-        return;
-
-    console.log('STDIN: ' + data);
+    if (!this._procOpened) { return; }
+    this._log('STDIN', data);
     this._process.stdin.write(data + '\n');
 };
 
-Mplayer.prototype._get_property = function(prop, on_finish) {
+Mplayer.prototype._getProperty = function(prop, finish) {
   // TODO more secured
-  if(this._properties[prop] == undefined)
-    return;
+  if (this._properties[prop] === undefined) { return; }
 
   var self = this;
-  this._in_fifo.push(new request('pausing_keep_force get_property ' + prop,
+  this._inStack.push(new Request('pausing_keep_force get_property ' + prop,
         'ANS_' + prop + '=',
         'Failed to get value of property \'' + prop + '\'',
         function(data) {
           var word = 'ANS_' + prop + '=';
           var type = self._properties[prop].type;
           self._properties[prop].value = undefined;
-          if(data.length > word.length
+          if (data.length > word.length
             && data.slice(0, word.length) == word) {
-              if(type == 'float')
+              if (type == 'float')
     self._properties[prop].value = parseFloat(data.slice(word.length));
-              else if(type == 'int')
+              else if (type == 'int')
     self._properties[prop].value = parseInt(data.slice(word.length));
-              else if(type == 'flag')
+              else if (type == 'flag')
     self._properties[prop].value = data.slice(word.length) == 'yes';
-              else if(type == 'string')
+              else if (type == 'string')
     self._properties[prop].value = data.slice(word.length);
-              else if(type == 'pos')
+              else if (type == 'pos')
     self._properties[prop].value = parseInt(data.slice(word.length));
-              else if(type == 'time')
+              else if (type == 'time')
     self._properties[prop].value = parseInt(data.slice(word.length));
             }
-          if(on_finish) {
-            on_finish(self._properties[prop].value);
+          if (finish) {
+            finish(self._properties[prop].value);
           }
         },
         5000));
   this.flush();
 };
 
-Mplayer.prototype._set_property = function(prop, value, on_finish) {
+Mplayer.prototype._setProperty = function(prop, value, finish) {
   // TODO more secured
-  if(this._properties[prop] == undefined)
+  if (this._properties[prop] === undefined) {
     return;
+  }
 
   var self = this;
-  this._in_fifo.push(new request(
+  this._inStack.push(new Request(
         'pausing_keep_force set_property ' + prop + ' ' + value,
         null,
         null,
         function() {
           // self._properties[prop].value = value;
-          if(on_finish) {
-            on_finish();
+          if (finish) {
+            finish();
           }
         }));
   this.flush();
   this.listen();
 };
 
-Mplayer.prototype.quit = function(code, on_finish) {
-  if(code == undefined)
+Mplayer.prototype.quit = function(code, finish) {
+  if (code === undefined)
     code = 0;
-  this._in_fifo.push(new request('quit', null, null, on_finish));
+  this._inStack.push(new Request('quit', null, null, finish));
 };
 
-Mplayer.prototype.loadfile = function(filename, append, on_finish) {
-  this._in_fifo.push(new request(
+Mplayer.prototype.loadfile = function(filename, append, finish) {
+  this._inStack.push(new Request(
         'loadfile "' + filename + '" ' + append,
         'Starting playback...',
         'Failed to open ' + filename + '.',
-        on_finish));
+        finish));
 };
 
-Mplayer.prototype.force_pause = function(on_finish) {
-  if(!this._properties['pause'].value) {
-    this._in_fifo.push(new request('pause', null, null, on_finish));
+Mplayer.prototype.force_pause = function(finish) {
+  if (!this._properties['pause'].value) {
+    this._inStack.push(new Request('pause', null, null, finish));
   }
 };
 
-Mplayer.prototype.force_unpause = function(on_finish) {
-  if(this._properties['pause'].value) {
-    this._in_fifo.push(new request('pause', null, null, on_finish));
+Mplayer.prototype.force_unpause = function(finish) {
+  if (this._properties['pause'].value) {
+    this._inStack.push(new Request('pause', null, null, finish));
   }
 };
 
@@ -359,55 +357,55 @@ Mplayer.prototype.song_over = function() {
   return (!isNaN(this._properties.time_pos.value)
       && !isNaN(this._properties.length.value)
       && this._properties.time_pos.value >= this._properties.length.value)
-    || this._properties.filename.value == undefined;
+    || this._properties.filename.value === undefined;
 };
 
-Mplayer.prototype._get_filename = function(on_finish) {
-  this._get_property('filename', on_finish);
+Mplayer.prototype._getFilename = function(finish) {
+  this._getProperty('filename', finish);
 };
 
-Mplayer.prototype._get_volume = function(on_finish) {
-  this._get_property('volume', on_finish);
+Mplayer.prototype._getVolume = function(finish) {
+  this._getProperty('volume', finish);
 };
 
-Mplayer.prototype._get_time_pos = function(on_finish) {
-  this._get_property('time_pos', on_finish);
+Mplayer.prototype._getTimePos = function(finish) {
+  this._getProperty('time_pos', finish);
 };
 
-Mplayer.prototype._get_length = function(on_finish) {
-  this._get_property('length', on_finish);
+Mplayer.prototype._getLength = function(finish) {
+  this._getProperty('length', finish);
 };
 
-Mplayer.prototype._get_pause = function(on_finish) {
-  this._get_property('pause', on_finish);
+Mplayer.prototype._getPause = function(finish) {
+  this._getProperty('pause', finish);
 };
 
-Mplayer.prototype.get_filename = function() {
+Mplayer.prototype.getFilename = function() {
   return this._properties.filename.value;
 };
 
-Mplayer.prototype.get_volume = function() {
+Mplayer.prototype.getVolume = function() {
   return this._properties.volume.value;
 };
 
-Mplayer.prototype.get_time_pos = function() {
+Mplayer.prototype.getTimePos = function() {
   return this._properties.time_pos.value;
 };
 
-Mplayer.prototype.get_length = function() {
+Mplayer.prototype.getLength = function() {
   return this._properties.length.value;
 };
 
-Mplayer.prototype.get_pause = function() {
+Mplayer.prototype.getPause = function() {
   return this._properties.pause.value;
 };
 
-Mplayer.prototype.set_time_pos = function(on_finish) {
-  this._set_property('time_pos', on_finish);
+Mplayer.prototype.setTime_pos = function(finish) {
+  this._setProperty('time_pos', finish);
 };
 
-Mplayer.prototype.set_volume = function(on_finish) {
-  this._set_property('volume', on_finish);
+Mplayer.prototype.setVolume = function(finish) {
+  this._setProperty('volume', finish);
 };
 
 // vim: ft=javascript et sw=2 sts=2

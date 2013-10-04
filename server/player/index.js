@@ -29,9 +29,9 @@ Player.prototype.quit = function(code) {
 
 Player.prototype.songIsOver = function() {
   return this._mplayer.song_over();
-  // return (!isNaN(this._mplayer.time_pos.value)
+  // return (!isNaN(this._mplayer.timePos.value)
   //   && !isNaN(this._mplayer.length.value)
-  //   && this._mplayer.time_pos.value >= this._mplayer.length.value)
+  //   && this._mplayer.timePos.value >= this._mplayer.length.value)
   //   || this._mplayer.filename.value == undefined;
 }
 
@@ -39,17 +39,18 @@ Player.prototype.info = function(callback) {
   var self = this;
 
   this._mplayer.update(function() {
-    var filename =  self._mplayer.get_filename();
-    var volume =    self._mplayer.get_volume();
-    var length =    self._mplayer.get_length();
-    var time_pos =  self._mplayer.get_time_pos();
-    var pause =     self._mplayer.get_pause();
+    console.log('UPDATE');
+    var filename =  self._mplayer.getFilename();
+    var volume =    self._mplayer.getVolume();
+    var length =    self._mplayer.getLength();
+    var timePos =  self._mplayer.getTimePos();
+    var pause =     self._mplayer.getPause();
 
     var out = {
       'id': -1,
       'playing': pause ? 0 : 1,
       'volume': volume,
-      'time': time_pos,
+      'time': timePos,
       'time_max': length,
       'playlist': [],
       'play_count': 0
@@ -68,44 +69,6 @@ Player.prototype.info = function(callback) {
       callback(out);
     }
   });
-
-  // return out;
-
-  // this._mplayer.filename.get();
-  // this._mplayer.volume.get();
-  // this._mplayer.time_pos.get();
-  // this._mplayer.length.get();
-  // this._mplayer.pause.get();
-
-  // var self = this;
-  // var wait_out = function() {
-  //   if (!self._mplayer.waiting()) {
-  //     var out = {
-  //       'id': -1,
-  //       'playing': self._mplayer.pause.value ? 0 : 1,
-  //       'volume': self._mplayer.volume.value,
-  //       'time': self._mplayer.time_pos.value,
-  //       'time_max': self._mplayer.length.value,
-  //       'playlist': [],
-  //       'play_count': 0
-  //     };
-
-  //     for (var i = 0 ; i < self._playlist.length ; i++) {
-  //       out['playlist'].push(self._playlist[i].id);
-  //     }
-
-  //     if (self._currentSong != undefined) {
-  //       out['id'] = self._currentSong.id;
-  //       out['play_count'] = self._currentSong.playCount;
-  //     }
-
-  //     if (success) { success(out); }
-  //   }
-  //   else {
-  //     setTimeout(wait_out, 100);
-  //   }
-  // };
-  // wait_out();
 };
 
 Player.prototype.addToPlaylist = function(id, pos) {
@@ -125,45 +88,43 @@ Player.prototype.addToPlaylist = function(id, pos) {
 }
 
 Player.prototype._play = function(song, from_history) {
-  if (song != undefined) {
-    var self = this;
+  if (song == undefined) { return; }
 
-    if (from_history == undefined) {
-      from_history = false;
+  if (from_history == undefined) {
+    from_history = false;
+  }
+
+  if (from_history) {
+    this._playlist.unshift(this._currentSong);
+    if (this._playlist.length > this._playlist_size) {
+      this._playlist.pop();
     }
-
-    if (from_history) {
-      this._playlist.unshift(this._currentSong);
-      if (this._playlist.length > this._playlist_size) {
-        this._playlist.pop();
-      }
-    } else {
-      this._history.push(this._currentSong);
-      if (this._history.length > this._history_size) {
-        this._history.shift();
-      }
+  } else {
+    this._history.push(this._currentSong);
+    if (this._history.length > this._history_size) {
+      this._history.shift();
     }
+  }
 
-    this._currentSong = song;
+  this._currentSong = song;
 
-    var volume = this._mplayer.get_volume();
-    if (this._currentSong.youtube != undefined) {
-      youtube.play(this._currentSong.youtube, function(url) {
-        self._mplayer.loadfile(url, 0, function() {
-          self._mplayer.set_volume(volume);
-        });
-      }, function(err) {
-        console.log('Youtube error: ', err);
-      });
-    } else {
-      this._mplayer.loadfile(this._currentSong.fullPath(), 0, function() {
+  var self = this, volume = this._mplayer.getVolume();
+  if (this._currentSong.youtube != undefined) {
+    youtube.play(this._currentSong.youtube, function(url) {
+      self._mplayer.loadfile(url, 0, function() {
         self._mplayer.set_volume(volume);
       });
-      this._currentSong.playCount += 1;
-      this._currentSong.save();
-    }
-    // this._mplayer.set_volume(volume);
+    }, function(err) {
+      console.log('Youtube error: ', err);
+    });
+  } else {
+    this._mplayer.loadfile(this._currentSong.fullPath(), 0, function() {
+      self._mplayer.set_volume(volume);
+    });
+    this._currentSong.playCount += 1;
+    this._currentSong.save();
   }
+  // this._mplayer.set_volume(volume);
 };
 
 Player.prototype.playRandom = function() {
@@ -206,7 +167,7 @@ Player.prototype.play = function(id) {
   }
 };
 
-Player.prototype.play_youtube = function(url) {
+Player.prototype.playYoutube = function(url) {
   if (url != undefined) {
     var song = {};
     song.youtube = url;
@@ -235,8 +196,8 @@ Player.prototype.stop = function(id) {
       && this._currentSong != undefined
       && this._currentSong.id == id) {
         this._mplayer.force_pause();
-        // this._mplayer.time_pos.set(0);
-        this._mplayer.set_time_pos(0);
+        // this._mplayer.timePos.set(0);
+        this._mplayer.setTimePos(0);
       }
 }
 
@@ -256,8 +217,8 @@ Player.prototype.time = function(id, time) {
       && this._currentSong.id == id
       && !isNaN(time)
       && time > 0) {
-        // this._mplayer.time_pos.set(time);
-        this._mplayer.set_time_pos(time);
+        // this._mplayer.timePos.set(time);
+        this._mplayer.setTimePos(time);
       }
 }
 
