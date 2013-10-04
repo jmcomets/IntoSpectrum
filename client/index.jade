@@ -20,29 +20,32 @@ head
         a.navbar-brand(href='#') IntoSpectrum
         button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
           span.sr-only Toggle navigation
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
+          i.icon-bar
+          i.icon-bar
+          i.icon-bar
 
       //- Player
       div.navbar-collapse.collapse(ng-controller='PlayerCtrl')
-        div.nav.navbar-text.progress.col-md-7
-          div#play-progress.progress-bar(role='progressbar', ng-style='{ width: 100*time/maxTime + "%" }')
-        form.navbar-form.form-inline.col-md-1
-          div.btn-group
-            button.btn.btn-default(ng-click='previous()', type='button')
-              span.icon-step-backward
-            button.btn.btn-default(ng-click='togglePause()', type='button')
-              span.glyphicon.glyphicon-play(ng-hide='playing')
-              span.glyphicon.glyphicon-pause(ng-show='playing')
-            button.btn.btn-default(ng-click='stop()', type='button')
-              span.glyphicon.glyphicon-stop
-            button.btn.btn-default(ng-click='next()', type='button')
-              span.icon-step-forward
-            button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
-              span.glyphicon.glyphicon-random
-        div.col-md-1
-          div#volume-progress.slider
+        div.nav.nav-progress.col-md-6
+          div.navbar-text.progress
+            div#play-progress.progress-bar(role='progressbar', ng-style='{ width: 100*time/maxTime + "%" }')
+        div.nav.nav-controls.col-md-4
+          div.col-md-7
+            form.navbar-form.form-inline
+              div.btn-group
+                button.btn.btn-default(ng-click='previous()', type='button')
+                  i.icon-step-backward
+                button.btn.btn-default(ng-click='togglePause()', type='button')
+                  i.icon-play(ng-hide='playing')
+                  i.icon-pause(ng-show='playing')
+                button.btn.btn-default(ng-click='stop()', type='button')
+                  i.icon-stop
+                button.btn.btn-default(ng-click='next()', type='button')
+                  i.icon-step-forward
+                button.btn.btn-default(ng-click='toggleRandom()', ng-class='{ active: random }', type='button')
+                  i.icon-random
+          div.col-md-3
+            div.slider
     div.navbar-fixed-push
 
     //- Sidebar
@@ -116,4 +119,4 @@ head
     //- App JS
     script(type='text/javascript', src='/js/main.js')
     script(type='text/javascript')
-      $(window).load(function() { $('#volume-progress').slider(); });
+      $(window).load(function() { $('.slider').slider(); });
