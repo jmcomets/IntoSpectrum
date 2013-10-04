@@ -17,7 +17,7 @@ head
   body
     nav.navbar.navbar-default.navbar-fixed-top
       div.navbar-header
-        a.navbar-brand(href='') IntoSpectrum
+        a.navbar-brand(href='/') IntoSpectrum
         button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
           span.sr-only
             | Toggle navigation
@@ -50,41 +50,47 @@ head
     div.navbar-fixed-push
 
     //- Sidebar
-    div(ng-controller='SidebarCtrl', style='position:relative;z-index:1')
-      div.col-md-3.tabbable(data-spy='affix', style='z-index:auto')
-        div(ng-show='visible')
-          ul.nav.nav-tabs
-            li.active
-              a(href='#tab-playlist', data-toggle='tab')
-                i.icon-list
-            li
-              a(href='#tab-youtube', data-toggle='tab')
-                i.icon-youtube
-          div.tab-content
-            //- Playlist
-            div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
-              h4(ng-show='!playlist.length')
-                p.text-center
-                  | Playlist is empty
-              ul#playlist.list-group
-                li.list-group-item(ng-repeat='song in playlist')
+    div.sidebar(ng-controller='SidebarCtrl')
+      div.sidebar-tabs.sidebar-item.col-md-3.tabbable(data-spy='affix', ng-show='visible')
+        ul.nav.nav-tabs
+          li.active
+            a(href='#playlist', data-toggle='tab')
+              i.icon-list
+          li
+            a(href='#youtube', data-toggle='tab')
+              i.icon-youtube
+        div.tab-content
+          //- Playlist
+          div.tab-pane.active(ng-controller='PlaylistCtrl')
+            h4(ng-show='!playlist.length')
+              p.text-center
+                | Playlist is empty
+            ul.playlist.list-group
+              li.playlist-item.list-group-item.row(ng-repeat='song in playlist')
+                div.col-md-9
                   | {{song.title}}
-            //- Youtube
-            div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
-              form.navbar-form(ng-submit='search()')
-                div.input-group
-                  input.search-youtube.form-control(type='text', placeholder='Search on Youtube')
-                  div.input-group-btn
-                    button.btn.btn-default(type='button')
-                      span.glyphicon.glyphicon-search
-              div#youtube-search-results
-                div#youtube-loading
-                  div.col-md-2
-                  div.col-md-2
-                    img(src='/img/loader.gif')
-                  div.col-md-2
-                    h4 Searching...
-      div.col-md-1(style='position:fixed;bottom:10px;z-index:auto')
+                div.col-md-1
+                  a(href='/playlist/{{song.id}}/play', ng-click='play($index)')
+                    i.icon-play
+                div.col-md-1
+                  a(href='/playlist/{{song.id}}/remove',ng-click='remove($index)')
+                    i.icon-remove
+          //- Youtube
+          div.tab-pane(ng-controller='YoutubeCtrl')
+            form.navbar-form(ng-submit='search()')
+              div.input-group
+                input.youtube-search.form-control(type='text', placeholder='Search on Youtube')
+                div.input-group-btn
+                  button.btn.btn-default(type='button')
+                    span.glyphicon.glyphicon-search
+            div.youtube-results
+              div.youtube-loading
+                div.col-md-2
+                div.col-md-2
+                  img(src='/img/loader.gif')
+                div.col-md-2
+                  h4 Searching...
+      div.sidebar-toggle.sidebar-item.col-md-1
         button.btn.btn-default(type='button', ng-click='visible = !visible')
           i.icon-chevron-right(ng-hide='visible')
           i.icon-chevron-left(ng-show='visible')
@@ -98,11 +104,11 @@ head
           thead
             tr
               th
-                a(href='#', ng-click='predicate = "title"; reverse = !reverse') Title
+                a(ng-click='predicate = "title"; reverse = !reverse') Title
               th
-                a(href='#', ng-click='predicate = "artist"; reverse = !reverse') Artist
+                a(ng-click='predicate = "artist"; reverse = !reverse') Artist
               th
-                a(href='#', ng-click='predicate = "album"; reverse = !reverse') Album
+                a(ng-click='predicate = "album"; reverse = !reverse') Album
           tbody(infinite-scroll='paginate()')
             tr(ng-click='play(song)', ng-class='{ warning: song.id == currentSongId }',
                ng-repeat='song in songs | orderBy:predicate:reverse')
