@@ -46,43 +46,50 @@ head
     div.navbar-fixed-push
 
     //- Sidebar
-    div.col-md-3
+    div(ng-controller='SidebarCtrl')
       div.col-md-3.tabbable(data-spy='affix', role='complementary')
-        ul.nav.nav-tabs
-          li.active
-            a(href='#tab-playlist', data-toggle='tab')
-              i.icon-list
-          li
-            a(href='#tab-youtube', data-toggle='tab')
-              i.icon-youtube
-        div.tab-content
-          //- Playlist
-          div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
-            h4(ng-show='!playlist.length')
-              p.text-center
-                | Playlist is empty
-            ul#playlist.list-group
-              li.list-group-item(ng-repeat='song in playlist')
-                | {{song.title}}
-          //- Youtube
-          div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
-            form.navbar-form(role='search', ng-submit='search()')
-              div.input-group
-                input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
-                div.input-group-btn
-                  button.btn.btn-default(type='button')
-                    span.glyphicon.glyphicon-search
-            div#youtube-search-results
-              div#youtube-loading
-                div.col-md-2
-                div.col-md-2
-                  img(src='/img/loader.gif')
-                div.col-md-2
-                  h4 Searching...
+        div(ng-show='visible')
+          ul.nav.nav-tabs
+            li.active
+              a(href='#tab-playlist', data-toggle='tab')
+                i.icon-list
+            li
+              a(href='#tab-youtube', data-toggle='tab')
+                i.icon-youtube
+          div.tab-content
+            //- Playlist
+            div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
+              h4(ng-show='!playlist.length')
+                p.text-center
+                  | Playlist is empty
+              ul#playlist.list-group
+                li.list-group-item(ng-repeat='song in playlist')
+                  | {{song.title}}
+            //- Youtube
+            div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
+              form.navbar-form(role='search', ng-submit='search()')
+                div.input-group
+                  input.search-youtube.form-control(type='text', role='search', placeholder='Search on Youtube')
+                  div.input-group-btn
+                    button.btn.btn-default(type='button')
+                      span.glyphicon.glyphicon-search
+              div#youtube-search-results
+                div#youtube-loading
+                  div.col-md-2
+                  div.col-md-2
+                    img(src='/img/loader.gif')
+                  div.col-md-2
+                    h4 Searching...
+      div.col-md-1(style='position:fixed;bottom:10px;z-index:1')
+        button.btn.btn-default(type='button', ng-click='visible = !visible')
+          i.icon-chevron-right(ng-hide='visible')
+          i.icon-chevron-left(ng-show='visible')
+          | &nbsp;
+          | sidebar
 
     //- Library
     div(ng-controller='LibraryCtrl', ng-init='load()')
-      div.col-md-9
+      div.col-md-12
         table#library.table.table-hover.table-condensed(ng-hide='loading')
           thead
             tr
