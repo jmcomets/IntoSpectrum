@@ -107,9 +107,9 @@ head
               th
                 a(href='#/sort-by/title', ng-click='predicate = "title"; reverse = !reverse') Title
               th
-                a(href='#/sort-by/title', ng-click='predicate = "artist"; reverse = !reverse') Artist
+                a(href='#/sort-by/artist', ng-click='predicate = "artist"; reverse = !reverse') Artist
               th
-                a(href='#/sort-by/title', ng-click='predicate = "album"; reverse = !reverse') Album
+                a(href='#/sort-by/album', ng-click='predicate = "album"; reverse = !reverse') Album
           tbody(infinite-scroll='paginate()')
             tr.song-item(ng-click='play(song)',
                 ng-class='{ active: song.id == currentSongId }',
