@@ -27,7 +27,7 @@ head
       //- Player
       div.navbar-collapse.collapse(ng-controller='PlayerCtrl')
         div.nav.navbar-text.progress.col-md-7
-          div#play-progress.progress-bar(role='progressbar')
+          div#play-progress.progress-bar(role='progressbar', ng-style='{ width: 100*time/maxTime + "%" }')
         form.navbar-form.form-inline.col-md-1
           div.btn-group
             button.btn.btn-default(ng-click='previous()', type='button')
