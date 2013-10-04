@@ -39,12 +39,17 @@ function PlayerCtrl($scope, $player) {
     }, 1000*secs);
   };
 
-  $player.bind('info', function(state) {
+  var handleStateChange = function() {
     $scope.playing = this.state.playing;
     //$scope.random = this.state.random;
     $scope.volume = parseFloat(this.state.volume);
 
     $scope.setTime(parseFloat(this.state.time));
     $scope.maxTime = parseFloat(this.state.time_max);
-  });
+  };
+
+  $player.bind('info', handleStateChange);
+  $player.bind('update', handleStateChange);
+  $player.bind('connect', function() { $player.load(); });
+  $player.bind('disconnect', function() { });
 }

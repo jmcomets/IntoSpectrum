@@ -1,4 +1,4 @@
-app.factory('$player', function ($rootScope) {
+app.factory('$player', function ($rootScope, $q) {
   // Exposed player service
   var player = {
     state: {},
@@ -26,30 +26,8 @@ app.factory('$player', function ($rootScope) {
     player.state = info;
     player.trigger('info');
   }, _handleResponse = function(response) {
-    // Change state for event hooks
-    var oldState = player.state;
     player.state = response;
-
-    // Play/pause/unpause/stop
-    if (oldState.playing != response.playing) {
-      if (!response.playing) { // stop/pause
-        if (oldState.time === 0) { // stop
-          player.trigger('stop');
-        } else { // pause
-          player.trigger('pause');
-        }
-      } else { // play/unpause
-        if (oldState.id != response.id || response.time === 0) { // play
-          player.trigger('play');
-        } else { // unpause
-          player.trigger('unpause');
-        }
-      }
-    }
-    // volume
-    if (oldState.volume != response.volume) {
-      player.trigger('volume');
-    }
+    player.trigger('update');
   };
 
   // Player interface
@@ -65,6 +43,7 @@ app.factory('$player', function ($rootScope) {
       }
     });
   })({
+    load:           function() { this._socket.emit('get_info'); },
     stop:           function() { this._socket.emit('stop', this.state.id); },
     next:           function() { this._socket.emit('play_next'); },
     previous:       function() { this._socket.emit('play_prev'); },
