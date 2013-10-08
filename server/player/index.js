@@ -46,7 +46,6 @@ Player.prototype.info = function(callback) {
   var self = this;
 
   this._mplayer.update(function() {
-    self._log('update');
     var filename = self._mplayer.getFilename();
     var volume = self._mplayer.getVolume();
     var length = self._mplayer.getLength();
@@ -64,7 +63,9 @@ Player.prototype.info = function(callback) {
     };
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
-      out['playlist'].push(self._playlist[i].id);
+      self._log('self._playlist =', self._playlist);
+      // FIXME this must work
+      //out['playlist'].push(self._playlist[i].id);
     }
 
     if (self._currentSong !== undefined) {
@@ -97,6 +98,7 @@ Player.prototype.addToPlaylist = function(id, pos) {
 }
 
 Player.prototype._play = function(song, fromHistory) {
+  this._log('_play', song, fromHistory);
   if (!song) { return; }
 
   if (fromHistory) {

@@ -71,10 +71,9 @@ Request.prototype.checkErr = function(data) {
     re = true;
     if (this._outWaiting !== null)
       re = false;
-  }
-  else if (this._errWaiting === undefined)
+  } else if (this._errWaiting === undefined) {
     re = false;
-  else {
+  } else {
     var checkWord = function(word) {
       if (data.length >= word.length
           && data.slice(0, word.length) == word)
@@ -89,8 +88,7 @@ Request.prototype.checkErr = function(data) {
         if (re)
           break;
       }
-    }
-    else {
+    } else {
       re = checkWord(this._errWaiting);
     }
   }
@@ -119,11 +117,11 @@ var Mplayer = exports.Mplayer = function() {
 
   // Load the list of properties
   this._properties = {
-    pause:    { type: 'flag' },
-    length:   { type: 'time' },
-    timePos:  { type: 'time' },
-    filename: { type: 'string' },
-    volume:   { type: 'float' },
+    'pause':    { type: 'flag' },
+    'length':   { type: 'time' },
+    'volume':   { type: 'float' },
+    'time_pos': { type: 'time' },
+    'filename': { type: 'string' }
   };
 
   // Flush, listen and update sometimes
@@ -140,11 +138,13 @@ Mplayer.prototype._log = function() {
 
 Mplayer.prototype.update = function(callback) {
   var self = this;
-  self._getFilename(function() {
-    self._getVolume(function() {
-      self._getLength(function() {
-        self._getTimePos(function() {
-          self._getPause(callback);
+  self._getProperty('filename', function() {
+    self._getProperty('volume', function() {
+      self._getProperty('length', function() {
+        self._getProperty('time_pos', function() {
+          self._getProperty('pause', function() {
+            callback();
+          });
         });
       });
     });
@@ -251,16 +251,13 @@ Mplayer.prototype._getProperty = function(prop, callback) {
   // TODO more secured
   if (this._properties[prop] === undefined) { return; }
 
-  var self = this;
+  var self = this, word = 'ANS_' + prop + '=';
   this._inStack.push(new Request('pausing_keep_force get_property ' + prop,
-        'ANS_' + prop + '=',
-        'Failed to get value of property \'' + prop + '\'',
+        word, "Failed to get value of property '" + prop + "'",
         function(data) {
-          var word = 'ANS_' + prop + '=';
           var type = self._properties[prop].type;
           self._properties[prop].value = undefined;
-          if (data.length > word.length
-            && data.slice(0, word.length) == word) {
+          if (data.length > word.length && data.slice(0, word.length) == word) {
               if      (type == 'float')   { self._properties[prop].value = parseFloat(data.slice(word.length)); }
               else if (type == 'int')     { self._properties[prop].value = parseInt(data.slice(word.length)); }
               else if (type == 'flag')    { self._properties[prop].value = data.slice(word.length) == 'yes'; }
@@ -315,22 +312,17 @@ Mplayer.prototype.forceUnpause = function(callback) {
 };
 
 Mplayer.prototype.songOver = function() {
-  return (!isNaN(this._properties.timePos.value)
-      && !isNaN(this._properties.length.value)
-      && this._properties.timePos.value >= this._properties.length.value)
-    || this._properties.filename.value === undefined;
+  return (!isNaN(this._properties['time_pos'].value)
+      && !isNaN(this._properties['length'].value)
+      && this._properties['time_pos'].value >= this._properties['length'].value)
+    || this._properties['filename'].value === undefined;
 };
 
-Mplayer.prototype._getFilename  = function(callback) { this._getProperty('filename', callback); };
-Mplayer.prototype._getVolume    = function(callback) { this._getProperty('volume', callback); };
-Mplayer.prototype._getTimePos   = function(callback) { this._getProperty('time_pos', callback); };
-Mplayer.prototype._getLength    = function(callback) { this._getProperty('length', callback); };
-Mplayer.prototype._getPause     = function(callback) { this._getProperty('pause', callback); };
-Mplayer.prototype.getFilename   = function() { return this._properties.filename.value; };
-Mplayer.prototype.getVolume     = function() { return this._properties.volume.value; };
-Mplayer.prototype.getTimePos    = function() { return this._properties.timePos.value; };
-Mplayer.prototype.getLength     = function() { return this._properties.length.value; };
-Mplayer.prototype.getPause      = function() { return this._properties.pause.value; };
+Mplayer.prototype.getFilename   = function() { return this._properties['filename'].value; };
+Mplayer.prototype.getVolume     = function() { return this._properties['volume'].value; };
+Mplayer.prototype.getTimePos    = function() { return this._properties['time_pos'].value; };
+Mplayer.prototype.getLength     = function() { return this._properties['length'].value; };
+Mplayer.prototype.getPause      = function() { return this._properties['pause'].value; };
 Mplayer.prototype.setTimePos    = function(callback) { this._setProperty('time_pos', callback); };
 Mplayer.prototype.setVolume     = function(callback) { this._setProperty('volume', callback); };
 

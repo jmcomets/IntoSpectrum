@@ -11,7 +11,7 @@ var Watchdog = module.exports = function() {
 };
 
 Watchdog.prototype.log = function() {
-  var args = [].slice.call(arguments, 0);
+  var args = Array.slice.call(arguments, 0);
   args.unshift('[Watchdog]');
   console.log.apply(console, args);
 };
