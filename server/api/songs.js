@@ -8,7 +8,7 @@ exports.songs = function(req, res, next) {
       .skip(offset)
       .limit(limit)
       .exec(function(err, songs) {
-        if (err) { throw new Error(err); }
+        if (err) { return; }
         res.json({
           'songs': songs,
           'next': songs.length == limit

@@ -47,14 +47,13 @@ head
             div.col-md-3
               div.slider(ng-model='volume', slider, slider-orientation='horizontal',
                     slider-slide='setVolume(volume)', slider-min='0', slider-max='100')
-          div.nav.col-md-2
+          div.nav.col-md-2(style='display:none')
             form.navbar-form.form-inline
               div.input-group
                 input.form-control(type='text', placeholder='Search')
                 div.input-group-btn
                   button.btn.btn-default(type='button')
                     span.icon-search
-
     div.navbar-fixed-push
 
     //- Sidebar

@@ -73,7 +73,7 @@ Listener.prototype.sendState = function(name, callback) {
   if (name == undefined) { name = 'info'; }
 
   var self = this;
-  var info = this._player.info(function(info) {
+  this._player.info(function(info) {
     self._io.emit(name, info);
 
     if (self._player.songIsOver()) {

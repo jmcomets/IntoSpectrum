@@ -5,14 +5,14 @@ exports.play = function(url, success, error) {
 
   process.stdout.on('data', function(data) {
     process.kill();
-    if (success != undefined) {
+    if (success !== undefined) {
       success(data.split('\n')[0]);
     }
   });
 
   process.stderr.on('data', function(data) {
     process.kill();
-    if (error != undefined) {
+    if (error !== undefined) {
       error(data);
     }
   });

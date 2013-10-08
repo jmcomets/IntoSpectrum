@@ -39,19 +39,19 @@ Player.prototype.songIsOver = function() {
   // return (!isNaN(this._mplayer.timePos.value)
   //   && !isNaN(this._mplayer.length.value)
   //   && this._mplayer.timePos.value >= this._mplayer.length.value)
-  //   || this._mplayer.filename.value == undefined;
+  //   || this._mplayer.filename.value === undefined;
 }
 
 Player.prototype.info = function(callback) {
   var self = this;
 
   this._mplayer.update(function() {
-    console.log('UPDATE');
-    var filename =  self._mplayer.getFilename();
-    var volume =    self._mplayer.getVolume();
-    var length =    self._mplayer.getLength();
-    var timePos =  self._mplayer.getTimePos();
-    var pause =     self._mplayer.getPause();
+    self._log('update');
+    var filename = self._mplayer.getFilename();
+    var volume = self._mplayer.getVolume();
+    var length = self._mplayer.getLength();
+    var timePos = self._mplayer.getTimePos();
+    var pause = self._mplayer.getPause();
 
     var out = {
       'id': -1,
@@ -67,12 +67,12 @@ Player.prototype.info = function(callback) {
       out['playlist'].push(self._playlist[i].id);
     }
 
-    if (self._currentSong != undefined) {
+    if (self._currentSong !== undefined) {
       out['id'] = self._currentSong.id;
       out['playCount'] = self._currentSong.playCount;
     }
 
-    if (callback != undefined) {
+    if (callback !== undefined) {
       callback(out);
     }
   });
@@ -80,14 +80,16 @@ Player.prototype.info = function(callback) {
 
 Player.prototype.addToPlaylist = function(id, pos) {
   pos = parseInt(pos);
-  if (!isNaN(id) && !isNaN(pos)) {
+  if (!isNaN(pos)) {
     if (pos < 0 || pos > this._playlist.length) {
       pos = this._playlist.length;
     }
 
     var self = this;
     Song.findById(id, function(err, song) {
-      if (song) {
+      if (err) {
+        this._log('bad id', id);
+      } else {
         self._playlist.splice(pos, 0, song);
       }
     });
@@ -95,12 +97,7 @@ Player.prototype.addToPlaylist = function(id, pos) {
 }
 
 Player.prototype._play = function(song, fromHistory) {
-  this._log('play', song, fromHistory);
-  if (song == undefined) { return; }
-
-  if (fromHistory == undefined) {
-    fromHistory = false;
-  }
+  if (!song) { return; }
 
   if (fromHistory) {
     this._playlist.unshift(this._currentSong);
@@ -117,13 +114,13 @@ Player.prototype._play = function(song, fromHistory) {
   this._currentSong = song;
 
   var self = this, volume = this._mplayer.getVolume();
-  if (this._currentSong.youtube != undefined) {
+  if (this._currentSong.youtube !== undefined) {
     youtube.play(this._currentSong.youtube, function(url) {
       self._mplayer.loadFile(url, 0, function() {
         self._mplayer.setVolume(volume);
       });
     }, function(err) {
-      console.log('Youtube error: ', err);
+      self._log('youtube error: ', err);
     });
   } else {
     this._mplayer.loadFile(this._currentSong.fullPath(), 0, function() {
@@ -165,18 +162,19 @@ Player.prototype.playPrevious = function() {
 }
 
 Player.prototype.play = function(id) {
-  if (!isNaN(id)) {
-    var self = this;
-    Song.findById(id, function(song) {
-      if (song != undefined) {
-        self._play(song);
-      }
-    });
-  }
+  this._log('play', id);
+  var self = this;
+  Song.findById(id, function(err, song) {
+    if (err) {
+      self._log('bad id', id);
+    } else {
+      self._play(song);
+    }
+  });
 };
 
 Player.prototype.playYoutube = function(url) {
-  if (url != undefined) {
+  if (url !== undefined) {
     var song = {};
     song.youtube = url;
     this._play(song);
@@ -184,29 +182,23 @@ Player.prototype.playYoutube = function(url) {
 };
 
 Player.prototype.pause = function(id) {
-  if (!isNaN(id)
-      && this._currentSong != undefined
-      && this._currentSong.id == id) {
-        this._mplayer.forcePause();
-      }
+  if (this._currentSong !== undefined && this._currentSong.id == id) {
+    this._mplayer.forcePause();
+  }
 }
 
 Player.prototype.unpause = function(id) {
-  if (!isNaN(id)
-      && this._currentSong != undefined
-      && this._currentSong.id == id) {
-        this._mplayer.forceUnpause();
-      }
+  if (this._currentSong !== undefined && this._currentSong.id == id) {
+    this._mplayer.forceUnpause();
+  }
 }
 
 Player.prototype.stop = function(id) {
-  if (!isNaN(id)
-      && this._currentSong != undefined
-      && this._currentSong.id == id) {
-        this._mplayer.forcePause();
-        // this._mplayer.timePos.set(0);
-        this._mplayer.setTimePos(0);
-      }
+  if (this._currentSong !== undefined && this._currentSong.id == id) {
+    this._mplayer.forcePause();
+    // this._mplayer.timePos.set(0);
+    this._mplayer.setTimePos(0);
+  }
 }
 
 Player.prototype.volume = function(volume) {
@@ -219,14 +211,11 @@ Player.prototype.volume = function(volume) {
 
 Player.prototype.time = function(id, time) {
   time = parseFloat(time);
-  if (!isNaN(id)
-      && this._currentSong != undefined
-      && this._currentSong.id == id
-      && !isNaN(time)
-      && time > 0) {
-        // this._mplayer.timePos.set(time);
-        this._mplayer.setTimePos(time);
-      }
+  if (this._currentSong !== undefined && this._currentSong.id == id
+      && !isNaN(time) && time > 0) {
+    // this._mplayer.timePos.set(time);
+    this._mplayer.setTimePos(time);
+  }
 }
 
 // vim: ft=javascript et sw=2 sts=2
