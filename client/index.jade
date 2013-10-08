@@ -85,17 +85,24 @@ head
           div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
             form(ng-submit='search()')
               div.input-group
-                input.youtube-search.form-control(type='text', placeholder='Search on Youtube')
+                input.youtube-search.form-control(ng-model='query', type='text', placeholder='Search on Youtube')
                 div.input-group-btn
                   button.btn.btn-default(type='button')
                     i.icon-search
             div.youtube-results
-              div.youtube-loading
+              div.youtube-loading(ng-show='searching')
                 div.col-md-2
                 div.col-md-2
                   img(src='/img/loader.gif')
                 div.col-md-2
                   h4 Searching...
+              div.media(ng-repeat='result in results', ng-click='play(result.url)')
+                img.media-object.pull-left.img-thumbnail(src='{{result.thumb}}', title='{{result.title}}')
+                div.media-body
+                  h4.media-heading
+                    | {{result.title}}
+                  em.text-right
+                    | {{result.time}}
       div.sidebar-toggle.sidebar-item.col-md-1
         button.btn.btn-default(type='button', ng-click='visible = !visible')
           i.icon-chevron-right(ng-hide='visible')

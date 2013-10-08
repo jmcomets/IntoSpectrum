@@ -43,12 +43,12 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
       }
     });
   })({
-    load:           function() { this._socket.emit('getInfo'); },
+    load:           function() { this._socket.emit('info'); },
     stop:           function() { this._socket.emit('stop', this.state.id); },
-    next:           function() { this._socket.emit('playNext'); },
-    previous:       function() { this._socket.emit('playPrev'); },
+    next:           function() { this._socket.emit('next'); },
+    previous:       function() { this._socket.emit('previous'); },
     togglePause:    function() { this._socket.emit(this.state.playing ? 'pause' : 'unpause', this.state.id); },
-    youtube:        function(url) { this._socket.emit('playYoutube', encodeURI(url)); },
+    youtube:        function(url) { this._socket.emit('youtube', encodeURI(url)); },
     setTime:        function(time) { this._socket.emit('time', this.state.id, time); },
     setVolume:      function(volume) { this._socket.emit('volume', volume); },
     play:           function(songId) { this._socket.emit('play', songId); },

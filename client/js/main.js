@@ -28,4 +28,9 @@
       }
     };
   }]);
+
+  // Fix for remote server access (Youtube API for example)
+  app.config(function($httpProvider) {
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+  });
 })();

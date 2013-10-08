@@ -47,7 +47,6 @@ function PlayerCtrl($scope, $player) {
   });
 
   var handleStateChange = function() {
-    console.log('update');
     $scope.playing = this.state.playing;
     //$scope.random = this.state.random;
     $scope.volume = parseFloat(this.state.volume);
