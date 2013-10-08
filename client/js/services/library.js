@@ -21,7 +21,7 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
         });
       }).error(function() {
         $rootScope.$safeApply(function() {
-          deferred.error();
+          deferred.reject();
         });
       });
       return deferred.promise;

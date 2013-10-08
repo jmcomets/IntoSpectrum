@@ -97,7 +97,7 @@ head
                 div.col-md-2
                   h4 Searching...
               div.media(ng-repeat='result in results', ng-click='play(result.url)')
-                img.media-object.pull-left.img-thumbnail(src='{{result.thumb}}', title='{{result.title}}')
+                img.media-object.pull-left.img-thumbnail(ng-src='{{result.thumb}}', title='{{result.title}}')
                 div.media-body
                   h4.media-heading
                     | {{result.title}}
