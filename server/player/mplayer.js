@@ -101,7 +101,7 @@ Request.prototype.checkErr = function(data) {
   return re;
 };
 
-var Mplayer = exports.Mplayer = function() {
+var Mplayer = module.exports = function() {
   // 3 input/output fifo
   this._inStack = [];
   this._outStack = [];
