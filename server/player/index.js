@@ -59,7 +59,7 @@ Player.prototype.info = function(callback) {
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
       self._log('self._playlist =', self._playlist);
-      out['playlist'].push(self._playlist[i].id);
+      out['playlist'].push(self._playlist[i]/*.id*/);
     }
 
     if (self._currentSong !== undefined) {
@@ -92,15 +92,17 @@ Player.prototype.addToPlaylist = function(id, pos) {
 };
 
 Player.prototype._play = function(song, fromHistory) {
-  if (fromHistory) {
-    this._playlist.unshift(this._currentSong);
-    if (this._playlist.length > this._playlistSize) {
-      this._playlist.pop();
-    }
-  } else {
-    this._history.push(this._currentSong);
-    if (this._history.length > this._historySize) {
-      this._history.shift();
+  if (this._currentSong !== undefined) {
+    if (fromHistory) {
+      this._playlist.unshift(this._currentSong);
+      if (this._playlist.length > this._playlistSize) {
+        this._playlist.pop();
+      }
+    } else {
+      this._history.push(this._currentSong);
+      if (this._history.length > this._historySize) {
+        this._history.shift();
+      }
     }
   }
 

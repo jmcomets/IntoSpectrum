@@ -3,5 +3,6 @@ function PlaylistCtrl($scope, $player) {
 
   $player.bind('info', function() {
     $scope.playlist = this.state.playlist;
+    //console.log($scope.playlist);
   });
 }
