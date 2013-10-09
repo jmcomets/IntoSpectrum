@@ -25,14 +25,6 @@ Player.prototype._log = function() {
   console.log.apply(console, args);
 };
 
-Player.prototype._assert = function(expr, msg) {
-  if (msg !== undefined) {
-    console.assert(expr, 'Player -> ' + msg);
-  } else {
-    console.assert(expr);
-  }
-};
-
 Player.prototype.kill = function(signal) {
   this._mplayer.kill(signal);
 };
@@ -43,7 +35,7 @@ Player.prototype.quit = function(code) {
 
 Player.prototype.songIsOver = function() {
   return this._mplayer.songOver();
-}
+};
 
 Player.prototype.info = function(callback) {
   var self = this;
@@ -93,18 +85,14 @@ Player.prototype.addToPlaylist = function(id, pos) {
       if (err) {
         this._log('bad id', id);
       } else {
-        self._assert(song !== undefined);
         self._playlist.splice(pos, 0, song);
       }
     });
   }
-}
+};
 
 Player.prototype._play = function(song, fromHistory) {
-  this._assert(song);
-
   if (fromHistory) {
-    this._assert(this._currentSong !== undefined);
     this._playlist.unshift(this._currentSong);
     if (this._playlist.length > this._playlistSize) {
       this._playlist.pop();
@@ -134,7 +122,7 @@ Player.prototype._play = function(song, fromHistory) {
     this._currentSong.playCount += 1;
     this._currentSong.save();
   }
-  // this._mplayer.setVolume(volume);
+  //this._mplayer.setVolume(volume);
 };
 
 Player.prototype.playRandom = function(fromHistory) {
