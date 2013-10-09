@@ -1,5 +1,5 @@
 !!!
-html(ng-app='IntoSpectrum')
+html(ng-app='IntoSpectrum', ng-controller='MainCtrl', ng-click='menu.visible = false')
 head
     title Library | IntoSpectrum
     meta(charset='utf-8')
@@ -14,7 +14,7 @@ head
 
     //- App CSS
     link(type='text/css', rel='stylesheet', href='/css/main.css', media='screen')
-  body(ng-controller='MainCtrl')
+  body
     nav.navbar.navbar-default.navbar-fixed-top
       div.navbar-header
         button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
@@ -123,12 +123,28 @@ head
             th
               a(href='#/sort-by/album', ng-click='predicate = "album"; reverse = !reverse') Album
         tbody(infinite-scroll='paginate()')
-          tr.song-item(ng-click='play(song)',
+          tr.song-item(ng-click='play(song)', ng-right-click='menu.open($event, song)',
               ng-class='{ active: song.id == currentSongId }',
               ng-repeat='song in songs | orderBy:predicate:reverse')
             td {{ song.title }}
             td {{ song.artist }}
             td {{ song.album }}
+    div.dropdown(ng-show='menu.visible', class='open',
+        ng-style='{ position: "absolute", top: menu.position.y, left: menu.position.x }')
+      ul.dropdown-menu
+        li
+          a(href='#/play', ng-click='play(menu.song)')
+            i.icon-play
+            | &nbsp;
+            | Play
+          a(href='#/play-next', ng-click='playNext(menu.song)')
+            i.icon-arrow-right
+            | &nbsp;
+            | Play next
+          a(href='#/add-to-playlist', ng-click='addToPlaylist(menu.song)')
+            i.icon-plus
+            | &nbsp;
+            | Add to playlist
 
     //- Vendor JS
     script(type='text/javascript', src='/socket.io/socket.io.js')

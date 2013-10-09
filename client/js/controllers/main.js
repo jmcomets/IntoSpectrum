@@ -19,6 +19,24 @@ function MainCtrl($scope, $player, $library) {
     $scope.currentSongId = song.id;
   };
 
+  // Add a song to the playlist
+  $scope.addToPlaylist = function(song) {
+    $player.addToPlaylist(song.id);
+  };
+
+  $scope.playNext = function(song) {
+    $player.addAsNext(song.id);
+  };
+
+  // Context menu
+  $scope.menu = {
+    open: function($evt, song) {
+      this.visible = true;
+      this.position = { x: $evt.pageX, y: $evt.pageY };
+      this.song = song;
+    }
+  };
+
   // Updating
   $player.bind('info', function() {
     $scope.currentSongId = this.state.id;
