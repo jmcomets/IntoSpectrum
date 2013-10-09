@@ -56,8 +56,9 @@ head
     div.navbar-fixed-push
 
     //- Sidebar
-    div.sidebar(ng-controller='SidebarCtrl')
-      div.sidebar-tabs.sidebar-item.col-md-3.tabbable(data-spy='affix', ng-show='visible')
+    div.col-md-3(ng-show='sidebarVisible', ng-init='sidebarVisible = true')
+    div.sidebar
+      div.sidebar-tabs.sidebar-item.col-md-3.tabbable(data-spy='affix', ng-show='sidebarVisible')
         ul.nav.nav-tabs
           li.active
             a(href='#tab-playlist', data-toggle='tab')
@@ -104,14 +105,14 @@ head
                   em.text-right
                     | {{result.time}}
       div.sidebar-toggle.sidebar-item.col-md-1
-        button.btn.btn-default(type='button', ng-click='visible = !visible')
-          i.icon-chevron-right(ng-hide='visible')
-          i.icon-chevron-left(ng-show='visible')
+        button.btn.btn-default(type='button', ng-click='sidebarVisible = !sidebarVisible')
+          i.icon-chevron-right(ng-hide='sidebarVisible')
+          i.icon-chevron-left(ng-show='sidebarVisible')
           | &nbsp;
           | sidebar
 
     //- Songs
-    div.col-md-12
+    div(ng-class="{'col-md-9': sidebarVisible, 'col-md-12': !sidebarVisible}")
       table.song-library.table.table-condensed
         thead
           tr
