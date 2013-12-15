@@ -2,15 +2,16 @@ function PlaylistCtrl($scope, $player) {
   $scope.playlist = [];
 
   $scope.play = function($index) {
-    $player.play($scope.playlist[song]);
-    $scope.playlist.slice(1, $index);
+    alert('Playlist.play() not implemented!'); // TODO
   };
 
   $scope.remove = function($index) {
+    alert('Playlist.remove() not implemented!'); // TODO
   };
 
   $player.bind('info', function() {
-    $scope.playlist = this.state.playlist;
-    //console.log($scope.playlist);
+    if ($scope.playlist != this.state.playlist) {
+      $scope.playlist = this.state.playlist;
+    }
   });
 }

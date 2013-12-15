@@ -1,5 +1,6 @@
 !!!
-html(ng-app='IntoSpectrum', data-ng-controller='MainCtrl', data-ng-click='menu.visible = false')
+html(data-ng-app='IntoSpectrum', data-ng-controller='MainCtrl',
+  data-ng-click='menu.visible = false')
 head
     title Library | IntoSpectrum
     meta(charset='utf-8')
@@ -26,37 +27,37 @@ head
       div.navbar-collapse.collapse
 
         //- Player
-        div(ng-controller='PlayerCtrl')
+        div(data-ng-controller='PlayerCtrl')
+          div.nav.col-md-3
+            form.navbar-form.form-inline
+              div.input-group
+                input.form-control(type='text', placeholder='Search a song')
+                div.input-group-btn
+                  button.btn.btn-default(type='button')
+                    span.icon-search
           div.nav.nav-progress.col-md-6
             div.navbar-text.progress
-              div#play-progress.progress-bar(ng-style='{ width: 100*time/maxTime + "%" }')
+              div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
           div.nav.nav-controls.col-md-3
             div.col-md-8
               form.navbar-form.form-inline
                 div.btn-group
-                  button.btn.btn-default(ng-click='previous()', type='button')
+                  button.btn.btn-default(data-ng-click='previous()', type='button')
                     i.icon-step-backward
-                  button.btn.btn-default(ng-click='togglePause()', type='button')
-                    i.icon-play(ng-hide='playing')
-                    i.icon-pause(ng-show='playing')
-                  button.btn.btn-default(ng-click='next()', type='button')
+                  button.btn.btn-default(data-ng-click='togglePause()', type='button')
+                    i.icon-play(data-ng-hide='playing')
+                    i.icon-pause(data-ng-show='playing')
+                  button.btn.btn-default(data-ng-click='next()', type='button')
                     i.icon-step-forward
-                  button.btn.btn-default(ng-click='toggleRandom()', data-ng-class='{ active: random }', type='button')
+                  button.btn.btn-default(data-ng-click='toggleRandom()', data-ng-class='{ active: random }', type='button')
                     i.icon-random
             div.col-md-4
-              div.slider(ng-model='volume', slider, slider-orientation='horizontal',
+              div.slider(data-ng-model='volume', slider, slider-orientation='horizontal',
                     slider-slide='setVolume(volume)', slider-min='0', slider-max='100')
-          div.nav.col-md-3
-            form.navbar-form.form-inline
-              div.input-group
-                input.form-control(type='text', placeholder='Search')
-                div.input-group-btn
-                  button.btn.btn-default(type='button')
-                    span.icon-search
     div.navbar-fixed-push
 
     //- Sidebar
-    div.col-md-3(ng-show='sidebarVisible', data-ng-init='sidebarVisible = true')
+    div.col-md-3(data-ng-show='sidebarVisible', data-ng-init='sidebarVisible = true')
     div.sidebar
       div.sidebar-tabs.sidebar-item.col-md-3.tabbable(data-spy='affix', data-ng-show='sidebarVisible')
         ul.nav.nav-tabs
@@ -68,12 +69,12 @@ head
               i.icon-youtube
         div.tab-content
           //- Playlist
-          div#tab-playlist.tab-pane.active(ng-controller='PlaylistCtrl')
-            h4(ng-show='!playlist.length')
+          div#tab-playlist.tab-pane.active(data-ng-controller='PlaylistCtrl')
+            h4(data-ng-show='!playlist.length')
               p.text-center
                 | Playlist is empty
             ul.playlist.list-group
-              li.playlist-item.list-group-item.row(ng-repeat='song in playlist')
+              li.playlist-item.list-group-item.row(data-ng-repeat='song in playlist')
                 div.col-md-9
                   | {{song.title}}
                 div.col-md-1
@@ -83,22 +84,22 @@ head
                   a(href='#/playlist/{{song.id}}/remove', data-ng-click='remove($index)')
                     i.icon-remove
           //- Youtube
-          div#tab-youtube.tab-pane(ng-controller='YoutubeCtrl')
-            form(ng-submit='search()')
+          div#tab-youtube.tab-pane(data-ng-controller='YoutubeCtrl')
+            form(data-ng-submit='search()')
               div.input-group
-                input.youtube-search.form-control(ng-model='query', type='text', placeholder='Search on Youtube')
+                input.youtube-search.form-control(data-ng-model='query', type='text', placeholder='Search on Youtube')
                 div.input-group-btn
                   button.btn.btn-default(type='button')
                     i.icon-search
             div.youtube-results
-              div.youtube-loading(ng-show='searching')
+              div.youtube-loading(data-ng-show='searching')
                 div.col-md-2
                 div.col-md-2
                   img(src='/img/loader.gif')
                 div.col-md-2
                   h4 Searching...
-              div.media(ng-repeat='result in results', data-ng-click='play(result.url)')
-                img.media-object.pull-left.img-thumbnail(ng-src='{{result.thumb}}', title='{{result.title}}')
+              div.media(data-ng-repeat='result in results', data-ng-click='play(result.url)')
+                img.media-object.pull-left.img-thumbnail(data-ng-src='{{result.thumb}}', title='{{result.title}}')
                 div.media-body
                   h4.media-heading
                     | {{result.title}}
@@ -106,13 +107,13 @@ head
                     | {{result.time}}
       div.sidebar-toggle.sidebar-item.col-md-1
         button.btn.btn-default(type='button', data-ng-click='sidebarVisible = !sidebarVisible')
-          i.icon-chevron-right(ng-hide='sidebarVisible')
-          i.icon-chevron-left(ng-show='sidebarVisible')
+          i.icon-chevron-right(data-ng-hide='sidebarVisible')
+          i.icon-chevron-left(data-ng-show='sidebarVisible')
           | &nbsp;
           | sidebar
 
     //- Songs
-    div(ng-class="{'col-md-9': sidebarVisible, 'col-md-12': !sidebarVisible}")
+    div(data-ng-class="{'col-md-9': sidebarVisible, 'col-md-12': !sidebarVisible}")
       table.song-library.table.table-condensed
         thead
           tr
@@ -123,13 +124,13 @@ head
             th
               a(href='#/sort-by/album', data-ng-click='predicate = "album"; reverse = !reverse') Album
         tbody(infinite-scroll='paginate()')
-          tr.song-item(ng-click='play(song)', data-ng-right-click='menu.open($event, song)',
+          tr.song-item(data-ng-click='play(song)', data-ng-right-click='menu.open($event, song)',
               data-ng-class='{ active: song.id == currentSongId }',
               data-ng-repeat='song in songs | orderBy:predicate:reverse')
             td {{ song.title }}
             td {{ song.artist }}
             td {{ song.album }}
-    div.dropdown(ng-show='menu.visible', class='open',
+    div.dropdown(data-ng-show='menu.visible', class='open',
         data-ng-style='{ position: "absolute", top: menu.position.y, left: menu.position.x }')
       ul.dropdown-menu
         li
