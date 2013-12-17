@@ -33,4 +33,7 @@
   app.config(function($httpProvider) {
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
   });
+
+  // TODO make this cleaner
+  (function($) { $('.has-tooltip').tooltip(); }) (jQuery);
 })();

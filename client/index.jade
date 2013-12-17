@@ -21,8 +21,8 @@ head
         div.navbar-brand
           a(href='/')
             | IntoSpectrum
-        button.navbar-toggle(type='button', data-toggle='collapse',
-          data-target='.navbar-collapse')
+        button.navbar-toggle(type='button', title='Toggle navigation',
+          data-toggle='collapse', data-target='.navbar-collapse')
           span.sr-only
             | Toggle navigation
           i.icon-bar
@@ -32,9 +32,9 @@ head
         //- Player
         div(data-ng-controller='PlayerCtrl')
           div.nav.nav-progress.col-md-6
-            div.navbar-text.progress
+            div.navbar-text.progress.has-tooltip(data-toggle='tooltip', data-placement='bottom',
+              title='"{{ currentSong.title }}" by {{ currentSong.artist }}')
               div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
-                | {{ currentSong.title }}
           div.nav.nav-controls.col-md-3
             div.col-md-8
               form.navbar-form.form-inline
@@ -109,13 +109,6 @@ head
           i.icon-chevron-left(data-ng-show='sidebarVisible')
           | &nbsp;
           | sidebar
-
-    //- Connection status
-    div.container(data-ng-show='connected')
-      div.alert.alert-danger
-        h3.text-center
-          //-img(src='/img/loader.gif')
-          | Connection lost! Reconnecting...
 
     //- Songs
     div(data-ng-class="{'col-md-9': sidebarVisible, 'col-md-12': !sidebarVisible}")
