@@ -18,23 +18,19 @@ head
   body
     nav.navbar.navbar-default.navbar-fixed-top
       div.navbar-header
-        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+        div.navbar-brand
+          a(href='/')
+            | IntoSpectrum
+        button.navbar-toggle(type='button', data-toggle='collapse',
+          data-target='.navbar-collapse')
           span.sr-only
             | Toggle navigation
           i.icon-bar
           i.icon-bar
           i.icon-bar
       div.navbar-collapse.collapse
-
         //- Player
         div(data-ng-controller='PlayerCtrl')
-          div.nav.col-md-3
-            form.navbar-form.form-inline
-              div.input-group
-                input.form-control(type='text', placeholder='Search a song')
-                div.input-group-btn
-                  button.btn.btn-default(type='button')
-                    span.icon-search
           div.nav.nav-progress.col-md-6
             div.navbar-text.progress
               div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
@@ -49,7 +45,8 @@ head
                     i.icon-pause(data-ng-show='playing')
                   button.btn.btn-default(data-ng-click='next()', type='button')
                     i.icon-step-forward
-                  button.btn.btn-default(data-ng-click='toggleRandom()', data-ng-class='{ active: random }', type='button')
+                  button.btn.btn-default(data-ng-click='toggleRandom()',
+                        data-ng-class='{ active: random }', type='button')
                     i.icon-random
             div.col-md-4
               div.slider(data-ng-model='volume', slider, slider-orientation='horizontal',
@@ -125,7 +122,7 @@ head
               a(href='#/sort-by/album', data-ng-click='predicate = "album"; reverse = !reverse') Album
         tbody(infinite-scroll='paginate()')
           tr.song-item(data-ng-click='play(song)', data-ng-right-click='menu.open($event, song)',
-              data-ng-class='{ active: song.id == currentSongId }',
+              data-ng-class='{ active: song.id == currentSong.id }',
               data-ng-repeat='song in songs | orderBy:predicate:reverse')
             td {{ song.title }}
             td {{ song.artist }}
@@ -148,11 +145,12 @@ head
             | Add to playlist
 
     //- Vendor JS
-    script(type='text/javascript', src='/socket.io/socket.io.js')
     script(type='text/javascript', src='/components/jquery/jquery.min.js')
     script(type='text/javascript', src='/components/jquery-ui/ui/minified/jquery-ui.min.js')
-    script(type='text/javascript', src='/components/bootstrap/dist/js/bootstrap.min.js')
     script(type='text/javascript', src='/components/angular/angular.min.js')
+    script(type='text/javascript', src='/socket.io/socket.io.js')
+    script(type='text/javascript', src='/components/bootstrap/dist/js/bootstrap.min.js')
 
     //- App JS
     script(type='text/javascript', src='/js/main.js')
+//- vim: ft=jade et sw=2 sts=2

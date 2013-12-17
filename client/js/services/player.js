@@ -23,6 +23,11 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
 
   // Socket response handlers (info/response)
   var _handleInfo = function(info) {
+    for (var i = 0; i < info.playlist.length; i++) {
+      info.playlist[i].id = info.playlist[i]._id
+      delete info.playlist[i]._id;
+      delete info.playlist[i].__v;
+    }
     player.state = info;
     player.trigger('info');
   }, _handleResponse = function(response) {
@@ -80,8 +85,8 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
       clearInterval(intervalID);
       player.trigger('connected');
       this
-      .on('info', function(info) { _handleInfo(info); })
-      .on('response', function(response) { _handleResponse(response); })
+        .on('info', function(info) { _handleInfo(info); })
+        .on('response', function(response) { _handleResponse(response); })
       ;
     player._socket = socket;
     }).on('disconnect', function() {

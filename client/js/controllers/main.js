@@ -1,8 +1,8 @@
 function MainCtrl($scope, $player, $library) {
   // List of song models
   $scope.songs = [];
-  // ...current playing song (database id)
-  $scope.currentSongId = -1;
+  // ...current playing song
+  $scope.currentSong = { id: -1 };
 
   // Pagination
   $scope.paginate = function() {
@@ -16,7 +16,7 @@ function MainCtrl($scope, $player, $library) {
   // Play a song
   $scope.play = function(song) {
     $player.play(song.id);
-    $scope.currentSongId = song.id;
+    $scope.currentSong = song.id;
   };
 
   // Add a song to the playlist
@@ -39,6 +39,6 @@ function MainCtrl($scope, $player, $library) {
 
   // Updating
   $player.bind('info', function() {
-    $scope.currentSongId = this.state.id;
+    $scope.currentSong = this.state.currentSong;
   });
 }
