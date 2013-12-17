@@ -28,6 +28,8 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
       delete info.playlist[i]._id;
       delete info.playlist[i].__v;
     }
+    info.currentSong = { id: info.id };
+    delete info.id;
     player.state = info;
     player.trigger('info');
   }, _handleResponse = function(response) {
