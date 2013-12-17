@@ -32,9 +32,10 @@ head
         //- Player
         div(data-ng-controller='PlayerCtrl')
           div.nav.nav-progress.col-md-6
-            div.navbar-text.progress.has-tooltip(data-toggle='tooltip', data-placement='bottom',
-              title='"{{ currentSong.title }}" by {{ currentSong.artist }}')
+            div.navbar-text.progress.progress-striped.has-tooltip(data-toggle='tooltip',
+              data-placement='bottom', title='"{{ currentSong.title }}" by {{ currentSong.artist }}')
               div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
+              //-  | {{ time + "/" + maxTime + "s" }}
           div.nav.nav-controls.col-md-3
             div.col-md-8
               form.navbar-form.form-inline

@@ -23,6 +23,7 @@ function MainCtrl($scope, $player, $library) {
 
   // Play a song
   $scope.play = function(song) {
+    console.log('ok');
     $player.play(song.id);
     $scope.currentSong = song.id;
   };

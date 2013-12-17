@@ -56,8 +56,8 @@ Player.prototype.info = function(callback) {
       'playlist': [],
     };
 
-    var cloneSongToOut = function(oldSong) {
-      var song = {};
+    var formatOutSong = function(raw_song) {
+      var oldSong = raw_song._doc, song = {};
       Object.keys(oldSong).forEach(function(key) {
         if (key == '__v') {
           return;
@@ -72,11 +72,11 @@ Player.prototype.info = function(callback) {
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
       self._log('self._playlist =', self._playlist);
-      out['playlist'].push(cloneSongToOut(self._playlist[i]));
+      out['playlist'].push(formatOutSong(self._playlist[i]));
     }
 
     if (self._currentSong !== undefined) {
-      out['currentSong'] = cloneSongToOut(self._currentSong._doc);
+      out['currentSong'] = formatOutSong(self._currentSong);
     }
 
     if (callback !== undefined) {
