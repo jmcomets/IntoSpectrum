@@ -4,6 +4,14 @@ function MainCtrl($scope, $player, $library) {
   // ...current playing song
   $scope.currentSong = { id: -1 };
 
+  // Song list sorting
+  $scope.predicate = "";
+  $scope.reverse = false;
+  $scope.toggleSongsSort = function(key) {
+    $scope.predicate = "artist";
+    $scope.reverse = !$scope.reverse;
+  };
+
   // Pagination
   $scope.paginate = function() {
     $scope.loading = true;

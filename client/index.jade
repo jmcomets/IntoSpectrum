@@ -116,11 +116,11 @@ head
         thead
           tr
             th
-              a(href='#/sort-by/title', data-ng-click='predicate = "title"; reverse = !reverse') Title
+              a(href='#/sort-by/title', data-ng-click='toggleSongsSort("title")') Title
             th
-              a(href='#/sort-by/artist', data-ng-click='predicate = "artist"; reverse = !reverse') Artist
+              a(href='#/sort-by/artist', data-ng-click='toggleSongsSort("artist")') Artist
             th
-              a(href='#/sort-by/album', data-ng-click='predicate = "album"; reverse = !reverse') Album
+              a(href='#/sort-by/album', data-ng-click='toggleSongsSort("album")') Album
         tbody(infinite-scroll='paginate()')
           tr.song-item(data-ng-click='play(song)', data-ng-right-click='menu.open($event, song)',
               data-ng-class='{ active: song.id == currentSong.id }',
@@ -128,6 +128,8 @@ head
             td {{ song.title }}
             td {{ song.artist }}
             td {{ song.album }}
+
+    //- Context-menu
     div.dropdown(data-ng-show='menu.visible', class='open',
         data-ng-style='{ position: "absolute", top: menu.position.y, left: menu.position.x }')
       ul.dropdown-menu
