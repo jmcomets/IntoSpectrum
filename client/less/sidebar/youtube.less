@@ -4,22 +4,31 @@
     margin: 10px;
     height: 100px;
     position: relative;
+
     img {
       height: 90px;
     }
+
     em {
       position: absolute;
       bottom: 0;
       margin: 7px;
       right: 0;
     }
-  }
-  .media:active {
-    background-color: #eee;
-  }
-  .media:hover {
-    cursor: pointer;
-    background-color: #ddd;
+
+    border: 1px solid transparent;
+    &:hover, &:active {
+      border-color: #ddd;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: #fcfcfc;
+    }
+
+    &:active {
+      background-color: #eee;
+    }
   }
 }
 
