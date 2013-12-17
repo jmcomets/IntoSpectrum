@@ -34,6 +34,7 @@ head
           div.nav.nav-progress.col-md-6
             div.navbar-text.progress
               div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
+                | {{ currentSong.title }}
           div.nav.nav-controls.col-md-3
             div.col-md-8
               form.navbar-form.form-inline
@@ -54,7 +55,7 @@ head
     div.navbar-fixed-push
 
     //- Sidebar
-    div.col-md-3(data-ng-show='sidebarVisible', data-ng-init='sidebarVisible = true')
+    div.col-md-3(data-ng-show='sidebarVisible', data-ng-init='sidebarVisible = false')
     div.sidebar
       div.sidebar-tabs.sidebar-item.col-md-3.tabbable(data-spy='affix', data-ng-show='sidebarVisible')
         ul.nav.nav-tabs
@@ -108,6 +109,13 @@ head
           i.icon-chevron-left(data-ng-show='sidebarVisible')
           | &nbsp;
           | sidebar
+
+    //- Connection status
+    div.container(data-ng-show='connected')
+      div.alert.alert-danger
+        h3.text-center
+          //-img(src='/img/loader.gif')
+          | Connection lost! Reconnecting...
 
     //- Songs
     div(data-ng-class="{'col-md-9': sidebarVisible, 'col-md-12': !sidebarVisible}")

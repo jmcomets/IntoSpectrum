@@ -37,6 +37,11 @@ function MainCtrl($scope, $player, $library) {
     }
   };
 
+  // Connection handling
+  $scope.connected = false;
+  $player.bind('connect', function() { $scope.connected = true; });
+  $player.bind('disconnect', function() { $scope.connected = false; });
+
   // Updating
   $player.bind('info', function() {
     $scope.currentSong = this.state.currentSong;

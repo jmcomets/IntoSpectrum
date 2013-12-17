@@ -48,7 +48,7 @@ Player.prototype.info = function(callback) {
     var pause = self._mplayer.getPause();
 
     var out = {
-      'song': {},
+      'currentSong': {},
       'playing': pause ? 0 : 1,
       'volume': volume,
       'time': timePos,
