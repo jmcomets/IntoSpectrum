@@ -48,13 +48,12 @@ Player.prototype.info = function(callback) {
     var pause = self._mplayer.getPause();
 
     var out = {
-      'id': -1,
+      'song': {},
       'playing': pause ? 0 : 1,
       'volume': volume,
       'time': timePos,
       'timeMax': length,
       'playlist': [],
-      'playCount': 0
     };
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
@@ -63,8 +62,7 @@ Player.prototype.info = function(callback) {
     }
 
     if (self._currentSong !== undefined) {
-      out['id'] = self._currentSong.id;
-      out['playCount'] = self._currentSong.playCount;
+      out['currentSong'] = self._currentSong;
     }
 
     if (callback !== undefined) {

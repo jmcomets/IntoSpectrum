@@ -23,13 +23,15 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
 
   // Socket response handlers (info/response)
   var _handleInfo = function(info) {
-    for (var i = 0; i < info.playlist.length; i++) {
-      info.playlist[i].id = info.playlist[i]._id
-      delete info.playlist[i]._id;
-      delete info.playlist[i].__v;
+    var formatSongInput = function(song) {
+      song.id = song._id;
+      delete song._id;
+      delete song.__v;
     }
-    info.currentSong = { id: info.id };
-    delete info.id;
+    for (var i = 0; i < info.playlist.length; i++) {
+      formatSongInput(info.playlist[i]);
+    }
+    formatSongInput(info.currentSong);
     player.state = info;
     player.trigger('info');
   }, _handleResponse = function(response) {
