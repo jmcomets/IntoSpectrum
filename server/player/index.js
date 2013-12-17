@@ -56,13 +56,27 @@ Player.prototype.info = function(callback) {
       'playlist': [],
     };
 
+    var cloneSongToOut = function(oldSong) {
+      var song = {};
+      Object.keys(oldSong).forEach(function(key) {
+        if (key == '__v') {
+          return;
+        } else if (key == '_id') {
+          song.id = oldSong[key];
+        } else {
+          song[key] = oldSong[key];
+        }
+      });
+      return song;
+    };
+
     for (var i = 0 ; i < self._playlist.length ; i++) {
       self._log('self._playlist =', self._playlist);
-      out['playlist'].push(self._playlist[i]/*.id*/);
+      out['playlist'].push(cloneSongToOut(self._playlist[i]));
     }
 
     if (self._currentSong !== undefined) {
-      out['currentSong'] = self._currentSong;
+      out['currentSong'] = cloneSongToOut(self._currentSong._doc);
     }
 
     if (callback !== undefined) {
