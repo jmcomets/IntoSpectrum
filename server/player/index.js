@@ -57,16 +57,24 @@ Player.prototype.info = function(callback) {
     };
 
     var formatOutSong = function(raw_song) {
-      var oldSong = raw_song._doc, song = {};
-      Object.keys(oldSong).forEach(function(key) {
-        if (key == '__v') {
-          return;
-        } else if (key == '_id') {
-          song.id = oldSong[key];
-        } else {
+      var oldSong = raw_song._doc;
+      if (oldSong === undefined) {
+        return raw_song;
+      }
+
+      var song = {
+        'title': undefined,
+        'artist': undefined,
+        'album': undefined,
+        'year': undefined,
+        'playCount': undefined,
+      };
+      for (var key in song) {
+        if (oldSong.hasOwnProperty(key)) {
           song[key] = oldSong[key];
         }
-      });
+      }
+      song.id = oldSong._id;
       return song;
     };
 
