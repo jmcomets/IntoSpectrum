@@ -129,6 +129,11 @@ head
             td {{ song.title }}
             td {{ song.artist }}
             td {{ song.album }}
+          tr(data-ng-show='loading')
+            td.text-center(colspan=3)
+              img(src='img/loader.gif', style='height:16px')
+              | &nbsp;
+              | Loading more songs, please wait...
 
     //- Context-menu
     div.dropdown(data-ng-show='menu.visible', class='open',
