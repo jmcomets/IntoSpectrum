@@ -25,10 +25,21 @@ to correspond to one of our favorite pokemon.
 - [Mplayer][]
 - [Mongodb][] (current engine)
 
+## Deploying
+
+All client and server dependencies are included in the [bower.json][] and [package.json][] files, and so the installation of the server, assuming that all system requirements are met, is as simple as `npm install`, and the server can then be started by running `npm start`.
+
+### Development server
+
+A [Gruntfile.js][] is available for running a development server, notably the `dev` task with will watch all js, css and less files for instant-regeneration.
+
 ## Authors
 - [Jean-Marie Comets][]
 - [Pierre Turpin][]
 
+[package.json]: ../../blob/master/package.json
+[bower.json]: ../../blob/master/bower.json
+[Gruntfile.js]: ../../blob/master/Gruntfile.js
 [Node.js]: http://nodejs.org
 [Mongodb]: http://www.mongodb.org
 [Mplayer]: http://mplayerhq.hu
