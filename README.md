@@ -23,28 +23,16 @@ to correspond to one of our favorite pokemon.
 
 - [Node.js][] (at least v0.10.17)
 - [Mplayer][]
-- [MySQL][] (current engine)
-
-### Watchdog requirements
-
-- [Python 2.7][]
-- [mutagen][]
-- [peewee][]
-
-[Virtualenv][] is recommended for deploying the watchdog.
+- [Mongodb][] (current engine)
 
 ## Authors
 - [Jean-Marie Comets][]
 - [Pierre Turpin][]
 
-[Python 2.7]: http://www.python.org/download/releases/2.7
-[mutagen]: https://code.google.com/p/mutagen
-[MySQL]: http://www.mysql.com
-[Virtualenv]: http://www.virtualenv.org
-[peewee]: https://github.com/coleifer/peewee
 [Node.js]: http://nodejs.org
+[Mongodb]: http://www.mongodb.org
 [Mplayer]: http://mplayerhq.hu
 [Bootstrap 3]: http://getbootstrap.com
-[Spectrum image]: ../../blob/master/static/img/spectrum.jpg?raw=true
+[Spectrum image]: ../../blob/master/client/img/spectrum.jpg?raw=true
 [Jean-Marie Comets]: https://github.com/jmcomets
 [Pierre Turpin]: https://github.com/TurpIF
