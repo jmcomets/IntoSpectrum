@@ -8,7 +8,7 @@ exports.songs = function(req, res, next) {
       res.json(song);
     });
   } else {
-    var limit = 100, offset = parseInt(req.params.offset);
+    var limit = 100, offset = parseInt(req.query.offset);
     if (offset < 0) { next(); }
     Song.find()
       .skip(offset)
