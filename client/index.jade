@@ -38,16 +38,17 @@ head
             div.col-md-7
               form.navbar-form.form-inline
                 div.btn-group
-                  button.btn.btn-default(data-ng-click='previous()', type='button')
+                  button.btn.btn-default(data-ng-click='previous()', type='button', title='Previous')
                     i.icon-step-backward
-                  button.btn.btn-default(data-ng-click='togglePause()', type='button')
+                  button.btn.btn-default(data-ng-click='togglePause()', type='button', title='Toggle play/pause')
                     i.icon-play(data-ng-hide='playing')
                     i.icon-pause(data-ng-show='playing')
-                  button.btn.btn-default(data-ng-click='next()', type='button')
+                  button.btn.btn-default(data-ng-click='next()', type='button', title='Next')
                     i.icon-step-forward
             div.col-md-5
-              div.slider(data-ng-model='volume', data-slider, data-slider-orientation='horizontal',
-                    data-slider-slide='setVolume(volume)', data-slider-min='0', data-slider-max='100')
+              div.slider(title='Change volume (current: {{ volume }})',
+                  data-ng-model='volume', data-slider, data-slider-orientation='horizontal',
+                  data-slider-slide='setVolume(volume)', data-slider-min='0', data-slider-max='100')
     div.navbar-fixed-push
 
     //- Sidebar
@@ -100,7 +101,8 @@ head
                   em.text-right
                     | {{result.time}}
       div.sidebar-toggle.sidebar-item.col-md-1
-        button.btn.btn-default(type='button', data-ng-click='sidebarVisible = !sidebarVisible')
+        button.btn.btn-default(type='button', title='Toggle sidebar display',
+            data-ng-click='sidebarVisible = !sidebarVisible')
           i.icon-chevron-right(data-ng-hide='sidebarVisible')
           i.icon-chevron-left(data-ng-show='sidebarVisible')
           | &nbsp;
@@ -112,13 +114,13 @@ head
         thead
           tr
             th
-              a(data-ng-click='toggleSongsSort("title")')
+              a(data-ng-click='toggleSongsSort("title")', title='Sort by title')
                 | Title
             th
-              a(data-ng-click='toggleSongsSort("artist")')
+              a(data-ng-click='toggleSongsSort("artist")', title='Sort by artist')
                 | Artist
             th
-              a(data-ng-click='toggleSongsSort("album")')
+              a(data-ng-click='toggleSongsSort("album")', title='Sort by album')
                 | Album
             //-th
               //-a(href='#')
