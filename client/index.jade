@@ -114,9 +114,6 @@ head
         thead
           tr
             th
-              a(href='#')
-                | Actions
-            th
               a(data-ng-click='toggleSongsSort("title")', title='Sort by title')
                 | Title
             th
@@ -125,9 +122,13 @@ head
             th
               a(data-ng-click='toggleSongsSort("album")', title='Sort by album')
                 | Album
+            th
         tbody(infinite-scroll='paginate()')
           tr.song-item(data-ng-class='{ active: song.id == currentSong.id }',
               data-ng-repeat='song in songs | orderBy:predicate:reverse')
+            td {{ song.title }}
+            td {{ song.artist }}
+            td {{ song.album }}
             td
               div.btn-group.visible-md.visible-lg
                 button.btn.btn-sm.btn-default(type='button', title='Play', data-ng-click='play(song)')
@@ -155,9 +156,6 @@ head
                       i.icon-arrow-right
                       | &nbsp;
                       | Play next
-            td {{ song.title }}
-            td {{ song.artist }}
-            td {{ song.album }}
           tr(data-ng-show='loading')
             td.text-center(colspan=4)
               img.song-loader(src='img/loader.gif')
