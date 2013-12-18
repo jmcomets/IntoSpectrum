@@ -48,7 +48,7 @@ Player.prototype.info = function(callback) {
     var pause = self._mplayer.getPause();
 
     var out = {
-      'currentSong': {},
+      'currentSongId': -1,
       'playing': pause ? 0 : 1,
       'volume': volume,
       'time': timePos,
@@ -60,31 +60,17 @@ Player.prototype.info = function(callback) {
       var oldSong = raw_song._doc;
       if (oldSong === undefined) {
         return raw_song;
+      } else {
+        return oldSong._id;
       }
-
-      var song = {
-        'title': undefined,
-        'artist': undefined,
-        'album': undefined,
-        'year': undefined,
-        'playCount': undefined,
-      };
-      for (var key in song) {
-        if (oldSong.hasOwnProperty(key)) {
-          song[key] = oldSong[key];
-        }
-      }
-      song.id = oldSong._id;
-      return song;
     };
 
     for (var i = 0 ; i < self._playlist.length ; i++) {
-      self._log('self._playlist =', self._playlist);
       out['playlist'].push(formatOutSong(self._playlist[i]));
     }
 
     if (self._currentSong !== undefined) {
-      out['currentSong'] = formatOutSong(self._currentSong);
+      out['currentSongId'] = formatOutSong(self._currentSong);
     }
 
     if (callback !== undefined) {

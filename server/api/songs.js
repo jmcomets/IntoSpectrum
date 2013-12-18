@@ -2,8 +2,14 @@ var Song = require('../models').Song;
 
 // Songs API
 exports.songs = function(req, res, next) {
-  if (offset < 0) { next(); }
-  var limit = 100, offset = parseInt(req.params.offset);
+  var songId = req.params.id;
+  if (songId !== undefined) {
+    Song.findById(songId, function(err, song) {
+      res.json(song);
+    });
+  } else {
+    var limit = 100, offset = parseInt(req.params.offset);
+    if (offset < 0) { next(); }
     Song.find()
       .skip(offset)
       .limit(limit)
@@ -14,6 +20,7 @@ exports.songs = function(req, res, next) {
           'next': songs.length == limit
         });
       });
+  }
 };
 
 // vim: ft=javascript et sw=2 sts=2

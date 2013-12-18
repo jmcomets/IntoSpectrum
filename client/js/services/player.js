@@ -1,4 +1,4 @@
-angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
+angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $library) {
   // Exposed player service
   var player = {
     state: {},
@@ -16,15 +16,20 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q) {
       if (evt in this._events === false) { return; }
       var that = this, args = Array.prototype.slice.call(arguments, 1);
       angular.forEach(this._events[evt], function(callback) {
-        $rootScope.$apply(function() { callback.apply(that, args); });
+        $rootScope.$safeApply(function() { callback.apply(that, args); });
       });
     }
   };
 
   // Socket response handlers (info/response)
   var _handleInfo = function(info) {
-    player.state = info;
-    player.trigger('info');
+    $library.findSong(info.currentSongId).then(function(song) {
+      console.log(song);
+      delete info.currentSongId;
+      info.currentSong = song;
+      player.state = info;
+      player.trigger('info');
+    });
   }, _handleResponse = function(response) {
     player.state = response;
     player.trigger('update');

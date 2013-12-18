@@ -43,8 +43,7 @@ var network = require('./network');
 // API
 var api = require('./api');
 // ...library loading
-app.get('/api/songs', api.songs);
-app.get('/api/songs/(:offset)?/?', api.songs);
+app.get('/api/songs?/(:id)?/?', api.songs);
 
 // Start server
 var http = require('http');

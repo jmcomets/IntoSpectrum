@@ -16,7 +16,7 @@ var SongSchema = new Schema({
   album: String,
   year: Number,
   duration: Number
-});
+}, { versionKey: false });
 
 SongSchema.methods.fullPath = function() {
   return path.join(settings.media.root, this.path);

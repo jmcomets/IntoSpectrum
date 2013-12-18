@@ -15,17 +15,16 @@ function MainCtrl($scope, $player, $library) {
   // Pagination
   $scope.paginate = function() {
     $scope.loading = true;
-    $library.getSongs($scope.songs.length).then(function(songs) {
-      $scope.songs = $scope.songs.concat(songs);
+    $library.loadSongs().then(function() {
+      $scope.songs = $library.songs;
       $scope.loading = false;
     });
   };
 
   // Play a song
   $scope.play = function(song) {
-    console.log('ok');
     $player.play(song.id);
-    $scope.currentSong = song.id;
+    $scope.currentSong = song;
   };
 
   // Add a song to the playlist
