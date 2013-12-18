@@ -1,5 +1,4 @@
 function PlayerCtrl($scope, $player) {
-  $scope.random = true;
   $scope.playing = false;
   $scope.volume = 0;
   $scope.time = 0;
@@ -18,11 +17,6 @@ function PlayerCtrl($scope, $player) {
   $scope.togglePause = function() {
     $scope.playing = 1 - $scope.playing;
     $player.togglePause();
-  };
-
-  $scope.toggleRandom = function() {
-    $scope.random = 1 - $scope.random;
-    // TODO actually change the random mode
   };
 
   $scope.setVolume = function(volume) {
@@ -48,7 +42,6 @@ function PlayerCtrl($scope, $player) {
 
   var handleStateChange = function() {
     $scope.playing = this.state.playing;
-    //$scope.random = this.state.random;
     $scope.volume = parseFloat(this.state.volume);
     $scope.time = parseFloat(this.state.time);
     $scope.maxTime = parseFloat(this.state.timeMax);

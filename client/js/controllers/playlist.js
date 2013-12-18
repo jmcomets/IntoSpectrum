@@ -1,17 +1,21 @@
-function PlaylistCtrl($scope, $player) {
+function PlaylistCtrl($scope, $player, $library) {
   $scope.playlist = [];
-
-  $scope.play = function($index) {
-    alert('Playlist.play() not implemented!'); // TODO
-  };
 
   $scope.remove = function($index) {
     alert('Playlist.remove() not implemented!'); // TODO
   };
 
   $player.bind('info', function() {
-    if ($scope.playlist != this.state.playlist) {
-      $scope.playlist = this.state.playlist;
+    if ($scope.playlist.length != this.state.playlist.length) {
+      var playlist = this.state.playlist, newPlaylist = [];
+      angular.forEach(playlist, function(songId) {
+        $library.findSong(songId).then(function(song) {
+          newPlaylist.push(song);
+          if (newPlaylist.length == playlist.length) {
+            $scope.playlist = newPlaylist;
+          }
+        });
+      });
     }
   });
 }

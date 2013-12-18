@@ -36,15 +36,6 @@ function MainCtrl($scope, $player, $library) {
     $player.addAsNext(song.id);
   };
 
-  // Context menu
-  $scope.menu = {
-    open: function($evt, song) {
-      this.visible = true;
-      this.position = { x: $evt.pageX, y: $evt.pageY };
-      this.song = song;
-    }
-  };
-
   // Connection handling
   $scope.connected = false;
   $player.bind('connect', function() { $scope.connected = true; });

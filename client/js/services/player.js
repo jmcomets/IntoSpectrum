@@ -22,16 +22,17 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
   };
 
   // Socket response handlers (info/response)
-  var _handleInfo = function(info) {
+  var handleStateChange = function(state) {
+    player.state = state;
+  }, handleInfo = function(info) {
     $library.findSong(info.currentSongId).then(function(song) {
-      console.log(song);
       delete info.currentSongId;
       info.currentSong = song;
-      player.state = info;
+      handleStateChange(info);
       player.trigger('info');
     });
-  }, _handleResponse = function(response) {
-    player.state = response;
+  }, handleResponse = function(response) {
+    handleStateChange(response);
     player.trigger('update');
   };
 
@@ -85,8 +86,8 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
       clearInterval(intervalID);
       player.trigger('connected');
       this
-        .on('info', function(info) { _handleInfo(info); })
-        .on('response', function(response) { _handleResponse(response); })
+        .on('info', function(info) { handleInfo(info); })
+        .on('response', function(response) { handleResponse(response); })
       ;
     player._socket = socket;
     }).on('disconnect', function() {
