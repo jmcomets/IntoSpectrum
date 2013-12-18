@@ -25,6 +25,7 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
     return deferred.promise;
   };
 
+  $library.cachedSong = undefined;
   $library.findSong = function(songId) {
     var deferred = $q.defer();
     for (var key in this.songs) {
@@ -33,10 +34,19 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
         $rootScope.$safeApply(function() {
           deferred.resolve(song);
         });
+        return deferred.promise;
       }
     }
-    $http.get('/api/songs/' + songId).success(function(song) {
-      deferred.resolve(formatSong(song));
+
+    if ($library.cachedSong !== undefined && $library.cachedSong.id == songId) {
+      deferred.resolve($library.cachedSong);
+      return deferred.promise;
+    }
+
+    $http.get('/api/songs/' + songId).success(function(rawSong) {
+      var song = formatSong(rawSong);
+      $library.cachedSong= song;
+      deferred.resolve(song);
     }).error(function() {
       deferred.reject();
     });
