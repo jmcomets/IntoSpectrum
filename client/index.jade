@@ -72,10 +72,10 @@ head
                 div.col-md-9
                   | {{song.title}}
                 div.col-md-1
-                  a(href='#/playlist/{{song.id}}/play', data-ng-click='remove($index); play(song)')
+                  a(data-ng-click='remove($index); play(song)')
                     i.icon-play
                 div.col-md-1
-                  a(href='#/playlist/{{song.id}}/remove', data-ng-click='remove($index)')
+                  a(data-ng-click='remove($index)')
                     i.icon-remove
           //- Youtube
           div#tab-youtube.tab-pane(data-ng-controller='YoutubeCtrl')
@@ -112,17 +112,17 @@ head
         thead
           tr
             th
-              a(href='#/sort-by/title', data-ng-click='toggleSongsSort("title")')
+              a(data-ng-click='toggleSongsSort("title")')
                 | Title
             th
-              a(href='#/sort-by/artist', data-ng-click='toggleSongsSort("artist")')
+              a(data-ng-click='toggleSongsSort("artist")')
                 | Artist
             th
-              a(href='#/sort-by/album', data-ng-click='toggleSongsSort("album")')
+              a(data-ng-click='toggleSongsSort("album")')
                 | Album
-            th
-              a(href='#')
-                | Actions
+            //-th
+              //-a(href='#')
+                //-| Actions
         tbody(infinite-scroll='paginate()')
           tr.song-item(data-ng-class='{ active: song.id == currentSong.id }',
               data-ng-repeat='song in songs | orderBy:predicate:reverse')
