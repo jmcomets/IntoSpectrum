@@ -114,6 +114,9 @@ head
         thead
           tr
             th
+              a(href='#')
+                | Actions
+            th
               a(data-ng-click='toggleSongsSort("title")', title='Sort by title')
                 | Title
             th
@@ -122,23 +125,39 @@ head
             th
               a(data-ng-click='toggleSongsSort("album")', title='Sort by album')
                 | Album
-            //-th
-              //-a(href='#')
-                //-| Actions
         tbody(infinite-scroll='paginate()')
           tr.song-item(data-ng-class='{ active: song.id == currentSong.id }',
               data-ng-repeat='song in songs | orderBy:predicate:reverse')
-            td {{ song.title }}
-            td {{ song.artist }}
-            td {{ song.album }}
             td
-              div.btn-group
+              div.btn-group.visible-md.visible-lg
                 button.btn.btn-sm.btn-default(type='button', title='Play', data-ng-click='play(song)')
                   i.icon-play
                 button.btn.btn-sm.btn-default(type='button', title='Add to playlist', data-ng-click='addToPlaylist(song)')
                   i.icon-plus
                 button.btn.btn-sm.btn-default(type='button', title='Play next', data-ng-click='playNext(song)')
                   i.icon-arrow-right
+              div.btn-group.visible-xs.visible-sm
+                button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown')
+                  span.icon-wrench
+                ul.dropdown-menu
+                  li
+                    a(data-ng-click='play(song)', title='Play')
+                      i.icon-play
+                      | &nbsp;
+                      | Play
+                  li
+                    a(data-ng-click='addToPlaylist(song)', title='Add to playlist')
+                      i.icon-plus
+                      | &nbsp;
+                      | Add to playlist
+                  li
+                    a(data-ng-click='playNext(song)', title='Play next')
+                      i.icon-arrow-right
+                      | &nbsp;
+                      | Play next
+            td {{ song.title }}
+            td {{ song.artist }}
+            td {{ song.album }}
           tr(data-ng-show='loading')
             td.text-center(colspan=4)
               img.song-loader(src='img/loader.gif')
