@@ -7,7 +7,7 @@ angular.module('IntoSpectrum').factory('$shortcuts',
   var keyboardManagerService = {}, defaultOpt = {
     type:             'keydown',
     propagate:        false,
-    inputDisabled:    false,
+    inputDisabled:    true,
     target:           $window.document,
     keyCode:          false
   };
