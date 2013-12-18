@@ -23,28 +23,27 @@ to correspond to one of our favorite pokemon.
 
 - [Node.js][] (at least v0.10.17)
 - [Mplayer][]
-- [MySQL][] (current engine)
+- [Mongodb][] (current engine)
 
-### Watchdog requirements
+## Deploying
 
-- [Python 2.7][]
-- [mutagen][]
-- [peewee][]
+All client and server dependencies are included in the [bower.json][] and [package.json][] files, and so the installation of the server, assuming that all system requirements are met, is as simple as `npm install`, and the server can then be started by running `npm start`.
 
-[Virtualenv][] is recommended for deploying the watchdog.
+### Development server
+
+A [Gruntfile.js][] is available for running a development server, notably the `dev` task with will watch all js, css and less files for instant-regeneration.
 
 ## Authors
 - [Jean-Marie Comets][]
 - [Pierre Turpin][]
 
-[Python 2.7]: http://www.python.org/download/releases/2.7
-[mutagen]: https://code.google.com/p/mutagen
-[MySQL]: http://www.mysql.com
-[Virtualenv]: http://www.virtualenv.org
-[peewee]: https://github.com/coleifer/peewee
+[package.json]: ../../blob/master/package.json
+[bower.json]: ../../blob/master/bower.json
+[Gruntfile.js]: ../../blob/master/Gruntfile.js
 [Node.js]: http://nodejs.org
+[Mongodb]: http://www.mongodb.org
 [Mplayer]: http://mplayerhq.hu
 [Bootstrap 3]: http://getbootstrap.com
-[Spectrum image]: ../../blob/master/static/img/spectrum.jpg?raw=true
+[Spectrum image]: ../../blob/master/client/img/spectrum.jpg?raw=true
 [Jean-Marie Comets]: https://github.com/jmcomets
 [Pierre Turpin]: https://github.com/TurpIF
