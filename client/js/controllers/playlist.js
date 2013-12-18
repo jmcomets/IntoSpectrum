@@ -2,7 +2,7 @@ function PlaylistCtrl($scope, $player, $library) {
   $scope.playlist = [];
 
   $scope.remove = function($index) {
-    alert('Playlist.remove() not implemented!'); // TODO
+    console.error('Playlist.remove() not implemented!'); // TODO
   };
 
   $player.bind('info', function() {

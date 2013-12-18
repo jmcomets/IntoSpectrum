@@ -56,10 +56,10 @@ Player.prototype.info = function(callback) {
       'playlist': [],
     };
 
-    var formatOutSong = function(raw_song) {
-      var oldSong = raw_song._doc;
+    var formatOutSong = function(rawSong) {
+      var oldSong = rawSong._doc;
       if (oldSong === undefined) {
-        return raw_song;
+        return rawSong;
       } else {
         return oldSong._id;
       }
@@ -167,7 +167,7 @@ Player.prototype.play = function(id) {
   this._log('play', id);
   var self = this;
   Song.findById(id, function(err, song) {
-    if (err) {
+    if (err || !song) {
       self._log('bad id', id);
     } else {
       self._play(song);

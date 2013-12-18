@@ -1,4 +1,4 @@
-function PlayerCtrl($scope, $player) {
+function PlayerCtrl($scope, $player, $shortcuts) {
   $scope.playing = false;
   $scope.volume = 0;
   $scope.time = 0;
@@ -51,4 +51,8 @@ function PlayerCtrl($scope, $player) {
   $player.bind('update', handleStateChange);
   $player.bind('connect', function() { $player.load(); });
   $player.bind('disconnect', function() { });
+
+  $shortcuts.bind('space', function() { $scope.togglePause(); });
+  $shortcuts.bind('n', function() { $scope.next(); });
+  $shortcuts.bind('p', function() { $scope.previous(); });
 }
