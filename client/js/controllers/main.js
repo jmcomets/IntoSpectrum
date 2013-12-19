@@ -45,4 +45,16 @@ function MainCtrl($scope, $player, $library) {
   $player.bind('info', function() {
     $scope.currentSong = this.state.currentSong;
   });
+
+  // Context menu
+  $scope.menu = {
+    visible: false,
+    position: { x: 0, y: 0},
+    song: null,
+    open: function($evt, song) {
+      this.visible = true;
+      this.position = { x: $evt.pageX, y: $evt.pageY };
+      this.song = song;
+    }
+  };
 }
