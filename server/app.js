@@ -24,7 +24,6 @@ app.set('port', process.env.PORT || 3000);
 
 // Static files
 var staticFilesDir = path.join(__dirname, '..', 'public');
-console.log(staticFilesDir);
 app.use(express.static(staticFilesDir));
 
 // Favicon
