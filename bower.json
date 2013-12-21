@@ -1,6 +1,6 @@
 {
   "name": "IntoSpectrum",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "homepage": "https://github.com/jmcomets/IntoSpectrum",
   "authors": [
     "Jean-Marie Comets <jean.marie.comets@gmail.com>",
@@ -20,6 +20,7 @@
     "jquery-ui": "~1.10.3",
     "font-awesome": "~3.2.1",
     "bootstrap": "~3.0.0",
-    "angular": "~1.0.8"
+    "angular": "~1.0.8",
+    "socket.io-client": "~0.9.16"
   }
 }

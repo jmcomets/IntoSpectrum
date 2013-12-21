@@ -1,7 +1,0 @@
-{
-    "host": "localhost",
-    "port": 27017,
-    "name": "into_spectrum",
-    "user": "root",
-    "password": ""
-}

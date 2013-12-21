@@ -1,17 +1,12 @@
 {
   "name": "IntoSpectrum",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "scripts": {
     "install": "./node_modules/.bin/bower install && ./node_modules/.bin/grunt",
-    "start": "node server/app.js"
+    "start": "python server/app.py"
   }, "dependencies": {
-    "express": "~3.3.8",
-    "socket.io": "~0.9.16",
-    "bower": "~1.2.6",
-    "id3": "0.0.3",
-    "file": "*",
-    "mongoose": "*",
+    "bower": "*",
     "grunt": "*",
     "grunt-cli": "*",
     "grunt-contrib-copy": "*",
