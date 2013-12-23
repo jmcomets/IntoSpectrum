@@ -2,27 +2,7 @@ import os
 import sys
 from flask import Flask, request, Response
 from socketio import socketio_manage
-from socketio.namespace import BaseNamespace
-
-class FlaskNamespace(BaseNamespace):
-    def __init__(self, *args, **kwargs):
-        request = kwargs.get('request', None)
-        self.ctx = None
-        if request:
-            self.ctx = current_app.request_context(request.environ)
-            self.ctx.push()
-            current_app.preprocess_request()
-            del kwargs['request']
-        super(BaseNamespace, self).__init__(*args, **kwargs)
-
-    def disconnect(self, *args, **kwargs):
-        if self.ctx:
-            self.ctx.pop()
-        super(BaseNamespace, self).disconnect(*args, **kwargs)
-
-class PlayerNamespace(FlaskNamespace):
-    def on_info(self, msg):
-        print 'info:', msg
+from player import PlayerNamespace
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 public_dir = os.path.join(this_dir, '..', 'public')
