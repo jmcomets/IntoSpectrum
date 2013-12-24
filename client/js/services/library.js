@@ -15,7 +15,7 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
         song.title = (song.title) ? song.title : function(str) {
           str = str.substring(str.lastIndexOf('/') + 1, str.length);
           return str.substring(0, str.lastIndexOf('.'));
-        } (song.path);
+        } (song.file);
         $library.songs.push(formatSong(song));
       });
       $rootScope.$safeApply(function() {
