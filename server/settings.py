@@ -1,0 +1,2 @@
+FLASK_HOST, FLASK_PORT = '127.0.0.1', 8080
+MPD_HOST, MPD_PORT = 'localhost', '6600'
