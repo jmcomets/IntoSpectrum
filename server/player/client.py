@@ -1,4 +1,5 @@
 import threading
+from functools import wraps
 import mpd
 import settings
 
@@ -13,6 +14,7 @@ class Client(object):
     def __getattr__(self, attr):
         actual_attr = getattr(_global_client, attr)
         if callable(actual_attr):
+            @wraps(actual_attr)
             def inner(*args, **kwargs):
                 with _global_lock:
                     retval = actual_attr(*args, **kwargs)

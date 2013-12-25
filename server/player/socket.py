@@ -1,6 +1,7 @@
 import time
 import threading
 import logging
+from functools import wraps
 from socketio.namespace import BaseNamespace
 from .client import Client
 
@@ -28,11 +29,13 @@ class Namespace(BaseNamespace):
         """
         actual_attr = super(Namespace, self).__getattribute__(attr)
         if attr.startswith('on_') and callable(actual_attr):
-            logger.log('event: %s', attr.replace('on_', '', 1))
+            event = attr.replace('on_', '', 1)
+            @wraps(actual_attr)
             def inner(*args, **kwargs):
                 with self.lock:
                     retval = actual_attr(*args, **kwargs)
                 return retval
+            logger.info('event: %s', event)
             return inner
         return actual_attr
 
@@ -40,6 +43,17 @@ class Namespace(BaseNamespace):
         status = self.client.status()
         logger.info('status: %s', status)
         return status
+
+    def _send_command(self, cmd):
+        logger.info('sending command: %s', cmd)
+        return getattr(self.client, cmd)()
+
+    # TODO set this up at runtime
+    on_play = lambda self: self._send_command('play')
+    on_stop = lambda self: self._send_command('stop')
+    on_next = lambda self: self._send_command('next')
+    on_previous = lambda self: self._send_command('previous')
+    on_toggle = lambda self: self._send_command('toggle')
 
     def on_info(self):
         self.emit('info', self.get_status())
@@ -59,12 +73,3 @@ class Namespace(BaseNamespace):
 
     def on_playlist_move(self, from_idx, to_idx):
         pass
-
-# generate similar (very simple) methods for Namespace class
-for cmd in ('play', 'stop', 'toggle', 'next', 'previous'):
-    def _cmd_fn(self):
-        fn = getattr(self.client, cmd)
-        if not callable(fn):
-            raise ValueError('Generated function should be callable')
-        return fn()
-    setattr(Namespace, 'on_%s' % cmd, _cmd_fn)
