@@ -68,9 +68,9 @@ head
               a(data-ng-click='toggleSongsSort("album")', title='Sort by album')
                 | Album
         tbody(infinite-scroll='paginate()')
-          tr.song-item(data-ng-class='{ active: song.id == currentSong.id }',
-              data-ng-right-click='menu.open($event, song)',
-              data-ng-repeat='song in songs | orderBy:predicate:reverse')
+          tr.song-item(data-ng-repeat='song in songs | orderBy:predicate:reverse',
+              data-ng-class='{ active: song.id == currentSong.id }',
+              data-ng-click='play(song)', data-ng-right-click='menu.open($event, song)')
             td.visible-xs.visible-sm
               div.btn-group
                 button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown')

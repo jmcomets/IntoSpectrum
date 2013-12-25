@@ -15,7 +15,9 @@
     "grunt-contrib-uglify": "*",
     "grunt-contrib-less": "*",
     "grunt-contrib-jade": "*"
-  }, "devDependencies": {
-    "grunt-contrib-watch": "*"
+  },
+  "devDependencies": {
+    "grunt-contrib-watch": "*",
+    "grunt-contrib-uglify": "*"
   }
 }
