@@ -13,6 +13,10 @@ app = Flask('IntoSpectrum', static_folder=public_dir, static_url_path='')
 def root():
     return app.send_static_file('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('img/favicon.ico')
+
 @app.route('/socket.io/<path:path>')
 def run_socketio(path):
     socketio_manage(request.environ, { '/player': Namespace })
