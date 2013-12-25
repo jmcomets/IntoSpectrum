@@ -50,52 +50,47 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
     });
   })({
     load:           function() { this._socket.emit('info'); },
-    stop:           function() { this._socket.emit('stop', this.state.currentSong.id); },
+    stop:           function() { this._socket.emit('stop'); },
     next:           function() { this._socket.emit('next'); },
     previous:       function() { this._socket.emit('previous'); },
-    togglePause:    function() { this._socket.emit(this.state.playing ? 'pause' : 'unpause', this.state.currentSong.id); },
+    togglePause:    function() { this._socket.emit('toggle'); },
     youtube:        function(url) { this._socket.emit('youtube', encodeURI(url)); },
     setTime:        function(time) { this._socket.emit('time', this.state.currentSong.id, time); },
     setVolume:      function(volume) { this._socket.emit('volume', volume); },
     play:           function(songId) { this._socket.emit('play', songId); },
-    addAsNext:      function(songId) { this._socket.emit('addToPlaylist', songId, 0); },
-    addToPlaylist:  function(songId) { this._socket.emit('addToPlaylist', songId, -1); },
-    moveInPlaylist: function(from, to) { this._socket.emit('move', from, to); }
+    addAsNext:      function(songId) { this._socket.emit('playlist_add', songId, 0); },
+    addToPlaylist:  function(songId) { this._socket.emit('playlist_add', songId, -1); },
+    moveInPlaylist: function(from, to) { this._socket.emit('playlist_move', from, to); }
   });
 
   // Socket connection
-  (function(url) {
-    // Try to connect until connected
-    var socket = io.connect(url);
+  var socket = io.connect('/player');
 
-    // Reconnect interval ID
-    var intervalID = -1;
-    // ...reconnect setup
-    var tryReconnect = function(seconds) {
-      intervalID = setInterval(function() {
-        if (!socket.socket.connected && !socket.socket.connecting) {
-          socket.socket.connect();
-        }
-      }, seconds*1000);
-    };
+  // Try to connect until connected
+  var intervalID = -1, tryReconnect = function(seconds) {
+    intervalID = setInterval(function() {
+      if (!socket.socket.connected && !socket.socket.connecting) {
+        socket.socket.connect();
+      }
+    }, seconds*1000);
+  };
 
-    // Try to reconnect immediately (applied after 2 seconds, unless failure)
-    tryReconnect(2);
+  // Try to reconnect immediately (applied after 2 seconds, unless failure)
+  tryReconnect(2);
 
-    socket.on('connect', function() {
-      clearInterval(intervalID);
-      player.trigger('connected');
-      this
-        .on('info', function(info) { handleInfo(info); })
-        .on('response', function(response) { handleResponse(response); })
-      ;
+  socket.on('connect', function() {
+    clearInterval(intervalID);
+    player.trigger('connected');
     player._socket = socket;
-    }).on('disconnect', function() {
-      tryReconnect(5);
-      player._socket = undefined;
-      player.trigger('disconnected');
-    });
-  })('/player');
+  }).on('disconnect', function() {
+    tryReconnect(5);
+    player._socket = undefined;
+    player.trigger('disconnected');
+  }).on('info', function(info) {
+    handleInfo(info);
+  }).on('response', function(response) {
+    handleResponse(response);
+  });
 
-  return player
+  return player;
 });

@@ -3,7 +3,8 @@ import sys
 from gevent import monkey; monkey.patch_all()
 from flask import Flask, request, jsonify, abort
 from socketio import socketio_manage
-from player import Namespace, database
+import player
+from player import database
 
 this_dir = os.path.dirname(os.path.realpath(__file__))
 public_dir = os.path.join(this_dir, '..', 'public')
@@ -18,8 +19,8 @@ def favicon():
     return app.send_static_file('img/favicon.ico')
 
 @app.route('/socket.io/<path:path>')
-def run_socketio(path):
-    socketio_manage(request.environ, { '/player': Namespace })
+def socketio_service(path):
+    socketio_manage(request.environ, { '/player': player.Namespace }, request)
 
 # song database api
 
@@ -46,7 +47,7 @@ if __name__ == '__main__':
     import settings
     host, address = settings.FLASK_HOST, settings.FLASK_PORT
     print 'Server started on http://%s:%s' % (host, address)
-    app.debug = '--debug' in sys.argv
+    app.debug = '--debug' in sys.argv or settings.DEBUG
     real_app = SharedDataMiddleware(app, { '/': public_dir })
     SocketIOServer((host, address), real_app, namespace='socket.io',
             policy_server=False).serve_forever()
