@@ -66,7 +66,14 @@ if __name__ == '__main__':
     # start server
     host, address = settings.FLASK_HOST, settings.FLASK_PORT
     app.debug = '--debug' in sys.argv or settings.DEBUG
-    logger.info('starting server on http://%s:%s, debug=%s', host, address, app.debug)
+    logger.info('server started on http://%s:%s, debug=%s',
+            host, address, app.debug)
     real_app = SharedDataMiddleware(app, { '/': public_dir })
-    SocketIOServer((host, address), real_app, namespace='socket.io',
-            policy_server=False).serve_forever()
+    server = SocketIOServer((host, address), real_app,
+            namespace='socket.io', policy_server=False)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        logger.info('server stopped')
+    except Exception as e:
+        logger.exception(e)
