@@ -1,27 +1,16 @@
 import time
 import threading
-import logging
 from functools import wraps
 from socketio.namespace import BaseNamespace
-from .client import Client
+from . import client
+import settings
 
-logger = logging.getLogger(__name__)
-def _configure_logger():
-    global logger
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-_configure_logger()
+logger = settings.getLogger(__name__)
 
 class Namespace(BaseNamespace):
     def __init__(self, *args, **kwargs):
         super(Namespace, self).__init__(*args, **kwargs)
         logger.info('initializing namespace')
-        self.client = Client()
-        self.lock = threading.Lock()
 
     def __getattribute__(self, attr):
         """
@@ -40,13 +29,13 @@ class Namespace(BaseNamespace):
         return actual_attr
 
     def get_status(self):
-        status = self.client.status()
+        status = client.status()
         logger.info('status: %s', status)
         return status
 
     def _send_command(self, cmd):
         logger.info('sending command: %s', cmd)
-        return getattr(self.client, cmd)()
+        return getattr(client, cmd)()
 
     # TODO set this up at runtime
     on_play = lambda self: self._send_command('play')
@@ -66,7 +55,7 @@ class Namespace(BaseNamespace):
         except ValueError:
             pass
         else:
-            self.client.seek(time)
+            client.seek(time)
 
     def on_playlist_add(self, song_id, idx):
         pass
