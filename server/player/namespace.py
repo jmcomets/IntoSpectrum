@@ -68,22 +68,13 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
                 return inner
         return actual_attr
 
-    def format_status(self, status):
-        status['id'] = status['songid']
-        status['time'] = status['elapsed']
-        status['playing'] = status['state'] != 'stop'
-        ignored_keys = ['songid', 'playlistlength', 'playlist', 'consume',
-                'mixrampdb', 'state', 'xfade', 'mixrampdelay', 'nextsong',
-                'song', 'nextsongid', 'single', 'bitrate', 'audio', 'elapsed']
-        status['playlist'] = []
-        for key in ignored_keys:
-            del status[key]
-        return status
+    def update(self):
+        status = get_status()
+        logger.info('status: %s', status)
+        self.send_status('info', status)
 
     def get_status(self):
         status = self.client.status()
-        status = self.format_status(status)
-        logger.info('status: %s', status)
         return status
 
     def send_status(self, event):
