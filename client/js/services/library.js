@@ -2,9 +2,6 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
   var $library = { songs: [] };
 
   var formatSong = function(song) {
-    song.id = song._id;
-    delete song._id;
-    delete song.__v;
     return song;
   };
 

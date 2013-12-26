@@ -1,6 +1,10 @@
 angular.module('IntoSpectrum').service('$youtube', function($rootScope, $http, $q) {
   return {
-    search: function(query) {
+    emit: function() {
+      // TODO
+    }, play: function(url) {
+      this.emit('youtube', encodeURI(url));
+    }, search: function(query) {
       var url = 'https://gdata.youtube.com/feeds/api/videos?alt=json&q=' + encodeURI(query),
         deferred = $q.defer();
       $http.get(url).success(function(data) {

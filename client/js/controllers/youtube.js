@@ -12,5 +12,8 @@ function YoutubeCtrl($scope, $player, $youtube) {
     });
   };
 
-  $scope.play = function(url) { $player.youtube(url); };
+  $scope.play = function(url) {
+    $player.pause();
+    $youtube.play(url);
+  };
 }

@@ -4,6 +4,7 @@ from functools import wraps
 from socketio.namespace import BaseNamespace
 from socketio.mixins import BroadcastMixin
 from .client import get_client
+from . import database
 import settings
 
 logger = settings.getLogger(__name__)
@@ -45,7 +46,7 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         super(Namespace, self).__init__(*args, **kwargs)
         logger.info('initializing namespace')
         self.client = get_client()
-        self.schedule_every(self.send_info, self.UPDATE_INTERVAL)
+        self.schedule_every(self.send_info, self.UPDATE_INTERVAL, target_id=__name__)
 
     def __getattribute__(self, attr):
         """
@@ -58,9 +59,12 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
             if event != 'info':
                 @wraps(actual_attr)
                 def inner(*args, **kwargs):
-                    retval = actual_attr(*args, **kwargs)
-                    self.send_response()
-                    return retval
+                    try:
+                        retval = actual_attr(*args, **kwargs)
+                        self.send_response()
+                        return retval
+                    except TypeError as e:
+                        logger.exception(e)
                 return inner
         return actual_attr
 
@@ -78,7 +82,7 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
 
     def get_status(self):
         status = self.client.status()
-        #status = format_status(status)
+        status = self.format_status(status)
         logger.info('status: %s', status)
         return status
 
@@ -93,11 +97,15 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         ret = getattr(self.client, cmd)()
 
     # TODO set this up at runtime
-    on_play = lambda self: self._send_command('play')
     on_stop = lambda self: self._send_command('stop')
     on_next = lambda self: self._send_command('next')
     on_previous = lambda self: self._send_command('previous')
-    on_toggle = lambda self: self._send_command('toggle')
+    on_pause = lambda self: self._send_command('pause')
+    on_unpause = lambda self: self._send_command('play')
+
+    def on_play(self, song_id):
+        #self.client.play(song_id + 1)
+        pass
 
     def on_info(self):
         self.send_info()
@@ -111,6 +119,16 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
             pass
         else:
             self.client.seek(time)
+
+    def on_volume(self, volume):
+        try:
+            volume = int(volume)
+            if 100 < volume < 0:
+                raise ValueError
+        except ValueError:
+            pass
+        else:
+            self.client.setvol(volume)
 
     def on_playlist_add(self, song_id, idx):
         pass

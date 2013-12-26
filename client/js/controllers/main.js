@@ -29,11 +29,11 @@ function MainCtrl($scope, $player, $library) {
 
   // Add a song to the playlist
   $scope.addToPlaylist = function(song) {
-    $player.addToPlaylist(song.id);
+    console.error('Main.addToPlaylist() not implemented!'); // TODO
   };
 
   $scope.playNext = function(song) {
-    $player.addAsNext(song.id);
+    console.error('Main.playNext() not implemented!'); // TODO
   };
 
   // Connection handling
@@ -44,6 +44,7 @@ function MainCtrl($scope, $player, $library) {
   // Updating
   $player.bind('info', function() {
     $scope.currentSong = this.state.currentSong;
+    console.log($scope.currentSong);
   });
 
   // Context menu
