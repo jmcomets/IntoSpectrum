@@ -46,7 +46,7 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         super(Namespace, self).__init__(*args, **kwargs)
         logger.info('initializing namespace')
         self.client = get_client()
-        self.schedule_every(self.send_info, self.UPDATE_INTERVAL, target_id=__name__)
+        self.schedule_every(self.update, self.UPDATE_INTERVAL, target_id=__name__)
 
     def __getattribute__(self, attr):
         """
@@ -69,9 +69,9 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         return actual_attr
 
     def update(self):
-        status = get_status()
+        status = self.get_status()
         logger.info('status: %s', status)
-        self.send_status('info', status)
+        self.broadcast_event('info', status)
 
     def get_status(self):
         status = self.client.status()

@@ -5,10 +5,10 @@ function MainCtrl($scope, $player, $library) {
   $scope.currentSong = { id: -1 };
 
   // Song list sorting
-  $scope.predicate = "";
+  $scope.predicate = '';
   $scope.reverse = false;
   $scope.toggleSongsSort = function(key) {
-    $scope.predicate = "artist";
+    $scope.predicate = 'artist';
     $scope.reverse = !$scope.reverse;
   };
 
@@ -29,11 +29,11 @@ function MainCtrl($scope, $player, $library) {
 
   // Add a song to the playlist
   $scope.addToPlaylist = function(song) {
-    console.error('Main.addToPlaylist() not implemented!'); // TODO
+    console.error('MainCtrl.addToPlaylist() not implemented!'); // TODO
   };
 
   $scope.playNext = function(song) {
-    console.error('Main.playNext() not implemented!'); // TODO
+    console.error('MainCtrl.playNext() not implemented!'); // TODO
   };
 
   // Connection handling
@@ -43,8 +43,7 @@ function MainCtrl($scope, $player, $library) {
 
   // Updating
   $player.bind('info', function() {
-    $scope.currentSong = this.state.currentSong;
-    console.log($scope.currentSong);
+    $scope.currentSong = this.state.song;
   });
 
   // Context menu

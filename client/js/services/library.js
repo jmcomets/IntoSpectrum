@@ -24,7 +24,11 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
 
   $library.cachedSong = undefined;
   $library.findSong = function(songId) {
-    var deferred = $q.defer();
+    var deferred = $q.defer(), mockPromise = { then: function() {}, error: function() {} };
+    if (songId === undefined) {
+        return mockPromise;
+    }
+
     for (var key in this.songs) {
       var song = this.songs[key];
       if (song.id == songId) {

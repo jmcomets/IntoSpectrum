@@ -49,8 +49,7 @@ function PlayerCtrl($scope, $player, $shortcuts) {
 
   $player.bind('info', handleStateChange);
   $player.bind('update', handleStateChange);
-  $player.bind('connect', function() { $player.load(); });
-  $player.bind('disconnect', function() { });
+  $player.bind('response', handleStateChange);
 
   $shortcuts.bind('space', function() { $scope.togglePause(); });
   $shortcuts.bind('n', function() { $scope.next(); });

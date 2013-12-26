@@ -4,25 +4,24 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
     state: {},
     emit: function() {
       var socket = this.socket;
-      console.log('emitting', arguments);
+      console.log('$player.emitting', arguments);
       socket.emit.apply(socket, arguments);
     }
   };
   $events.mixin(player);
 
   // Socket response handlers (info/response)
-  var handleStateChange = function(state) {
-    player.state = state;
-  }, handleInfo = function(info) {
-    $library.findSong(info.id).then(function(song) {
-      delete info.id;
-      info.currentSong = song;
-      handleStateChange(info);
-      player.trigger('info');
+  var handleStateChange = function(state, evt) {
+    $library.findSong(state.songid).then(function(song) {
+      state.song = song;
+      state.playing = state.state == 'play';
+      player.state = state;
+      player.trigger(evt);
     });
+  }, handleInfo = function(info) {
+    handleStateChange(info, 'info');
   }, handleResponse = function(response) {
-    handleStateChange(response);
-    player.trigger('update');
+    handleStateChange(response, 'response');
   };
 
   // Player interface
