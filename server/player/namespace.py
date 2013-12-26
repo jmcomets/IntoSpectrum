@@ -2,15 +2,50 @@ import time
 import threading
 from functools import wraps
 from socketio.namespace import BaseNamespace
-from . import client
+from socketio.mixins import BroadcastMixin
+from .client import get_client
 import settings
 
 logger = settings.getLogger(__name__)
 
-class Namespace(BaseNamespace):
+class ScheduleMixin(object):
+    """
+    Gevent-socketio namespace mixin, adding a simple scheduling mechanism.
+
+    Example usage:
+    >>> class MyNamespace(BaseNamespace, ScheduleMixin):
+    >>>     def __init__(self, *args, **kwargs):
+    >>>         super(MyNamespace, self).__init__(*args, **kwargs)
+    >>>         self.schedule_every(self.foo, 5) # update every 5 seconds
+    """
+    def schedule_every(self, target, timeout, target_id=None, args=[], kwargs={}):
+        if target_id is None:
+            target_id = id(target)
+        if target_id in self.scheduled:
+            return
+        self.scheduled.add(target_id)
+        def inner():
+            while True:
+                target(*args, **kwargs)
+                time.sleep(timeout)
+        thread = threading.Thread(target=inner)
+        thread.daemon = True
+        thread.start()
+
+    @property
+    def scheduled(self):
+        if not hasattr(self.socket.server, 'scheduled'):
+            self.socket.server.scheduled = set()
+        return self.socket.server.scheduled
+
+class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
+    UPDATE_INTERVAL = 5
+
     def __init__(self, *args, **kwargs):
         super(Namespace, self).__init__(*args, **kwargs)
         logger.info('initializing namespace')
+        self.client = get_client()
+        self.schedule_every(self.send_info, self.UPDATE_INTERVAL)
 
     def __getattribute__(self, attr):
         """
@@ -19,23 +54,43 @@ class Namespace(BaseNamespace):
         actual_attr = super(Namespace, self).__getattribute__(attr)
         if attr.startswith('on_') and callable(actual_attr):
             event = attr.replace('on_', '', 1)
-            @wraps(actual_attr)
-            def inner(*args, **kwargs):
-                with self.lock:
-                    retval = actual_attr(*args, **kwargs)
-                return retval
             logger.info('event: %s', event)
-            return inner
+            if event != 'info':
+                @wraps(actual_attr)
+                def inner(*args, **kwargs):
+                    retval = actual_attr(*args, **kwargs)
+                    self.send_response()
+                    return retval
+                return inner
         return actual_attr
 
+    def format_status(self, status):
+        status['id'] = status['songid']
+        status['time'] = status['elapsed']
+        status['playing'] = status['state'] != 'stop'
+        ignored_keys = ['songid', 'playlistlength', 'playlist', 'consume',
+                'mixrampdb', 'state', 'xfade', 'mixrampdelay', 'nextsong',
+                'song', 'nextsongid', 'single', 'bitrate', 'audio', 'elapsed']
+        status['playlist'] = []
+        for key in ignored_keys:
+            del status[key]
+        return status
+
     def get_status(self):
-        status = client.status()
+        status = self.client.status()
+        #status = format_status(status)
         logger.info('status: %s', status)
         return status
 
+    def send_status(self, event):
+        self.broadcast_event(event, self.get_status())
+
+    send_info = lambda self: self.send_status('info')
+    send_response = lambda self: self.send_status('response')
+
     def _send_command(self, cmd):
         logger.info('sending command: %s', cmd)
-        return getattr(client, cmd)()
+        ret = getattr(self.client, cmd)()
 
     # TODO set this up at runtime
     on_play = lambda self: self._send_command('play')
@@ -45,7 +100,7 @@ class Namespace(BaseNamespace):
     on_toggle = lambda self: self._send_command('toggle')
 
     def on_info(self):
-        self.emit('info', self.get_status())
+        self.send_info()
 
     def on_time(self, time):
         try:
@@ -55,7 +110,7 @@ class Namespace(BaseNamespace):
         except ValueError:
             pass
         else:
-            client.seek(time)
+            self.client.seek(time)
 
     def on_playlist_add(self, song_id, idx):
         pass

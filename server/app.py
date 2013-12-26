@@ -41,7 +41,7 @@ def get_songs():
 def find_song(song_id):
     try:
         return jsonify(database.find_song_by_id(int(song_id)))
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         abort(404)
 
 if __name__ == '__main__':
