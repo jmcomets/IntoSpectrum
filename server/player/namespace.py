@@ -39,7 +39,37 @@ class ScheduleMixin(object):
             self.socket.server.scheduled = set()
         return self.socket.server.scheduled
 
+def value_checked(f):
+    """
+    Decorator wrapping any function that raises a ValueError, logging any
+    failures.
+    """
+    @wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except ValueError as e:
+            logger.warning('invalid value sent: %s', e)
+    return inner
+
+def not_implemented(f):
+    """
+    Decorator wrapping any function, marking it as not implemented, and
+    replacing its call with a simple log message.
+    """
+    @wraps(f)
+    def inner(*args, **kwargs):
+        logger.error('%s not implemented', f.func_name)
+    if inner.func_doc is None:
+        inner.func_doc = ''
+    inner.func_doc += 'Marked as not implemented.'
+    return inner
+
 class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
+    """
+    Player socket namespace, handling all global player controls, such as
+    play/pause/stop/etc, as well as volume and player status updating.
+    """
     UPDATE_INTERVAL = 5
 
     def __init__(self, *args, **kwargs):
@@ -50,7 +80,7 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
 
     def __getattribute__(self, attr):
         """
-        Make sure the lock is applied by wrapping any on_* methods.
+        Wrap on_* callables, in order to log events and send responses.
         """
         actual_attr = super(Namespace, self).__getattribute__(attr)
         if attr.startswith('on_') and callable(actual_attr):
@@ -59,70 +89,94 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
             if event != 'info':
                 @wraps(actual_attr)
                 def inner(*args, **kwargs):
-                    try:
-                        retval = actual_attr(*args, **kwargs)
-                        self.send_response()
-                        return retval
-                    except TypeError as e:
-                        logger.exception(e)
+                    retval = actual_attr(*args, **kwargs)
+                    self.send_response()
+                    return retval
                 return inner
         return actual_attr
 
-    def update(self):
-        status = self.get_status()
-        logger.info('status: %s', status)
-        self.broadcast_event('info', status)
-
     def get_status(self):
-        status = self.client.status()
+        """
+        Wrapper to get client status.
+        """
+        return self.client.status()
+
+    def send_status(self, event, single=False):
+        """
+        Send a status update specified with a particular event, defining the
+        update behaviour. If single evaluates to True, update only this
+        namespace's client, otherwise broadcast to all. Return the status sent.
+        """
+        status = self.get_status()
+        if single:
+            self.emit(event, status)
+        else:
+            self.broadcast_event(event, status)
         return status
 
-    def send_status(self, event):
-        self.broadcast_event(event, self.get_status())
+    # wrappers for status updates
 
     send_info = lambda self: self.send_status('info')
     send_response = lambda self: self.send_status('response')
 
-    def _send_command(self, cmd):
+    def update(self):
+        """
+        Send a status update marked as 'info' and log it. This method is
+        scheduled to run every UPDATE_INTERVAL seconds.
+        """
+        logger.info('status: %s', self.send_info())
+
+    def send_command(self, cmd):
+        """
+        Send a command to the mdp client, handling any possible errors, and
+        returning the command's output.
+        """
         logger.info('sending command: %s', cmd)
-        ret = getattr(self.client, cmd)()
+        try:
+            ret = getattr(self.client, cmd)()
+        except mpd.CommandError as e:
+            logger.warning('not a command: %s', cmd)
+        else:
+            return ret
+
+    def on_info(self):
+        """
+        Explicit request for status update.
+        """
+        self.send_info()
 
     # TODO set this up at runtime
-    on_stop = lambda self: self._send_command('stop')
-    on_next = lambda self: self._send_command('next')
-    on_previous = lambda self: self._send_command('previous')
-    on_pause = lambda self: self._send_command('pause')
-    on_unpause = lambda self: self._send_command('play')
 
+    on_stop = lambda self: self.send_command('stop')
+    on_next = lambda self: self.send_command('next')
+    on_previous = lambda self: self.send_command('previous')
+    on_pause = lambda self: self.send_command('pause')
+    on_unpause = lambda self: self.send_command('play')
+
+    @not_implemented
     def on_play(self, song_id):
+        """
+        Request to play a specific song by its database id.
+        """
         #self.client.play(song_id + 1)
         pass
 
-    def on_info(self):
-        self.send_info()
-
+    @value_checked
     def on_time(self, time):
-        try:
-            time = float(time)
-            if 100 < time < 0:
-                raise ValueError
-        except ValueError:
-            pass
-        else:
-            self.client.seek(time)
+        """
+        Request to set the current song's time.
+        """
+        time = float(time)
+        if time < 0:
+            raise ValueError
+        self.client.seek(time)
 
+    @value_checked
     def on_volume(self, volume):
-        try:
-            volume = int(volume)
-            if 100 < volume < 0:
-                raise ValueError
-        except ValueError:
-            pass
-        else:
-            self.client.setvol(volume)
-
-    def on_playlist_add(self, song_id, idx):
-        pass
-
-    def on_playlist_move(self, from_idx, to_idx):
-        pass
+        """
+        Request to set the player's volume.
+        """
+        volume = int(volume)
+        if 100 < volume < 0:
+            raise ValueError
+        self.client.setvol(volume)
