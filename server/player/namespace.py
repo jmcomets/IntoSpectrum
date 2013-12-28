@@ -186,3 +186,9 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         Request to set the random mode (evaluated as a bool).
         """
         self.client.random(int(bool(random)))
+
+    def on_repeat(self, repeat):
+        """
+        Request to set the repeat mode (evaluated as a bool).
+        """
+        self.client.repeat(int(bool(repeat)))

@@ -1,6 +1,7 @@
 function PlayerCtrl($scope, $player, $shortcuts) {
   $scope.playing = false;
   $scope.random = false;
+  $scope.repeat = false;
   $scope.volume = 0;
   $scope.time = 0;
   $scope.maxTime = 0;
@@ -23,6 +24,11 @@ function PlayerCtrl($scope, $player, $shortcuts) {
   $scope.toggleRandom = function() {
     $scope.random = 1 - $scope.random;
     $player.toggleRandom();
+  };
+
+  $scope.toggleRepeat = function() {
+    $scope.repeat = 1 - $scope.repeat;
+    $player.toggleRepeat();
   };
 
   $scope.setVolume = function(volume) {
@@ -49,6 +55,7 @@ function PlayerCtrl($scope, $player, $shortcuts) {
   var handleStateChange = function() {
     $scope.playing = this.state.playing;
     $scope.random = this.state.random;
+    $scope.repeat = this.state.repeat;
     $scope.volume = parseFloat(this.state.volume);
     $scope.time = parseFloat(this.state.time);
     $scope.maxTime = parseFloat(this.state.timeMax);
