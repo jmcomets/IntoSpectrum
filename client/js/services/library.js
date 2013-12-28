@@ -24,9 +24,9 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
 
   $library.cachedSong = undefined;
   $library.findSong = function(songId) {
-    var deferred = $q.defer(), mockPromise = { then: function() {}, error: function() {} };
+    var deferred = $q.defer();
     if (songId === undefined) {
-        return mockPromise;
+      return deferred.promise;
     }
 
     for (var key in this.songs) {
@@ -44,7 +44,7 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
       return deferred.promise;
     }
 
-    $http.get('/api/songs/' + songId).success(function(rawSong) {
+    $http.get('/api/songs/' + songId + '/').success(function(rawSong) {
       var song = formatSong(rawSong);
       $library.cachedSong= song;
       deferred.resolve(song);

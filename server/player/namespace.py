@@ -180,3 +180,9 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         if 100 < volume < 0:
             raise ValueError
         self.client.setvol(volume)
+
+    def on_random(self, random):
+        """
+        Request to set the random mode (evaluated as a bool).
+        """
+        self.client.random(int(bool(random)))

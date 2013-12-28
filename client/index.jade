@@ -36,7 +36,7 @@ html(data-ng-app='IntoSpectrum', data-ng-controller='MainCtrl',
               data-placement='bottom', title='"{{ currentSong.title }}" by {{ currentSong.artist }}')
               div#play-progress.progress-bar(data-ng-style='{ width: 100*time/maxTime + "%" }')
           div.nav.nav-controls.col-md-3
-            div.col-md-7
+            div.col-md-8
               form.navbar-form.form-inline
                 div.btn-group
                   button.btn.btn-default(data-ng-click='previous()', type='button', title='Previous')
@@ -46,7 +46,10 @@ html(data-ng-app='IntoSpectrum', data-ng-controller='MainCtrl',
                     i.icon-pause(data-ng-show='playing')
                   button.btn.btn-default(data-ng-click='next()', type='button', title='Next')
                     i.icon-step-forward
-            div.col-md-5
+                  button.btn.btn-default(data-ng-click='toggleRandom()', type='button', title='Toggle random mode',
+                    data-ng-class="{'active': random}")
+                    i.icon-random
+            div.col-md-4
               div.slider(title='Change volume (current: {{ volume }})',
                   data-ng-model='volume', data-slider, data-slider-orientation='horizontal',
                   data-slider-slide='setVolume(volume)', data-slider-min='0', data-slider-max='100')

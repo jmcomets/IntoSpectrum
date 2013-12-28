@@ -34,15 +34,21 @@ def get_songs():
         limit = int(request.args.get('limit', 100))
     except ValueError:
         abort(404)
-    songs = database.get_songs(offset, limit)
-    return jsonify({ 'songs': songs, 'next': len(songs) > 0 })
+    else:
+        songs = database.get_songs(offset, limit)
+        return jsonify({ 'songs': songs, 'next': len(songs) > 0 })
 
 @app.route('/api/songs/<song_id>/')
 def find_song(song_id):
     try:
-        return jsonify(database.find_song_by_id(int(song_id)))
-    except (TypeError, ValueError):
+        song_id = int(song_id)
+    except ValueError:
         abort(404)
+    else:
+        song = database.find_song_by_id(song_id)
+        if song is None:
+            abort(404)
+        return jsonify(song)
 
 if __name__ == '__main__':
     import shlex, subprocess as sp

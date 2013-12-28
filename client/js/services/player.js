@@ -15,6 +15,7 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
     $library.findSong(state.songid).then(function(song) {
       state.song = song;
       state.playing = state.state == 'play';
+      state.random = state.random == 1 || state.random == '1';
       player.state = state;
       player.trigger(evt);
     });
@@ -36,13 +37,18 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
     previous:       function() { this.emit('previous'); },
     pause:          function() { this.emit('pause'); },
     unpause:        function() { this.emit('unpause'); },
-    togglePause:    function() {
+    setTime:        function(time) { this.emit('time', time); },
+    setRandom:      function(random) { this.emit('random', random); },
+    setVolume:      function(volume) { this.emit('volume', volume); },
+    load:           function() { this.emit('info'); },
+
+
+    // Toggle actions
+    toggleRandom: function() { this.setRandom(1 - this.state.random); },
+    togglePause: function() {
       if (this.state.playing) { this.pause(); }
       else { this.unpause(); }
-    },
-    setTime:        function(time) { this.emit('time', time); },
-    setVolume:      function(volume) { this.emit('volume', volume); },
-    load:           function() { this.emit('info'); }
+    }
   });
 
   // Socket connection
