@@ -50,12 +50,11 @@ def find_song(song_id):
             abort(404)
         return jsonify(song)
 
-if __name__ == '__main__':
+def start_mpd():
+    """
+    Start mpd if not started, connect client to correct address/port.
+    """
     import shlex, subprocess as sp
-    from werkzeug.wsgi import SharedDataMiddleware
-    from socketio.server import SocketIOServer
-
-    # start mpd
     logger.info('starting mpd')
     mpd_retcode = sp.call(shlex.split(settings.MPD_COMMAND),
             stdout=sp.PIPE, stderr=sp.PIPE)
@@ -65,9 +64,20 @@ if __name__ == '__main__':
         logger.info('mpd started')
     client.connect(settings.MPD_HOST, settings.MPD_PORT)
 
-    # setup database
+def start_db():
+    """
+    Setup database for usage. Requires mpd to be started.
+    """
     client.get_client().update()
     database.generate()
+
+if __name__ == '__main__':
+    from werkzeug.wsgi import SharedDataMiddleware
+    from socketio.server import SocketIOServer
+
+    # start mpd/database
+    start_mpd()
+    start_db()
 
     # start server
     host, address = settings.FLASK_HOST, settings.FLASK_PORT
