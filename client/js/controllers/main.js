@@ -2,7 +2,7 @@ function MainCtrl($scope, $player, $library) {
   // List of song models
   $scope.songs = [];
   // ...current playing song
-  $scope.currentSong = { id: -1 };
+  $scope.currentSong = {};
 
   // Song list sorting
   $scope.predicate = '';

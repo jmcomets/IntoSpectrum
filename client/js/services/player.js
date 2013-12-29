@@ -12,14 +12,11 @@ angular.module('IntoSpectrum').factory('$player', function ($rootScope, $q, $lib
 
   // Socket response handlers (info/response)
   var handleStateChange = function(state, evt) {
-    $library.findSong(state.songid).then(function(song) {
-      state.song = song;
-      state.playing = state.state == 'play';
-      state.random = state.random == 1 || state.random == '1';
-      state.repeat = state.repeat == 1 || state.repeat == '1';
-      player.state = state;
-      player.trigger(evt);
-    });
+    state.playing = state.state == 'play';
+    state.random = state.random == 1 || state.random == '1';
+    state.repeat = state.repeat == 1 || state.repeat == '1';
+    player.state = state;
+    player.trigger(evt);
   }, handleInfo = function(info) {
     handleStateChange(info, 'info');
   }, handleResponse = function(response) {

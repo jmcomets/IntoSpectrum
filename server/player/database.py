@@ -12,14 +12,12 @@ def generate():
     # grab and reset globals
     global _files
     _files = []
+    _directories = []
 
     # (re)generate
     client = get_client()
-    for song in client.listallinfo():
-        if 'file' not in song:
-            _files.append(song)
-        else:
-            logger.warning('unknown song format: %s', song)
+    for song in client.playlistinfo():
+        _files.append(song)
     logger.info('database generated')
 
 def get_current_song():
@@ -39,3 +37,7 @@ def get_songs(offset, limit):
     except IndexError as e:
         logger.warning('bad index given while getting songs: %s', e)
     return []
+
+def find_song_by_id(id_):
+    if id_ > 0 and id_ < len(_files):
+        return _files[id_]

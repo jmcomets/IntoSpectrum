@@ -50,6 +50,10 @@ def find_song(song_id):
             abort(404)
         return jsonify(song)
 
+@app.route('/api/current_song/')
+def get_current_song():
+    return jsonify(database.get_current_song())
+
 def start_mpd():
     """
     Start mpd if not started, connect client to correct address/port.

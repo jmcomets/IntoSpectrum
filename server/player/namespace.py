@@ -52,19 +52,6 @@ def value_checked(f):
             logger.warning('invalid value sent: %s', e)
     return inner
 
-def not_implemented(f):
-    """
-    Decorator wrapping any function, marking it as not implemented, and
-    replacing its call with a simple log message.
-    """
-    @wraps(f)
-    def inner(*args, **kwargs):
-        logger.error('%s not implemented', f.func_name)
-    if inner.func_doc is None:
-        inner.func_doc = ''
-    inner.func_doc += 'Marked as not implemented.'
-    return inner
-
 class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
     """
     Player socket namespace, handling all global player controls, such as
@@ -99,7 +86,9 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         """
         Wrapper to get client status.
         """
-        return self.client.status()
+        status = self.client.status()
+        status['song'] = self.client.currentsong()
+        return status
 
     def send_status(self, event, single=False):
         """
@@ -153,13 +142,15 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
     on_pause = lambda self: self.send_command('pause')
     on_unpause = lambda self: self.send_command('play')
 
-    @not_implemented
+    @value_checked
     def on_play(self, song_id):
         """
-        Request to play a specific song by its database id.
+        Request to play a specific song by its filename.
         """
-        #self.client.play(song_id + 1)
-        pass
+        song_id = int(song_id)
+        if song_id < 0:
+            raise ValueError
+        self.client.play(song_id)
 
     @value_checked
     def on_time(self, time):

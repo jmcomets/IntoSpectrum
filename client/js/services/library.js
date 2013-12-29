@@ -22,37 +22,5 @@ angular.module('IntoSpectrum').service('$library', function($rootScope, $http, $
     return deferred.promise;
   };
 
-  $library.cachedSong = undefined;
-  $library.findSong = function(songId) {
-    var deferred = $q.defer();
-    if (songId === undefined) {
-      return deferred.promise;
-    }
-
-    for (var key in this.songs) {
-      var song = this.songs[key];
-      if (song.id == songId) {
-        $rootScope.$safeApply(function() {
-          deferred.resolve(song);
-        });
-        return deferred.promise;
-      }
-    }
-
-    if ($library.cachedSong !== undefined && $library.cachedSong.id == songId) {
-      deferred.resolve($library.cachedSong);
-      return deferred.promise;
-    }
-
-    $http.get('/api/songs/' + songId + '/').success(function(rawSong) {
-      var song = formatSong(rawSong);
-      $library.cachedSong= song;
-      deferred.resolve(song);
-    }).error(function() {
-      deferred.reject();
-    });
-    return deferred.promise;
-  };
-
   return $library;
 });
