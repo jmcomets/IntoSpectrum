@@ -168,7 +168,7 @@ class Namespace(BaseNamespace, BroadcastMixin, ScheduleMixin):
         Request to set the player's volume.
         """
         volume = int(volume)
-        if 100 < volume < 0:
+        if volume < 0 or 100 < volume:
             raise ValueError
         self.client.setvol(volume)
 
